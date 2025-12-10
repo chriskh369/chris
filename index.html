@@ -1133,55 +1133,165 @@
         let viewingItem = null;
 
         // ========== INIT ==========
-        function init() {
-            loadData();
+        async function init() {
+            await loadData();
             renderCourses();
         }
 
-        function loadData() {
-            const saved = localStorage.getItem('studyhub_chris_v5');
-            if (saved) {
-                appData = JSON.parse(saved);
-            } else {
-                COURSES.forEach(course => {
-                    appData[course.id] = {};
-                    CATEGORIES.forEach(cat => {
-                        appData[course.id][cat.id] = [];
-                        let count = 0, prefix = '';
-                        if (cat.id === 'presentations') { count = 12; prefix = 'מצגת'; }
-                        else if (cat.id === 'summariesCourse') { count = 4; prefix = 'סיכום קורס'; }
-                        else if (cat.id === 'summariesPractice') { count = 4; prefix = 'סיכום תרגול'; }
-                        else if (cat.id === 'homework') { count = 6; prefix = 'שיעורי בית'; }
-                        else if (cat.id === 'hwSolutions') { count = 6; prefix = 'פתרון ש"ב'; }
-                        else if (cat.id === 'assignments') { count = 3; prefix = 'עבודה'; }
-                        else if (cat.id === 'assignmentSolutions') { count = 3; prefix = 'פתרון עבודה'; }
-                        else if (cat.id === 'formulas') { count = 1; prefix = 'דף נוסחאות'; }
+        function createDefaultData() {
+            COURSES.forEach(course => {
+                appData[course.id] = {};
+                CATEGORIES.forEach(cat => {
+                    appData[course.id][cat.id] = [];
+                    let count = 0, prefix = '';
+                    if (cat.id === 'presentations') { count = 12; prefix = 'מצגת'; }
+                    else if (cat.id === 'summariesCourse') { count = 4; prefix = 'סיכום קורס'; }
+                    else if (cat.id === 'summariesPractice') { count = 4; prefix = 'סיכום תרגול'; }
+                    else if (cat.id === 'homework') { count = 6; prefix = 'שיעורי בית'; }
+                    else if (cat.id === 'hwSolutions') { count = 6; prefix = 'פתרון ש"ב'; }
+                    else if (cat.id === 'assignments') { count = 3; prefix = 'עבודה'; }
+                    else if (cat.id === 'assignmentSolutions') { count = 3; prefix = 'פתרון עבודה'; }
+                    else if (cat.id === 'formulas') { count = 1; prefix = 'דף נוסחאות'; }
 
-                        for (let i = 1; i <= count; i++) {
-                            appData[course.id][cat.id].push({
-                                title: count === 1 ? prefix : `${prefix} ${i}`,
-                                fileName: null,
-                                fileType: null,
-                                fileData: null,
-                                uploader: null,
-                                uploadDate: null,
-                                completed: false
-                            });
-                        }
-                    });
+                    for (let i = 1; i <= count; i++) {
+                        appData[course.id][cat.id].push({
+                            title: count === 1 ? prefix : `${prefix} ${i}`,
+                            fileName: null,
+                            fileType: null,
+                            fileData: null,
+                            uploader: null,
+                            uploadDate: null,
+                            completed: false
+                        });
+                    }
                 });
-                saveData();
+            });
+        }
+
+        let db = null;
+
+        function openDB() {
+            return new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open('StudyHubDB', 1);
+                    request.onerror = (e) => {
+                        console.error('DB open error:', e);
+                        resolve(null);
+                    };
+                    request.onsuccess = () => {
+                        db = request.result;
+                        console.log('DB opened successfully');
+                        resolve(db);
+                    };
+                    request.onupgradeneeded = (e) => {
+                        console.log('DB upgrade needed');
+                        const database = e.target.result;
+                        if (!database.objectStoreNames.contains('data')) {
+                            database.createObjectStore('data', { keyPath: 'id' });
+                        }
+                    };
+                } catch(e) {
+                    console.error('DB exception:', e);
+                    resolve(null);
+                }
+            });
+        }
+
+        async function loadData() {
+            // Open IndexedDB
+            await openDB();
+
+            // Try IndexedDB first
+            if (db) {
+                try {
+                    const data = await new Promise((resolve) => {
+                        const tx = db.transaction(['data'], 'readonly');
+                        const store = tx.objectStore('data');
+                        const request = store.get('appData');
+                        request.onsuccess = () => resolve(request.result?.data);
+                        request.onerror = () => resolve(null);
+                    });
+                    if (data) {
+                        appData = data;
+                        return;
+                    }
+                } catch(e) {}
             }
+
+            // Try localStorage
+            try {
+                const saved = localStorage.getItem('studyhub_chris_v5');
+                if (saved) {
+                    appData = JSON.parse(saved);
+                    return;
+                }
+            } catch(e) {}
+
+            // Create default
+            createDefaultData();
         }
 
         function saveData() {
+            // Save to IndexedDB
+            if (db) {
+                try {
+                    const tx = db.transaction(['data'], 'readwrite');
+                    const store = tx.objectStore('data');
+                    const request = store.put({ id: 'appData', data: appData });
+                    request.onerror = (e) => {
+                        console.error('IndexedDB save error:', e);
+                    };
+                    tx.oncomplete = () => {
+                        console.log('Data saved to IndexedDB');
+                    };
+                } catch(e) {
+                    console.error('IndexedDB error:', e);
+                }
+            }
+            // Also try localStorage (may fail for large files)
             try {
                 localStorage.setItem('studyhub_chris_v5', JSON.stringify(appData));
-                return true;
             } catch (e) {
-                console.error('localStorage error:', e);
-                return false;
+                console.log('localStorage full, using IndexedDB only');
             }
+            return true;
+        }
+
+        // Export data to file
+        function exportData() {
+            const dataStr = JSON.stringify(appData, null, 2);
+            const blob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'studyhub_backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('הנתונים יוצאו בהצלחה!');
+        }
+
+        // Import data from file
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        appData = JSON.parse(ev.target.result);
+                        saveData();
+                        showToast('הנתונים יובאו בהצלחה!');
+                        renderCourses();
+                    } catch(err) {
+                        alert('שגיאה בקריאת הקובץ');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
         }
 
         // ========== NAVIGATION ==========
