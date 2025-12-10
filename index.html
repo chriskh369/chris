@@ -1033,6 +1033,169 @@
 
         .toast i { font-size: 1.2rem; text-shadow: 0 0 15px rgba(255,255,255,0.5); }
 
+        /* Login Screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(34, 211, 238, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .login-box {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 60px rgba(139, 92, 246, 0.15);
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .login-logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899, #22d3ee);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+            color: white;
+        }
+
+        .login-logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #fff, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-title {
+            text-align: center;
+            color: #e0e7ff;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form .form-group label {
+            display: block;
+            color: #a78bfa;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .login-form .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(139, 92, 246, 0.08);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.15s ease-out;
+        }
+
+        .login-form .form-group input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899, #22d3ee);
+            background-size: 200% auto;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .login-btn:hover {
+            background-position: right center;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .login-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            color: #f87171;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: all 0.15s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 15px 20px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar { width: 60px; }
@@ -1046,6 +1209,32 @@
     </style>
 </head>
 <body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">
+                <div class="login-logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <h1>StudyHub</h1>
+            </div>
+            <p class="login-title">התחבר כדי לגשת לחומרי הלימוד</p>
+            <div class="login-error" id="loginError">שם משתמש או סיסמה שגויים</div>
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>שם משתמש</label>
+                    <input type="text" id="loginUsername" placeholder="הכנס שם משתמש" required>
+                </div>
+                <div class="form-group">
+                    <label>סיסמה</label>
+                    <input type="password" id="loginPassword" placeholder="הכנס סיסמה" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    התחבר
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-header">
@@ -1060,6 +1249,10 @@
             <span>קורסים</span>
         </div>
 
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>התנתק</span>
+        </button>
     </nav>
 
     <!-- Main Content -->
@@ -1103,6 +1296,61 @@
     </div>
 
     <script>
+        // ========== LOGIN SYSTEM ==========
+        // Set your username and password here
+        const VALID_USERS = [
+            { username: 'chris', password: '1234' },
+            { username: 'admin', password: 'admin123' }
+        ];
+
+        let isLoggedIn = false;
+
+        function checkLogin() {
+            const session = sessionStorage.getItem('studyhub_logged_in');
+            if (session === 'true') {
+                isLoggedIn = true;
+                document.getElementById('loginScreen').style.display = 'none';
+                return true;
+            }
+            document.getElementById('loginScreen').style.display = 'flex';
+            return false;
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            const validUser = VALID_USERS.find(u =>
+                u.username.toLowerCase() === username.toLowerCase() && u.password === password
+            );
+
+            if (validUser) {
+                isLoggedIn = true;
+                sessionStorage.setItem('studyhub_logged_in', 'true');
+                sessionStorage.setItem('studyhub_current_user', validUser.username);
+                localStorage.setItem('studyhub_username', validUser.username);
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('loginError').classList.remove('show');
+                showToast('ברוך הבא, ' + validUser.username + '!');
+            } else {
+                document.getElementById('loginError').classList.add('show');
+                document.getElementById('loginPassword').value = '';
+            }
+        }
+
+        function logout() {
+            if (confirm('האם אתה בטוח שברצונך להתנתק?')) {
+                isLoggedIn = false;
+                sessionStorage.removeItem('studyhub_logged_in');
+                sessionStorage.removeItem('studyhub_current_user');
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                showToast('התנתקת בהצלחה');
+            }
+        }
+
         // ========== DATA ==========
         const COURSES = [
             { id: 1, name: 'מתמטיקה 2', icon: 'fa-square-root-alt', color: '#818cf8' },
@@ -1134,6 +1382,7 @@
 
         // ========== INIT ==========
         async function init() {
+            checkLogin();
             await loadData();
             renderCourses();
         }
