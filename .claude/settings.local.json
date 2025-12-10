@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(python -m http.server:*)",
+      "Bash(powershell -Command \"Import-Excel ''c:\\Users\\Chris\\OneDrive\\מסמכים\\GitHub\\chris\\college\\Book1.xlsx'' | Format-Table -AutoSize\")",
+      "Bash(powershell -Command:*)",
+      "Bash(pip install:*)",
+      "Bash(python3:*)",
+      "Bash(python read_excel.py:*)",
+      "Bash(copy \"c:\\Users\\Chris\\OneDrive\\מסמכים\\GitHub\\chris\\college-app.html\" \"c:\\Users\\Chris\\OneDrive\\מסמכים\\GitHub\\chris\\index.html\")",
+      "Bash(powershell:*)",
+      "Bash(iconv:*)",
+      "Bash(copy:*)",
+      "Bash(start chrome:*)",
+      "Bash(start \"\" \"c:\\Users\\Chris\\OneDrive\\מסמכים\\GitHub\\chris\\StartStudyHub.bat\")",
+      "Bash(npm install:*)",
+      "Bash(surge:*)"
+    ]
+  }
+}
