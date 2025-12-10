@@ -18,7 +18,9 @@
       "Bash(start chrome:*)",
       "Bash(start \"\" \"c:\\Users\\Chris\\OneDrive\\מסמכים\\GitHub\\chris\\StartStudyHub.bat\")",
       "Bash(npm install:*)",
-      "Bash(surge:*)"
+      "Bash(surge:*)",
+      "Bash(printf:*)",
+      "Bash(echo:*)"
     ]
   }
 }
