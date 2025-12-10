@@ -20,7 +20,15 @@
       "Bash(npm install:*)",
       "Bash(surge:*)",
       "Bash(printf:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth status)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth login --web)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api repos/chriskh369/chris/pages -X POST -f build_type=legacy -f source[branch]=main -f source[path]=\"/\")",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" repo edit chriskh369/chris --visibility public)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" repo edit chriskh369/chris --visibility public --accept-visibility-change-consequences)",
+      "Bash(start \"\" \"https://chriskh369.github.io/chris/\")",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api repos/chriskh369/chris/pages)",
+      "Bash(ping:*)"
     ]
   }
 }
