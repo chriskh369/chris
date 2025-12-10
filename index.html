@@ -417,6 +417,35 @@
 
         .item-meta i { margin-left: 4px; }
 
+        .uploaders-list {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid color-mix(in srgb, var(--color) 15%, transparent);
+        }
+
+        .uploader-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: #a78bfa;
+            padding: 4px 0;
+        }
+
+        .uploader-line i {
+            color: var(--color);
+            font-size: 0.75rem;
+        }
+
+        .uploader-count {
+            background: rgba(139, 92, 246, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: #c4b5fd;
+            margin-right: auto;
+        }
+
         .item-notes {
             margin-bottom: 15px;
             padding-bottom: 12px;
@@ -1731,6 +1760,24 @@
                     ` : items.map((item, idx) => {
                         const filesCount = item.files ? item.files.length : (item.fileName ? 1 : 0);
                         const notesCount = item.notes && item.notes.length ? item.notes.length : 0;
+
+                        // Group files by uploader
+                        const uploaderCounts = {};
+                        if (item.files && item.files.length > 0) {
+                            item.files.forEach(file => {
+                                const name = file.uploader || 'אנונימי';
+                                uploaderCounts[name] = (uploaderCounts[name] || 0) + 1;
+                            });
+                        } else if (item.uploader) {
+                            uploaderCounts[item.uploader] = 1;
+                        }
+
+                        const uploadersHtml = Object.keys(uploaderCounts).length > 0
+                            ? Object.entries(uploaderCounts).map(([name, count]) =>
+                                `<div class="uploader-line"><i class="fas fa-user"></i> ${name} <span class="uploader-count">${count} קבצים</span></div>`
+                            ).join('')
+                            : '';
+
                         return `
                         <div class="item-card ${item.completed ? 'completed' : ''} ${item.fileName ? 'has-file' : ''}">
                             <div class="item-header" onclick="viewItem(${idx})">
@@ -1742,8 +1789,8 @@
                                     <div class="item-meta">
                                         ${filesCount > 0 ? `<span class="item-file-badge"><i class="fas fa-file"></i> ${filesCount} קבצים</span>` : '<span style="opacity:0.5">אין קבצים</span>'}
                                         ${notesCount > 0 ? `<span class="item-file-badge" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1)); border-color: rgba(139, 92, 246, 0.3); color: #a78bfa;"><i class="fas fa-sticky-note"></i> ${notesCount} הערות</span>` : ''}
-                                        ${item.uploader ? `<span><i class="fas fa-user"></i> ${item.uploader}</span>` : ''}
                                     </div>
+                                    ${uploadersHtml ? `<div class="uploaders-list">${uploadersHtml}</div>` : ''}
                                 </div>
                             </div>
                             <div class="item-actions">
