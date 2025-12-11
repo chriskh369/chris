@@ -2318,7 +2318,13 @@
         // ========== INIT ==========
         async function init() {
             checkLogin();
-            await loadData();
+            try {
+                await loadData();
+            } catch(e) {
+                console.log('Load data error:', e);
+                createDefaultData();
+            }
+            // Always render courses on load
             renderCourses();
         }
 
