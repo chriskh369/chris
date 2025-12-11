@@ -1294,12 +1294,20 @@
 
             .course-grid {
                 grid-template-columns: repeat(3, 1fr) !important;
-                gap: 10px;
+                gap: 12px;
             }
-            .course-card { padding: 15px; border-radius: 14px; }
-            .course-card-icon { width: 45px; height: 45px; font-size: 18px; margin-bottom: 10px; }
-            .course-card-name { font-size: 0.9rem; }
-            .course-card-count { font-size: 0.75rem; margin-top: 6px; }
+            .course-card {
+                padding: 15px;
+                border-radius: 16px;
+                aspect-ratio: 1 / 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            .course-card-icon { width: 50px; height: 50px; font-size: 22px; margin-bottom: 12px; }
+            .course-card-name { font-size: 0.95rem; text-align: center; }
+            .course-card-count { font-size: 0.8rem; margin-top: 8px; }
 
             /* Inside course - back button */
             .back-btn {
