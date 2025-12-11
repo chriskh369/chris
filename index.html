@@ -1229,24 +1229,8 @@
             background: rgba(239, 68, 68, 0.2);
         }
 
-        /* Responsive - Tablets */
-        @media (max-width: 768px) {
-            .sidebar { width: 60px; }
-            .sidebar-header { padding: 10px; }
-            .logo h1 { display: none; }
-            .menu-item span { display: none; }
-            .main { margin-right: 60px; padding: 15px; }
-            .category-bar { gap: 6px; padding: 8px; }
-            .category-tab { padding: 8px 12px; font-size: 0.8rem; }
-            .logout-btn span { display: none; }
-            .logout-btn { justify-content: center; padding: 10px; }
-            .items-grid { grid-template-columns: 1fr; }
-            .course-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
-            .back-btn { right: 75px; padding: 10px 15px; font-size: 0.9rem; }
-        }
-
         /* Responsive - Mobile phones */
-        @media (max-width: 480px) {
+        @media (max-width: 900px) {
             .sidebar {
                 width: 100%;
                 height: auto;
@@ -1256,13 +1240,14 @@
                 right: 0;
                 left: 0;
                 border-left: none;
-                border-top: 1px solid rgba(139, 92, 246, 0.2);
+                border-top: 2px solid rgba(139, 92, 246, 0.3);
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-around;
-                padding: 10px 0;
+                padding: 15px 0;
                 z-index: 100;
+                background: rgba(15, 12, 41, 0.98);
             }
             .sidebar-header {
                 padding: 0;
@@ -1270,52 +1255,54 @@
                 margin-bottom: 0;
             }
             .logo { gap: 0; }
-            .logo-icon { width: 35px; height: 35px; font-size: 14px; }
+            .logo-icon { width: 45px; height: 45px; font-size: 18px; }
             .logo h1 { display: none; }
             .menu-item {
-                padding: 10px 15px;
+                padding: 15px 25px;
                 border-right: none;
                 border-bottom: 3px solid transparent;
+                font-size: 1.3rem;
             }
             .menu-item.active { border-bottom-color: #ec4899; border-right-color: transparent; }
             .menu-item span { display: none; }
             .logout-btn {
                 position: static;
                 margin: 0;
-                padding: 10px 15px;
+                padding: 15px 25px;
+                font-size: 1.3rem;
             }
             .logout-btn span { display: none; }
 
             .main {
                 margin-right: 0;
-                padding: 15px 10px 80px 10px;
+                padding: 25px 20px 120px 20px;
             }
 
             /* Course home page */
             .page-title {
-                font-size: 1.5rem;
-                margin-bottom: 20px;
+                font-size: 2rem;
+                margin-bottom: 30px;
                 padding-top: 0;
             }
 
             .course-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 10px;
+                gap: 18px;
             }
-            .course-card { padding: 15px; border-radius: 14px; }
-            .course-card-icon { width: 40px; height: 40px; font-size: 16px; margin-bottom: 10px; }
-            .course-card-name { font-size: 0.95rem; }
-            .course-card-count { font-size: 0.75rem; }
+            .course-card { padding: 25px; border-radius: 18px; }
+            .course-card-icon { width: 60px; height: 60px; font-size: 24px; margin-bottom: 15px; }
+            .course-card-name { font-size: 1.3rem; }
+            .course-card-count { font-size: 1rem; margin-top: 8px; }
 
             /* Inside course - categories and items */
             .back-btn {
                 position: relative;
                 top: auto;
                 right: auto;
-                padding: 10px 15px;
-                font-size: 0.85rem;
+                padding: 16px 24px;
+                font-size: 1.1rem;
                 z-index: 50;
-                margin-bottom: 15px;
+                margin-bottom: 25px;
                 display: inline-flex;
             }
 
@@ -1323,178 +1310,187 @@
                 flex-wrap: nowrap;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                padding: 8px;
-                gap: 6px;
-                margin-bottom: 15px;
+                padding: 12px;
+                gap: 10px;
+                margin-bottom: 25px;
             }
             .category-tab {
-                padding: 8px 12px;
-                font-size: 0.7rem;
+                padding: 14px 20px;
+                font-size: 1.05rem;
                 white-space: nowrap;
             }
             .category-tab i { display: none; }
-            .category-tab .count { padding: 2px 5px; font-size: 0.6rem; }
+            .category-tab .count { padding: 4px 10px; font-size: 0.9rem; margin-right: 8px; }
 
             .items-header {
-                margin-bottom: 15px;
+                margin-bottom: 25px;
                 flex-direction: row;
-                gap: 10px;
+                gap: 15px;
             }
-            .items-title { font-size: 1rem; }
-            .add-btn { padding: 8px 14px; font-size: 0.75rem; }
+            .items-title { font-size: 1.5rem; }
+            .add-btn { padding: 14px 24px; font-size: 1.1rem; }
 
             .items-grid {
                 grid-template-columns: 1fr;
-                gap: 12px;
+                gap: 18px;
             }
-            .item-card { padding: 15px; border-radius: 14px; }
-            .item-header { flex-direction: column; gap: 10px; }
-            .item-checkbox { width: 22px; height: 22px; }
-            .item-checkbox i { font-size: 10px; }
-            .item-title { font-size: 0.95rem; }
-            .item-meta { font-size: 0.7rem; flex-wrap: wrap; justify-content: center; gap: 6px; }
-            .item-file-badge { font-size: 0.65rem; padding: 2px 6px; }
-            .uploaders-list { margin-top: 8px; padding-top: 8px; }
-            .uploader-line { font-size: 0.7rem; justify-content: center; }
-            .uploader-count { font-size: 0.6rem; }
+            .item-card { padding: 22px; border-radius: 18px; }
+            .item-header { flex-direction: column; gap: 15px; }
+            .item-checkbox { width: 32px; height: 32px; }
+            .item-checkbox i { font-size: 16px; }
+            .item-title { font-size: 1.4rem; }
+            .item-meta { font-size: 1.05rem; flex-wrap: wrap; justify-content: center; gap: 12px; }
+            .item-file-badge { font-size: 1rem; padding: 6px 14px; }
+            .uploaders-list { margin-top: 15px; padding-top: 15px; }
+            .uploader-line { font-size: 1.05rem; justify-content: center; padding: 6px 0; }
+            .uploader-count { font-size: 0.95rem; padding: 5px 12px; }
 
             .item-actions {
                 flex-wrap: wrap;
-                gap: 6px;
+                gap: 12px;
                 justify-content: center;
+                margin-top: 20px;
+                padding-top: 20px;
             }
             .item-action-btn {
-                padding: 8px 10px;
-                font-size: 0.7rem;
+                padding: 16px 22px;
+                font-size: 1.1rem;
                 flex: 1;
                 min-width: 45%;
                 justify-content: center;
+                border-radius: 14px;
             }
-            .item-action-btn i { margin-left: 4px; }
+            .item-action-btn i { margin-left: 8px; }
 
             /* Item detail page */
             .item-detail {
-                padding: 15px 12px 30px 12px;
-                border-radius: 16px;
-                margin-top: 10px;
+                padding: 25px 20px 40px 20px;
+                border-radius: 20px;
+                margin-top: 20px;
             }
             .item-detail-header {
-                gap: 10px;
-                margin-bottom: 20px;
-                padding-bottom: 15px;
+                gap: 18px;
+                margin-bottom: 30px;
+                padding-bottom: 25px;
                 flex-direction: column;
             }
-            .item-detail-icon { width: 45px; height: 45px; font-size: 18px; }
-            .item-detail-title { font-size: 1.2rem; }
-            .item-detail-section { margin-bottom: 20px; }
-            .item-detail-section h4 { font-size: 0.95rem; margin-bottom: 10px; }
-            .item-detail-info { padding: 10px 12px; font-size: 0.85rem; }
+            .item-detail-icon { width: 65px; height: 65px; font-size: 26px; }
+            .item-detail-title { font-size: 1.6rem; }
+            .item-detail-section { margin-bottom: 30px; }
+            .item-detail-section h4 { font-size: 1.25rem; margin-bottom: 15px; }
+            .item-detail-info { padding: 18px 20px; font-size: 1.1rem; }
 
             .detail-actions {
                 flex-direction: column;
-                gap: 8px;
-                margin-top: 25px;
-                padding-top: 20px;
+                gap: 14px;
+                margin-top: 35px;
+                padding-top: 30px;
             }
             .detail-btn {
-                padding: 12px 18px;
-                font-size: 0.9rem;
+                padding: 18px 26px;
+                font-size: 1.2rem;
             }
             .detail-btn-return {
-                padding: 10px 16px;
-                font-size: 0.85rem;
+                padding: 16px 22px;
+                font-size: 1.1rem;
             }
 
             /* Files section */
             .file-preview {
-                padding: 12px;
-                margin-bottom: 10px;
+                padding: 22px;
+                margin-bottom: 15px;
             }
-            .file-preview i { font-size: 1.8rem; margin-bottom: 10px; }
-            .file-preview h4 { font-size: 0.85rem; word-break: break-all; }
-            .file-preview p { font-size: 0.7rem; }
+            .file-preview i { font-size: 2.5rem; margin-bottom: 15px; }
+            .file-preview h4 { font-size: 1.15rem; word-break: break-all; }
+            .file-preview p { font-size: 1rem; }
             .file-preview-actions {
                 flex-direction: column;
-                gap: 6px;
+                gap: 12px;
             }
             .file-preview-actions .detail-btn {
                 width: 100%;
-                padding: 10px 15px;
-                font-size: 0.85rem;
+                padding: 16px 22px;
+                font-size: 1.1rem;
             }
 
-            .no-file { padding: 20px; }
-            .no-file i { font-size: 1.8rem; margin-bottom: 10px; }
-            .no-file h4 { font-size: 0.9rem; }
-            .no-file p { font-size: 0.75rem; }
+            .no-file { padding: 35px; }
+            .no-file i { font-size: 2.5rem; margin-bottom: 15px; }
+            .no-file h4 { font-size: 1.25rem; }
+            .no-file p { font-size: 1.05rem; }
 
             /* Notes section */
-            .notes-section { padding: 8px 10px; }
-            .note-item { padding: 10px; margin-bottom: 8px; }
-            .note-header { font-size: 0.7rem; flex-wrap: wrap; gap: 6px; }
-            .note-text { font-size: 0.8rem; }
+            .notes-section { padding: 15px 18px; }
+            .note-item { padding: 18px; margin-bottom: 12px; }
+            .note-header { font-size: 1rem; flex-wrap: wrap; gap: 10px; }
+            .note-text { font-size: 1.1rem; line-height: 1.6; }
             .add-note-form textarea {
-                min-height: 50px;
-                font-size: 0.85rem;
-                padding: 10px;
+                min-height: 70px;
+                font-size: 1.1rem;
+                padding: 15px;
             }
             .add-note-form .detail-btn {
-                padding: 10px 16px;
-                font-size: 0.85rem;
+                padding: 16px 24px;
+                font-size: 1.1rem;
             }
 
             /* Login screen mobile */
-            .login-screen { padding: 15px; }
+            .login-screen { padding: 25px; }
             .login-box {
-                padding: 25px 20px;
+                padding: 35px 30px;
                 margin: 0;
                 max-width: 100%;
             }
-            .login-logo { gap: 10px; margin-bottom: 20px; }
-            .login-logo-icon { width: 45px; height: 45px; font-size: 18px; }
-            .login-logo h1 { font-size: 1.5rem; }
-            .login-title { font-size: 0.95rem; margin-bottom: 20px; }
-            .login-form .form-group { margin-bottom: 15px; }
-            .login-form .form-group label { font-size: 0.85rem; }
-            .login-form .form-group input { padding: 12px 14px; font-size: 0.95rem; }
-            .login-btn { padding: 14px; font-size: 1rem; }
-            .login-error { padding: 10px; font-size: 0.85rem; }
+            .login-logo { gap: 15px; margin-bottom: 30px; }
+            .login-logo-icon { width: 65px; height: 65px; font-size: 26px; }
+            .login-logo h1 { font-size: 2rem; }
+            .login-title { font-size: 1.2rem; margin-bottom: 30px; }
+            .login-form .form-group { margin-bottom: 22px; }
+            .login-form .form-group label { font-size: 1.1rem; margin-bottom: 10px; }
+            .login-form .form-group input { padding: 18px 22px; font-size: 1.2rem; border-radius: 14px; }
+            .login-btn { padding: 20px; font-size: 1.3rem; border-radius: 14px; }
+            .login-error { padding: 16px; font-size: 1.1rem; }
 
             /* Modal mobile */
-            .modal-overlay { padding: 10px; }
+            .modal-overlay { padding: 20px; }
             .modal {
                 max-width: 100%;
                 margin: 0;
-                border-radius: 16px;
+                border-radius: 20px;
             }
-            .modal-header { padding: 14px 16px; }
-            .modal-header h3 { font-size: 0.95rem; }
-            .modal-close { width: 28px; height: 28px; }
-            .modal-body { padding: 14px 16px; }
-            .form-group { margin-bottom: 14px; }
-            .form-group label { font-size: 0.8rem; }
-            .form-group input { padding: 10px 12px; font-size: 0.9rem; }
-            .modal-footer { padding: 12px 16px; }
-            .btn { padding: 10px 14px; font-size: 0.8rem; }
+            .modal-header { padding: 22px 25px; }
+            .modal-header h3 { font-size: 1.25rem; }
+            .modal-close { width: 38px; height: 38px; font-size: 1.1rem; }
+            .modal-body { padding: 22px 25px; }
+            .form-group { margin-bottom: 22px; }
+            .form-group label { font-size: 1.1rem; }
+            .form-group input { padding: 16px 20px; font-size: 1.15rem; }
+            .modal-footer { padding: 20px 25px; }
+            .btn { padding: 16px 22px; font-size: 1.1rem; }
 
-            .file-drop { padding: 18px; }
-            .file-drop i { font-size: 1.4rem; margin-bottom: 6px; }
-            .file-drop h4 { font-size: 0.85rem; }
-            .file-drop p { font-size: 0.7rem; }
+            .file-drop { padding: 30px; }
+            .file-drop i { font-size: 2rem; margin-bottom: 12px; }
+            .file-drop h4 { font-size: 1.15rem; }
+            .file-drop p { font-size: 1rem; }
 
-            .file-attached { padding: 8px; }
-            .file-attached i { font-size: 1.1rem; }
-            .file-attached-info h4 { font-size: 0.8rem; }
-            .file-attached-info p { font-size: 0.65rem; }
+            .file-attached { padding: 15px; }
+            .file-attached i { font-size: 1.6rem; }
+            .file-attached-info h4 { font-size: 1.1rem; }
+            .file-attached-info p { font-size: 0.95rem; }
 
             /* Toast mobile */
             .toast {
-                bottom: 90px;
-                padding: 12px 20px;
-                font-size: 0.85rem;
+                bottom: 130px;
+                padding: 18px 28px;
+                font-size: 1.1rem;
                 max-width: 90%;
             }
-            .toast i { font-size: 1rem; }
+            .toast i { font-size: 1.3rem; }
+
+            /* Empty state mobile */
+            .empty-state { padding: 40px 20px; }
+            .empty-state i { font-size: 3rem; margin-bottom: 15px; }
+            .empty-state h3 { font-size: 1.3rem; }
+            .empty-state p { font-size: 1.05rem; }
         }
     </style>
 </head>
