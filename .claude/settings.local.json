@@ -37,7 +37,8 @@
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api gists/70ade01d4645cc8013a741b74d83561c --jq \".files[\"\"studyhub_cloud.json\"\"].content | length\")",
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api gists/70ade01d4645cc8013a741b74d83561c --jq \".id\")",
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api gists/70ade01d4645cc8013a741b74d83561c --jq \".files[\"\"studyhub_cloud.json\"\"].size\")",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api gists/70ade01d4645cc8013a741b74d83561c --jq \".files[\"\"studyhub_cloud.json\"\"].content | fromjson | .appdata | keys\")"
     ]
   }
 }

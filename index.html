@@ -2549,40 +2549,63 @@
 
         // Background cloud sync - merge local and cloud data
         function syncFromCloud() {
+            console.log('🔄 Syncing with cloud...');
             fetch(`https://api.github.com/gists/${GIST_ID}`, {
                 headers: {
                     'Authorization': `token ${GITHUB_TOKEN}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             }).then(response => {
+                console.log('📡 Cloud status:', response.status);
                 if (response.ok) return response.json();
+                throw new Error('Cloud response not ok');
             }).then(gist => {
-                if (!gist) return;
+                if (!gist) {
+                    console.log('❌ No gist returned');
+                    return;
+                }
                 const content = gist.files[GIST_FILENAME]?.content;
+                console.log('📄 Cloud content length:', content?.length || 0);
+
+                let cloudJson = { appdata: {}, calendar: {} };
                 if (content) {
                     try {
-                        const cloudJson = JSON.parse(content);
-                        if (cloudJson.calendar) cloudCalendar = cloudJson.calendar;
-                        if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                            // Merge local and cloud data together
-                            const merged = mergeAppData(cloudJson.appdata, appData);
-                            appData = merged;
-                            localStorage.setItem('studyhub_data', JSON.stringify(appData));
-                            // Push merged data back to cloud
-                            syncToCloud();
-                            rerenderCurrentPage();
-                            console.log('☁️ Synced & merged');
-                        } else if (Object.keys(appData).length > 0) {
-                            // Cloud empty but local has data - push to cloud
-                            syncToCloud();
-                            console.log('☁️ Pushed local to cloud');
-                        }
+                        cloudJson = JSON.parse(content);
                     } catch(e) {
-                        console.log('Cloud parse error:', e);
+                        console.log('❌ Cloud parse error:', e);
                     }
                 }
+
+                if (cloudJson.calendar) cloudCalendar = cloudJson.calendar;
+
+                const cloudHasData = cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0;
+                const localHasData = appData && Object.keys(appData).length > 0;
+
+                console.log('☁️ Cloud has data:', cloudHasData, '| 💾 Local has data:', localHasData);
+
+                if (cloudHasData && localHasData) {
+                    // Both have data - merge them
+                    const merged = mergeAppData(cloudJson.appdata, appData);
+                    appData = merged;
+                    localStorage.setItem('studyhub_data', JSON.stringify(appData));
+                    syncToCloud();
+                    rerenderCurrentPage();
+                    console.log('✅ Merged local + cloud');
+                } else if (cloudHasData) {
+                    // Only cloud has data - use it
+                    appData = cloudJson.appdata;
+                    localStorage.setItem('studyhub_data', JSON.stringify(appData));
+                    rerenderCurrentPage();
+                    console.log('✅ Loaded from cloud');
+                } else if (localHasData) {
+                    // Only local has data - push to cloud
+                    syncToCloud();
+                    console.log('✅ Pushed local to cloud');
+                } else {
+                    console.log('⚠️ No data anywhere');
+                }
             }).catch(e => {
-                console.log('Cloud fetch error:', e);
+                console.log('❌ Cloud fetch error:', e);
             });
         }
 
