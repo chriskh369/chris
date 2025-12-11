@@ -2565,6 +2565,10 @@
                 console.log('⏳ Sync in progress, skipping...');
                 return;
             }
+
+            // Capture version at start of fetch
+            const versionAtStart = syncVersion;
+
             console.log('🔄 Syncing with cloud...');
             fetch(`https://api.github.com/gists/${GIST_ID}`, {
                 headers: {
@@ -2576,6 +2580,12 @@
                 if (response.ok) return response.json();
                 throw new Error('Cloud response not ok');
             }).then(gist => {
+                // Check if data was saved while we were fetching - if so, abort
+                if (syncVersion !== versionAtStart) {
+                    console.log('⏭️ Data changed during fetch, skipping cloud apply');
+                    return;
+                }
+
                 if (!gist) {
                     console.log('❌ No gist returned');
                     return;
@@ -2677,10 +2687,14 @@
         // Save to localStorage instantly, sync to cloud in background
         let cloudCalendar = {};
         let isSyncing = false; // Prevent race condition
+        let syncVersion = 0; // Track sync versions to prevent stale overwrites
 
         function saveData() {
             // Save to localStorage INSTANTLY
             localStorage.setItem('studyhub_data', JSON.stringify(appData));
+
+            // Increment version to invalidate any in-flight syncFromCloud
+            syncVersion++;
 
             // Sync to cloud in background (non-blocking)
             syncToCloud();
@@ -2701,7 +2715,7 @@
                         files: { [GIST_FILENAME]: { content: JSON.stringify(cloudJson) } }
                     })
                 });
-                console.log('☁️ Synced');
+                console.log('☁️ Synced to cloud');
             } catch (error) {
                 console.log('Sync failed:', error);
             }
