@@ -2382,12 +2382,30 @@
         }
 
         async function loadData() {
-            // Open IndexedDB
+            // Open IndexedDB for local cache
             await openDB();
 
-            let localData = null;
+            // CLOUD IS THE SOURCE OF TRUTH - always try cloud first
+            try {
+                const response = await fetch(CLOUD_APPDATA_URL);
+                if (response.ok) {
+                    const text = await response.text();
+                    if (text && text.trim() !== '') {
+                        const cloudData = JSON.parse(text);
+                        if (cloudData && Object.keys(cloudData).length > 0) {
+                            appData = cloudData;
+                            // Cache locally for offline use
+                            saveDataLocally();
+                            return;
+                        }
+                    }
+                }
+            } catch(e) {
+                // Cloud unavailable, fall back to local
+            }
 
-            // Try IndexedDB first
+            // Fallback to local data if cloud unavailable
+            let localData = null;
             if (db) {
                 try {
                     const data = await new Promise((resolve) => {
@@ -2397,42 +2415,17 @@
                         request.onsuccess = () => resolve(request.result?.data);
                         request.onerror = () => resolve(null);
                     });
-                    if (data) {
-                        localData = data;
-                    }
+                    if (data) localData = data;
                 } catch(e) {}
             }
 
-            // Try localStorage if no IndexedDB data
             if (!localData) {
                 try {
                     const saved = localStorage.getItem('studyhub_chris_v5');
-                    if (saved) {
-                        localData = JSON.parse(saved);
-                    }
+                    if (saved) localData = JSON.parse(saved);
                 } catch(e) {}
             }
 
-            // Load from cloud and merge
-            try {
-                const response = await fetch(CLOUD_APPDATA_URL);
-                if (response.ok) {
-                    const text = await response.text();
-                    if (text && text.trim() !== '') {
-                        const cloudData = JSON.parse(text);
-                        if (cloudData && Object.keys(cloudData).length > 0) {
-                            // Merge cloud data with local data
-                            appData = mergeAppData(localData, cloudData);
-                            saveData(); // Save merged data
-                            return;
-                        }
-                    }
-                }
-            } catch(e) {
-                // Cloud unavailable
-            }
-
-            // Use local data or create default
             if (localData) {
                 appData = localData;
             } else {
@@ -2440,77 +2433,25 @@
             }
         }
 
-        // Merge local and cloud app data
-        function mergeAppData(local, cloud) {
-            if (!local) return cloud;
-            if (!cloud) return local;
-
-            const merged = JSON.parse(JSON.stringify(local));
-
-            // Merge each course
-            for (const courseId of Object.keys(cloud)) {
-                if (!merged[courseId]) {
-                    merged[courseId] = cloud[courseId];
-                    continue;
-                }
-
-                // Merge each category in the course
-                for (const catId of Object.keys(cloud[courseId])) {
-                    if (!merged[courseId][catId]) {
-                        merged[courseId][catId] = cloud[courseId][catId];
-                        continue;
-                    }
-
-                    // Merge items - add cloud items that don't exist locally
-                    const localItems = merged[courseId][catId];
-                    const cloudItems = cloud[courseId][catId];
-
-                    for (const cloudItem of cloudItems) {
-                        const existsLocally = localItems.some(item =>
-                            item.name === cloudItem.name && item.date === cloudItem.date
-                        );
-                        if (!existsLocally) {
-                            localItems.push(cloudItem);
-                        } else {
-                            // Update existing item if cloud version is newer
-                            const localItem = localItems.find(item =>
-                                item.name === cloudItem.name && item.date === cloudItem.date
-                            );
-                            if (localItem && cloudItem.uploadDate && localItem.uploadDate) {
-                                if (new Date(cloudItem.uploadDate) > new Date(localItem.uploadDate)) {
-                                    Object.assign(localItem, cloudItem);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return merged;
-        }
-
-        function saveData() {
-            // Save to IndexedDB
+        // Save only to local storage (for caching)
+        function saveDataLocally() {
             if (db) {
                 try {
                     const tx = db.transaction(['data'], 'readwrite');
                     const store = tx.objectStore('data');
-                    const request = store.put({ id: 'appData', data: appData });
-                    request.onerror = (e) => {
-                        console.error('IndexedDB save error:', e);
-                    };
-                } catch(e) {
-                    console.error('IndexedDB error:', e);
-                }
+                    store.put({ id: 'appData', data: appData });
+                } catch(e) {}
             }
-            // Also try localStorage (may fail for large files)
             try {
                 localStorage.setItem('studyhub_chris_v5', JSON.stringify(appData));
-            } catch (e) {
-                console.log('localStorage full, using IndexedDB only');
-            }
-            // Sync to cloud
+            } catch(e) {}
+        }
+
+        function saveData() {
+            // Save to cloud FIRST (cloud is the source of truth)
             saveAppDataToCloud();
+            // Also save locally as cache
+            saveDataLocally();
             return true;
         }
 
