@@ -2385,27 +2385,21 @@
             // Open IndexedDB for local cache
             await openDB();
 
-            // CLOUD IS THE SOURCE OF TRUTH - always try cloud first
+            let cloudData = null;
+            let localData = null;
+
+            // Try to load from cloud
             try {
                 const response = await fetch(CLOUD_APPDATA_URL);
                 if (response.ok) {
                     const text = await response.text();
-                    if (text && text.trim() !== '') {
-                        const cloudData = JSON.parse(text);
-                        if (cloudData && Object.keys(cloudData).length > 0) {
-                            appData = cloudData;
-                            // Cache locally for offline use
-                            saveDataLocally();
-                            return;
-                        }
+                    if (text && text.trim() !== '' && text !== 'Not Found') {
+                        cloudData = JSON.parse(text);
                     }
                 }
-            } catch(e) {
-                // Cloud unavailable, fall back to local
-            }
+            } catch(e) {}
 
-            // Fallback to local data if cloud unavailable
-            let localData = null;
+            // Load local data
             if (db) {
                 try {
                     const data = await new Promise((resolve) => {
@@ -2418,7 +2412,6 @@
                     if (data) localData = data;
                 } catch(e) {}
             }
-
             if (!localData) {
                 try {
                     const saved = localStorage.getItem('studyhub_chris_v5');
@@ -2426,11 +2419,82 @@
                 } catch(e) {}
             }
 
-            if (localData) {
+            // Decide what to use
+            if (cloudData && Object.keys(cloudData).length > 0) {
+                // Cloud has data - merge with local and use
+                if (localData) {
+                    appData = mergeAppData(cloudData, localData);
+                    // Save merged data back to cloud
+                    await saveAppDataToCloud();
+                } else {
+                    appData = cloudData;
+                }
+                saveDataLocally();
+            } else if (localData) {
+                // No cloud data but have local - push to cloud
                 appData = localData;
+                await saveAppDataToCloud();
             } else {
+                // No data anywhere - create default
                 createDefaultData();
+                await saveAppDataToCloud();
             }
+        }
+
+        // Merge two app data objects - combine all items from both
+        function mergeAppData(data1, data2) {
+            const merged = JSON.parse(JSON.stringify(data1));
+
+            for (const courseId of Object.keys(data2)) {
+                if (!merged[courseId]) {
+                    merged[courseId] = data2[courseId];
+                    continue;
+                }
+
+                for (const catId of Object.keys(data2[courseId])) {
+                    if (!merged[courseId][catId]) {
+                        merged[courseId][catId] = data2[courseId][catId];
+                        continue;
+                    }
+
+                    // Merge items from data2 into merged
+                    const items2 = data2[courseId][catId];
+                    for (const item of items2) {
+                        // Check if item already exists (by name)
+                        const exists = merged[courseId][catId].some(m => m.name === item.name);
+                        if (!exists) {
+                            merged[courseId][catId].push(item);
+                        } else {
+                            // Merge notes and files from this item
+                            const existingItem = merged[courseId][catId].find(m => m.name === item.name);
+                            if (existingItem) {
+                                // Merge notes
+                                if (item.notes) {
+                                    if (!existingItem.notes) existingItem.notes = [];
+                                    for (const note of item.notes) {
+                                        const noteExists = existingItem.notes.some(n => n.text === note.text);
+                                        if (!noteExists) {
+                                            existingItem.notes.push(note);
+                                        }
+                                    }
+                                }
+                                // Merge files
+                                if (item.files) {
+                                    if (!existingItem.files) existingItem.files = [];
+                                    for (const file of item.files) {
+                                        const fileExists = existingItem.files.some(f => f.fileName === file.fileName);
+                                        if (!fileExists) {
+                                            existingItem.files.push(file);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return merged;
         }
 
         // Save only to local storage (for caching)
