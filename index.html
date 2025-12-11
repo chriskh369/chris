@@ -3223,11 +3223,11 @@
         }
 
         let pendingDeleteIdx = null;
-        let pendingDeleteFromList = false;
+        let pendingDeleteType = null; // 'item', 'itemList', 'note', 'file'
 
-        function showDeleteModal(itemName, idx, fromList = false) {
+        function showDeleteModal(itemName, idx, deleteType = 'item') {
             pendingDeleteIdx = idx;
-            pendingDeleteFromList = fromList;
+            pendingDeleteType = deleteType;
             document.getElementById('deleteModalText').textContent = `האם למחוק את "${itemName}"?`;
             document.getElementById('deleteModal').style.display = 'flex';
             document.getElementById('deleteModalConfirm').onclick = executeDelete;
@@ -3236,19 +3236,48 @@
         function closeDeleteModal() {
             document.getElementById('deleteModal').style.display = 'none';
             pendingDeleteIdx = null;
-            pendingDeleteFromList = false;
+            pendingDeleteType = null;
         }
 
         function executeDelete() {
-            if (pendingDeleteIdx !== null) {
+            if (pendingDeleteIdx === null) {
+                closeDeleteModal();
+                return;
+            }
+
+            if (pendingDeleteType === 'item') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
                 saveData();
-                if (pendingDeleteFromList) {
-                    showToast('הפריט נמחק');
-                } else {
-                    viewingItem = null;
-                }
+                viewingItem = null;
                 renderCourseView();
+            } else if (pendingDeleteType === 'itemList') {
+                appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
+                saveData();
+                showToast('הפריט נמחק');
+                renderCourseView();
+            } else if (pendingDeleteType === 'note') {
+                const item = appData[currentCourse][currentCategory][viewingItem];
+                item.notes.splice(pendingDeleteIdx, 1);
+                saveData();
+                showToast('ההערה נמחקה');
+                renderItemDetail();
+                setTimeout(setupDetailDropZone, 100);
+            } else if (pendingDeleteType === 'file') {
+                const item = appData[currentCourse][currentCategory][viewingItem];
+                item.files.splice(pendingDeleteIdx, 1);
+                if (item.files.length > 0) {
+                    item.fileName = item.files[0].fileName;
+                    item.fileType = item.files[0].fileType;
+                    item.fileData = item.files[0].fileData;
+                } else {
+                    item.fileName = null;
+                    item.fileType = null;
+                    item.fileData = null;
+                }
+                saveData();
+                showToast('הקובץ נמחק');
+                renderItemDetail();
+                setTimeout(setupDetailDropZone, 100);
             }
             closeDeleteModal();
         }
@@ -3256,13 +3285,13 @@
         function confirmDelete(idx) {
             const item = appData[currentCourse][currentCategory][idx];
             const itemName = item.name || item.title || item.text?.substring(0, 30) || 'פריט';
-            showDeleteModal(itemName, idx, false);
+            showDeleteModal(itemName, idx, 'item');
         }
 
         function confirmDeleteFromList(idx) {
             const item = appData[currentCourse][currentCategory][idx];
             const itemName = item.name || item.title || item.text?.substring(0, 30) || 'פריט';
-            showDeleteModal(itemName, idx, true);
+            showDeleteModal(itemName, idx, 'itemList');
         }
 
         function addNote() {
@@ -3303,14 +3332,9 @@
         }
 
         function deleteNote(noteIdx) {
-            if (confirm('למחוק את ההערה?')) {
-                const item = appData[currentCourse][currentCategory][viewingItem];
-                item.notes.splice(noteIdx, 1);
-                saveData();
-                showToast('ההערה נמחקה');
-                renderItemDetail();
-                setTimeout(setupDetailDropZone, 100);
-            }
+            const item = appData[currentCourse][currentCategory][viewingItem];
+            const noteText = item.notes[noteIdx]?.substring(0, 30) || 'הערה';
+            showDeleteModal(noteText, noteIdx, 'note');
         }
 
         function quickViewFile(idx) {
@@ -3556,24 +3580,9 @@
         }
 
         function removeFileAt(fileIdx) {
-            if (confirm('למחוק את הקובץ?')) {
-                const item = appData[currentCourse][currentCategory][viewingItem];
-                item.files.splice(fileIdx, 1);
-                // Update legacy fields
-                if (item.files.length > 0) {
-                    item.fileName = item.files[0].fileName;
-                    item.fileType = item.files[0].fileType;
-                    item.fileData = item.files[0].fileData;
-                } else {
-                    item.fileName = null;
-                    item.fileType = null;
-                    item.fileData = null;
-                }
-                saveData();
-                showToast('הקובץ נמחק');
-                renderItemDetail();
-                setTimeout(setupDetailDropZone, 100);
-            }
+            const item = appData[currentCourse][currentCategory][viewingItem];
+            const fileName = item.files[fileIdx]?.fileName || 'קובץ';
+            showDeleteModal(fileName, fileIdx, 'file');
         }
 
         // Keep old functions for backwards compatibility
