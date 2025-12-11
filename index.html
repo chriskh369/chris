@@ -1730,8 +1730,10 @@
 
             .main {
                 margin-right: 0 !important;
-                padding: 15px 12px 90px 12px !important;
+                padding: 15px 12px 12px 12px !important;
+                padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 120px) !important;
                 width: 100% !important;
+                min-height: calc(100vh + 100px);
             }
 
             /* Course home page */
@@ -2006,8 +2008,7 @@
             /* Show mobile list view */
             .calendar-mobile-list {
                 display: block !important;
-                padding-bottom: 150px;
-                margin-bottom: 20px;
+                padding-bottom: 50px;
             }
             .calendar-mobile-day {
                 background: rgba(255, 255, 255, 0.05);
