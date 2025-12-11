@@ -2388,16 +2388,20 @@
             let cloudData = null;
             let localData = null;
 
-            // Try to load from cloud
+            // Try to load from JSONBlob cloud
             try {
-                const response = await fetch(CLOUD_APPDATA_URL);
+                const response = await fetch(CLOUD_URL, {
+                    headers: { 'Accept': 'application/json' }
+                });
                 if (response.ok) {
-                    const text = await response.text();
-                    if (text && text.trim() !== '' && text !== 'Not Found') {
-                        cloudData = JSON.parse(text);
+                    const cloudJson = await response.json();
+                    if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
+                        cloudData = cloudJson.appdata;
                     }
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.log('Cloud load failed:', e);
+            }
 
             // Load local data
             if (db) {
@@ -2519,16 +2523,33 @@
             return true;
         }
 
-        // Save app data to cloud
+        // Save app data to cloud (JSONBlob uses PUT)
         async function saveAppDataToCloud() {
             try {
-                await fetch(CLOUD_APPDATA_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(appData)
+                // First get current cloud data to preserve calendar events
+                let cloudJson = { appdata: {}, calendar: {} };
+                try {
+                    const response = await fetch(CLOUD_URL, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (response.ok) {
+                        cloudJson = await response.json();
+                    }
+                } catch(e) {}
+
+                // Update appdata while preserving calendar
+                cloudJson.appdata = appData;
+
+                await fetch(CLOUD_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(cloudJson)
                 });
             } catch (error) {
-                // Cloud save failed, data saved locally only
+                console.log('Cloud save failed:', error);
             }
         }
 
@@ -2813,13 +2834,9 @@
             ]
         };
 
-        // Cloud sync configuration - using KVdb.io (CORS enabled)
-        const CLOUD_BUCKET_CALENDAR = 'WPa4gFU4rkg33ccTHVRSZU';
-        const CLOUD_BUCKET_APPDATA = 'CqAqcuV1GYnjB2wtJABUN2';
-        const CLOUD_KEY_CALENDAR = 'studyhub_calendar';
-        const CLOUD_KEY_APPDATA = 'studyhub_appdata';
-        const CLOUD_STORAGE_URL = `https://kvdb.io/${CLOUD_BUCKET_CALENDAR}/${CLOUD_KEY_CALENDAR}`;
-        const CLOUD_APPDATA_URL = `https://kvdb.io/${CLOUD_BUCKET_APPDATA}/${CLOUD_KEY_APPDATA}`;
+        // Cloud sync configuration - using JSONBlob (free, CORS-enabled)
+        const JSONBLOB_ID = '019b0d06-cb6b-7262-ba0e-605416dd7cc6';
+        const CLOUD_URL = `https://jsonblob.com/api/jsonBlob/${JSONBLOB_ID}`;
         let cloudEvents = {};
         let calendarEvents = {};
         let userAddedEvents = {}; // Store user-added events separately
@@ -2856,37 +2873,36 @@
             // Then try to load from cloud (async)
             if (cloudSyncEnabled) {
                 try {
-                    const response = await fetch(CLOUD_STORAGE_URL);
+                    const response = await fetch(CLOUD_URL, {
+                        headers: { 'Accept': 'application/json' }
+                    });
                     if (response.ok) {
-                        const text = await response.text();
-                        if (text && text.trim() !== '') {
-                            const cloudData = JSON.parse(text);
-                            if (cloudData && Object.keys(cloudData).length > 0) {
-                                // Merge cloud events with local user events
-                                for (const [date, events] of Object.entries(cloudData)) {
-                                    if (!userAddedEvents[date]) {
-                                        userAddedEvents[date] = [];
-                                    }
-                                    events.forEach(cloudEvent => {
-                                        const exists = userAddedEvents[date].some(e => e.id === cloudEvent.id);
-                                        if (!exists) {
-                                            userAddedEvents[date].push(cloudEvent);
-                                        }
-                                    });
+                        const cloudJson = await response.json();
+                        if (cloudJson.calendar && Object.keys(cloudJson.calendar).length > 0) {
+                            // Merge cloud events with local user events
+                            for (const [date, events] of Object.entries(cloudJson.calendar)) {
+                                if (!userAddedEvents[date]) {
+                                    userAddedEvents[date] = [];
                                 }
-                                // Save merged events locally
-                                localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
-                                mergeAllEvents();
+                                events.forEach(cloudEvent => {
+                                    const exists = userAddedEvents[date].some(e => e.id === cloudEvent.id);
+                                    if (!exists) {
+                                        userAddedEvents[date].push(cloudEvent);
+                                    }
+                                });
                             }
+                            // Save merged events locally
+                            localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
+                            mergeAllEvents();
                         }
                     }
                 } catch (error) {
-                    // Cloud sync unavailable, using local data only
+                    console.log('Calendar cloud sync failed:', error);
                 }
             }
         }
 
-        // Save event to cloud and localStorage
+        // Save calendar events to cloud and localStorage
         async function saveToCloud() {
             // Always save to localStorage first
             localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
@@ -2894,13 +2910,30 @@
             if (!cloudSyncEnabled) return;
 
             try {
-                await fetch(CLOUD_STORAGE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userAddedEvents)
+                // First get current cloud data to preserve appdata
+                let cloudJson = { appdata: {}, calendar: {} };
+                try {
+                    const response = await fetch(CLOUD_URL, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (response.ok) {
+                        cloudJson = await response.json();
+                    }
+                } catch(e) {}
+
+                // Update calendar while preserving appdata
+                cloudJson.calendar = userAddedEvents;
+
+                await fetch(CLOUD_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(cloudJson)
                 });
             } catch (error) {
-                // Cloud save failed, data saved locally only
+                console.log('Calendar cloud save failed:', error);
             }
         }
 

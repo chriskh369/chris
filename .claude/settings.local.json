@@ -29,7 +29,10 @@
       "Bash(start \"\" \"https://chriskh369.github.io/chris/\")",
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api repos/chriskh369/chris/pages)",
       "Bash(ping:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" gist view 70ade01d4645cc8013a741b74d83561c --raw)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth token)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api user -q .login)"
     ]
   }
 }
