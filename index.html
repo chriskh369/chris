@@ -107,6 +107,15 @@
             -webkit-tap-highlight-color: transparent;
             user-select: none;
             touch-action: manipulation;
+            background: transparent;
+            border: none;
+            border-right: 3px solid transparent;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
         .menu-item:hover {
@@ -1698,6 +1707,8 @@
                 padding: 25px 35px;
                 border-right: none !important;
                 border-bottom: 3px solid transparent;
+                border-top: none !important;
+                border-left: none !important;
                 font-size: 1.5rem;
                 display: flex !important;
                 align-items: center;
@@ -1707,9 +1718,16 @@
                 touch-action: manipulation;
                 -webkit-tap-highlight-color: transparent;
                 cursor: pointer;
+                background: transparent !important;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
             }
             .menu-item * {
                 pointer-events: none;
+            }
+            .menu-item:focus {
+                outline: none;
             }
             .menu-item i {
                 font-size: 1.5rem;
@@ -2138,15 +2156,15 @@
             </div>
         </div>
 
-        <div class="menu-item active" onclick="goHome()" id="menuCourses">
+        <button type="button" class="menu-item active" id="menuCourses">
             <i class="fas fa-book"></i>
             <span>קורסים</span>
-        </div>
+        </button>
 
-        <div class="menu-item" onclick="showCalendar()" id="menuCalendar">
+        <button type="button" class="menu-item" id="menuCalendar">
             <i class="fas fa-calendar-alt"></i>
             <span>לוח שנה</span>
-        </div>
+        </button>
 
         <button class="logout-btn" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i>
@@ -2337,6 +2355,19 @@
         async function init() {
             checkLogin();
             await loadData();
+
+            // Setup menu button event listeners for cross-browser compatibility
+            document.getElementById('menuCourses').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                goHome();
+            });
+            document.getElementById('menuCalendar').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showCalendar();
+            });
+
             restorePageState();
         }
 
