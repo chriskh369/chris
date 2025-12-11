@@ -1495,6 +1495,25 @@
             color: #a78bfa;
         }
 
+        .calendar-event-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calendar-event-edit {
+            background: rgba(251, 191, 36, 0.2);
+            border: none;
+            color: #fbbf24;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-event-edit:hover {
+            background: rgba(251, 191, 36, 0.4);
+        }
+
         .calendar-event-delete {
             background: rgba(239, 68, 68, 0.2);
             border: none;
@@ -1502,6 +1521,11 @@
             padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-event-delete:hover {
+            background: rgba(239, 68, 68, 0.4);
         }
 
         /* Responsive - Mobile phones */
@@ -2027,8 +2051,8 @@
                     <option value="test">מבחן / בוחן</option>
                 </select>
             </div>
-            <button class="calendar-add-btn" onclick="saveCalendarEvent()">
-                <i class="fas fa-plus"></i> הוסף אירוע
+            <button id="calendarAddBtn" class="calendar-add-btn" onclick="saveCalendarEvent()">
+                <i class="fas fa-plus"></i> הוסף
             </button>
             <div class="calendar-events-list" id="calendarEventsList"></div>
         </div>
@@ -2636,28 +2660,6 @@
             selectedCalendarDate = null;
         }
 
-        function saveCalendarEvent() {
-            const name = document.getElementById('eventName').value.trim();
-            const type = document.getElementById('eventType').value;
-
-            if (!name) {
-                showToast('נא להזין שם לאירוע');
-                return;
-            }
-
-            if (!calendarEvents[selectedCalendarDate]) {
-                calendarEvents[selectedCalendarDate] = [];
-            }
-
-            calendarEvents[selectedCalendarDate].push({ name, type, id: Date.now() });
-            localStorage.setItem('studyhub_calendar', JSON.stringify(calendarEvents));
-
-            document.getElementById('eventName').value = '';
-            renderCalendarEventsList();
-            renderCalendar();
-            showToast('האירוע נוסף בהצלחה');
-        }
-
         function renderCalendarEventsList() {
             const events = calendarEvents[selectedCalendarDate] || [];
             let html = '';
@@ -2670,9 +2672,14 @@
                                 <div class="event-name">${event.name}</div>
                                 <div class="event-type">${eventTypeNames[event.type]}</div>
                             </div>
-                            <button class="calendar-event-delete" onclick="deleteCalendarEvent(${idx})">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <div class="calendar-event-actions">
+                                <button class="calendar-event-edit" onclick="editCalendarEvent(${idx})">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="calendar-event-delete" onclick="deleteCalendarEvent(${idx})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
@@ -2692,6 +2699,47 @@
             renderCalendarEventsList();
             renderCalendar();
             showToast('האירוע נמחק');
+        }
+
+        let editingEventIdx = null;
+
+        function editCalendarEvent(idx) {
+            const event = calendarEvents[selectedCalendarDate][idx];
+            document.getElementById('eventName').value = event.name;
+            document.getElementById('eventType').value = event.type;
+            editingEventIdx = idx;
+            document.getElementById('calendarAddBtn').innerHTML = '<i class="fas fa-save"></i> שמור שינויים';
+        }
+
+        function saveCalendarEvent() {
+            const name = document.getElementById('eventName').value.trim();
+            const type = document.getElementById('eventType').value;
+
+            if (!name) {
+                showToast('נא להזין שם לאירוע');
+                return;
+            }
+
+            if (editingEventIdx !== null) {
+                // Update existing event
+                calendarEvents[selectedCalendarDate][editingEventIdx].name = name;
+                calendarEvents[selectedCalendarDate][editingEventIdx].type = type;
+                editingEventIdx = null;
+                document.getElementById('calendarAddBtn').innerHTML = '<i class="fas fa-plus"></i> הוסף';
+                showToast('האירוע עודכן בהצלחה');
+            } else {
+                // Add new event
+                if (!calendarEvents[selectedCalendarDate]) {
+                    calendarEvents[selectedCalendarDate] = [];
+                }
+                calendarEvents[selectedCalendarDate].push({ name, type, id: Date.now() });
+                showToast('האירוע נוסף בהצלחה');
+            }
+
+            localStorage.setItem('studyhub_calendar', JSON.stringify(calendarEvents));
+            document.getElementById('eventName').value = '';
+            renderCalendarEventsList();
+            renderCalendar();
         }
 
         function selectCourse(courseId) {
