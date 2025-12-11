@@ -2386,16 +2386,18 @@
                 showCalendar();
             });
 
-            // Auto-sync when coming back online
+            // Auto-sync when coming back online - push local changes
             window.addEventListener('online', function() {
-                console.log('Back online - syncing...');
+                console.log('Back online - syncing local changes...');
                 syncLocalToCloud();
             });
 
-            // Sync when page becomes visible again (switching tabs/apps)
-            document.addEventListener('visibilitychange', function() {
+            // Reload from cloud when page becomes visible (to get changes from other devices)
+            document.addEventListener('visibilitychange', async function() {
                 if (document.visibilityState === 'visible') {
-                    syncLocalToCloud();
+                    console.log('Page visible - reloading from cloud...');
+                    await loadData();
+                    rerenderCurrentPage();
                 }
             });
 
@@ -2772,18 +2774,20 @@
             }
         }
 
-        // Retry syncing local data to cloud
+        // Retry syncing local data to cloud (only uploads current data, doesn't overwrite)
         async function syncLocalToCloud() {
+            // Don't sync if appData is empty - would erase cloud data
+            if (!appData || Object.keys(appData).length === 0) {
+                console.log('Skipping sync - no local data');
+                return false;
+            }
+
             try {
-                const backup = localStorage.getItem('studyhub_appdata_backup');
-                if (backup) {
-                    appData = JSON.parse(backup);
-                    const success = await saveData();
-                    if (success) {
-                        showToast('☁️ סונכרן בהצלחה לענן');
-                    }
-                    return success;
+                const success = await saveData();
+                if (success) {
+                    console.log('☁️ Synced to cloud');
                 }
+                return success;
             } catch(e) {
                 console.log('Sync failed:', e);
             }
