@@ -2382,23 +2382,14 @@
         }
 
         async function loadData() {
-            // FAST: Load local data first (instant display)
-            try {
-                const saved = localStorage.getItem('studyhub_chris_v5');
-                if (saved) appData = JSON.parse(saved);
-            } catch(e) {}
+            // Show default structure immediately (fast UI)
+            createDefaultData();
 
-            // If no local data, create defaults
-            if (!appData || Object.keys(appData).length === 0) {
-                createDefaultData();
-                saveDataLocally();
-            }
-
-            // BACKGROUND: Sync with cloud (don't wait)
+            // Then load from cloud (cloud is the truth)
             syncWithCloud();
         }
 
-        // Background cloud sync - doesn't block UI
+        // Background cloud sync - CLOUD IS THE SOURCE OF TRUTH
         async function syncWithCloud() {
             try {
                 const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -2413,17 +2404,18 @@
                     if (content) {
                         const cloudJson = JSON.parse(content);
                         if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                            const merged = mergeAppData(cloudJson.appdata, appData);
-                            if (JSON.stringify(merged) !== JSON.stringify(appData)) {
-                                appData = merged;
-                                saveDataLocally();
-                                renderCourses();
-                                console.log('☁️ Synced from cloud');
-                            }
+                            // USE CLOUD DATA DIRECTLY - cloud is the truth
+                            appData = cloudJson.appdata;
+                            saveDataLocally();
+                            renderCourses();
+                            console.log('☁️ Loaded from cloud');
                         } else {
+                            // Cloud empty - initialize with default data
+                            createDefaultData();
                             saveAppDataToCloud();
                         }
                     } else {
+                        createDefaultData();
                         saveAppDataToCloud();
                     }
                 }
@@ -2510,10 +2502,10 @@
             return true;
         }
 
-        // Save app data to cloud (GitHub Gist)
+        // Save app data to cloud (GitHub Gist) - REPLACES cloud data
         async function saveAppDataToCloud() {
             try {
-                // First get current cloud data to merge
+                // Get current cloud to preserve calendar
                 let cloudJson = { appdata: {}, calendar: {} };
                 try {
                     const getResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -2529,12 +2521,8 @@
                     }
                 } catch(e) {}
 
-                // Merge appdata
-                if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                    cloudJson.appdata = mergeAppData(cloudJson.appdata, appData);
-                } else {
-                    cloudJson.appdata = appData;
-                }
+                // Replace appdata with current data (no merge - direct save)
+                cloudJson.appdata = appData;
 
                 // Save to Gist
                 const saveResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -2549,7 +2537,7 @@
                     })
                 });
                 if (saveResponse.ok) {
-                    console.log('☁️ Cloud sync successful');
+                    console.log('☁️ Saved to cloud');
                 }
             } catch (error) {
                 console.log('Cloud save failed:', error);
