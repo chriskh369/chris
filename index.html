@@ -1234,6 +1234,251 @@
             background: rgba(239, 68, 68, 0.2);
         }
 
+        /* Calendar Styles */
+        .calendar-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .calendar-nav-btn {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #a78bfa;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .calendar-nav-btn:hover {
+            background: rgba(139, 92, 246, 0.4);
+            color: #fff;
+        }
+
+        .calendar-month-year {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            padding: 10px;
+            font-weight: 600;
+            color: #a78bfa;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            min-height: 100px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-day:hover {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.4;
+        }
+
+        .calendar-day.today {
+            border-color: #ec4899;
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .calendar-day.today .calendar-day-number {
+            color: #ec4899;
+        }
+
+        .calendar-event {
+            font-size: 0.7rem;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calendar-event.course {
+            background: rgba(34, 211, 238, 0.3);
+            color: #22d3ee;
+        }
+
+        .calendar-event.homework {
+            background: rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+        }
+
+        .calendar-event.test {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        /* Calendar Modal */
+        .calendar-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .calendar-modal {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .calendar-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .calendar-modal-close {
+            background: none;
+            border: none;
+            color: #a78bfa;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .calendar-form-group {
+            margin-bottom: 15px;
+        }
+
+        .calendar-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a78bfa;
+            font-size: 0.9rem;
+        }
+
+        .calendar-form-group input,
+        .calendar-form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .calendar-form-group select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .calendar-add-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .calendar-events-list {
+            margin-top: 15px;
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+            padding-top: 15px;
+        }
+
+        .calendar-event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .calendar-event-item .event-info {
+            flex: 1;
+        }
+
+        .calendar-event-item .event-name {
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .calendar-event-item .event-type {
+            font-size: 0.8rem;
+            color: #a78bfa;
+        }
+
+        .calendar-event-delete {
+            background: rgba(239, 68, 68, 0.2);
+            border: none;
+            color: #ef4444;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
         /* Responsive - Mobile phones */
         @media screen and (max-width: 1024px) {
             /* Force sidebar to bottom */
@@ -1529,6 +1774,22 @@
             .empty-state h3 { font-size: 1.1rem; }
             .empty-state p { font-size: 0.9rem; }
 
+            /* Calendar mobile */
+            .calendar-container { padding: 0 5px; }
+            .calendar-header { margin-bottom: 15px; }
+            .calendar-nav-btn { padding: 8px 12px; font-size: 0.9rem; }
+            .calendar-month-year { font-size: 1.2rem; }
+            .calendar-grid { gap: 4px; }
+            .calendar-day-header { padding: 6px; font-size: 0.75rem; }
+            .calendar-day { min-height: 60px; padding: 5px; border-radius: 8px; }
+            .calendar-day-number { font-size: 0.85rem; }
+            .calendar-event { font-size: 0.6rem; padding: 2px 4px; }
+            .calendar-modal { padding: 20px; max-width: 95%; }
+            .calendar-modal-title { font-size: 1.1rem; }
+            .calendar-form-group input,
+            .calendar-form-group select { padding: 10px; font-size: 0.95rem; }
+            .calendar-add-btn { padding: 10px; font-size: 0.95rem; }
+
             /* Prevent horizontal scroll */
             html, body {
                 overflow-x: hidden !important;
@@ -1573,9 +1834,14 @@
             </div>
         </div>
 
-        <div class="menu-item active" onclick="goHome()">
+        <div class="menu-item active" onclick="goHome()" id="menuCourses">
             <i class="fas fa-book"></i>
             <span>קורסים</span>
+        </div>
+
+        <div class="menu-item" onclick="showCalendar()" id="menuCalendar">
+            <i class="fas fa-calendar-alt"></i>
+            <span>לוח שנה</span>
         </div>
 
         <button class="logout-btn" onclick="logout()">
@@ -1621,6 +1887,32 @@
                     <i class="fas fa-check"></i> שמור
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div class="calendar-modal-overlay" id="calendarModal">
+        <div class="calendar-modal">
+            <div class="calendar-modal-header">
+                <h3 class="calendar-modal-title" id="calendarModalTitle">הוסף אירוע</h3>
+                <button class="calendar-modal-close" onclick="closeCalendarModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="calendar-form-group">
+                <label>שם האירוע</label>
+                <input type="text" id="eventName" placeholder="לדוגמה: שיעור מתמטיקה">
+            </div>
+            <div class="calendar-form-group">
+                <label>סוג האירוע</label>
+                <select id="eventType">
+                    <option value="course">קורס / שיעור</option>
+                    <option value="homework">מטלה / שיעורי בית</option>
+                    <option value="test">מבחן / בוחן</option>
+                </select>
+            </div>
+            <button class="calendar-add-btn" onclick="saveCalendarEvent()">
+                <i class="fas fa-plus"></i> הוסף אירוע
+            </button>
+            <div class="calendar-events-list" id="calendarEventsList"></div>
         </div>
     </div>
 
@@ -1879,7 +2171,167 @@
             currentCourse = null;
             currentCategory = null;
             viewingItem = null;
+            document.getElementById('menuCourses').classList.add('active');
+            document.getElementById('menuCalendar').classList.remove('active');
             renderCourses();
+        }
+
+        // ========== CALENDAR ==========
+        let calendarEvents = JSON.parse(localStorage.getItem('studyhub_calendar') || '{}');
+        let currentCalendarDate = new Date();
+        let selectedCalendarDate = null;
+
+        const hebrewMonths = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
+        const hebrewDays = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+        const eventTypeNames = { course: 'קורס', homework: 'מטלה', test: 'מבחן' };
+
+        function showCalendar() {
+            document.getElementById('menuCourses').classList.remove('active');
+            document.getElementById('menuCalendar').classList.add('active');
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const today = new Date();
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+
+            let html = `
+                <h2 class="page-title">לוח שנה</h2>
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-right"></i></button>
+                            <span class="calendar-month-year">${hebrewMonths[month]} ${year}</span>
+                            <button class="calendar-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-left"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid">
+            `;
+
+            // Day headers
+            for (let d = 0; d < 7; d++) {
+                html += `<div class="calendar-day-header">${hebrewDays[d]}</div>`;
+            }
+
+            // Previous month days
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startDay - 1; i >= 0; i--) {
+                const day = prevMonthLastDay - i;
+                html += `<div class="calendar-day other-month"><div class="calendar-day-number">${day}</div></div>`;
+            }
+
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+                const dayEvents = calendarEvents[dateKey] || [];
+
+                let eventsHtml = '';
+                dayEvents.forEach(event => {
+                    eventsHtml += `<div class="calendar-event ${event.type}">${event.name}</div>`;
+                });
+
+                html += `
+                    <div class="calendar-day ${isToday ? 'today' : ''}" onclick="openCalendarModal('${dateKey}')">
+                        <div class="calendar-day-number">${day}</div>
+                        ${eventsHtml}
+                    </div>
+                `;
+            }
+
+            // Next month days
+            const totalCells = startDay + daysInMonth;
+            const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let day = 1; day <= remainingCells; day++) {
+                html += `<div class="calendar-day other-month"><div class="calendar-day-number">${day}</div></div>`;
+            }
+
+            html += `</div></div>`;
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function openCalendarModal(dateKey) {
+            selectedCalendarDate = dateKey;
+            const [year, month, day] = dateKey.split('-');
+            document.getElementById('calendarModalTitle').textContent = `${parseInt(day)} ${hebrewMonths[parseInt(month) - 1]} ${year}`;
+            document.getElementById('eventName').value = '';
+            document.getElementById('eventType').value = 'course';
+            renderCalendarEventsList();
+            document.getElementById('calendarModal').style.display = 'flex';
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendarModal').style.display = 'none';
+            selectedCalendarDate = null;
+        }
+
+        function saveCalendarEvent() {
+            const name = document.getElementById('eventName').value.trim();
+            const type = document.getElementById('eventType').value;
+
+            if (!name) {
+                showToast('נא להזין שם לאירוע');
+                return;
+            }
+
+            if (!calendarEvents[selectedCalendarDate]) {
+                calendarEvents[selectedCalendarDate] = [];
+            }
+
+            calendarEvents[selectedCalendarDate].push({ name, type, id: Date.now() });
+            localStorage.setItem('studyhub_calendar', JSON.stringify(calendarEvents));
+
+            document.getElementById('eventName').value = '';
+            renderCalendarEventsList();
+            renderCalendar();
+            showToast('האירוע נוסף בהצלחה');
+        }
+
+        function renderCalendarEventsList() {
+            const events = calendarEvents[selectedCalendarDate] || [];
+            let html = '';
+
+            if (events.length > 0) {
+                events.forEach((event, idx) => {
+                    html += `
+                        <div class="calendar-event-item">
+                            <div class="event-info">
+                                <div class="event-name">${event.name}</div>
+                                <div class="event-type">${eventTypeNames[event.type]}</div>
+                            </div>
+                            <button class="calendar-event-delete" onclick="deleteCalendarEvent(${idx})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                html = '<p style="color: #a78bfa; text-align: center;">אין אירועים ביום זה</p>';
+            }
+
+            document.getElementById('calendarEventsList').innerHTML = html;
+        }
+
+        function deleteCalendarEvent(idx) {
+            calendarEvents[selectedCalendarDate].splice(idx, 1);
+            if (calendarEvents[selectedCalendarDate].length === 0) {
+                delete calendarEvents[selectedCalendarDate];
+            }
+            localStorage.setItem('studyhub_calendar', JSON.stringify(calendarEvents));
+            renderCalendarEventsList();
+            renderCalendar();
+            showToast('האירוע נמחק');
         }
 
         function selectCourse(courseId) {
