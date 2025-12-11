@@ -2713,25 +2713,95 @@
             ]
         };
 
-        // Merge school schedule with user's saved events
-        let calendarEvents = JSON.parse(localStorage.getItem('studyhub_calendar') || '{}');
-        // Add school schedule to calendar (won't override user's custom events)
-        for (const [date, events] of Object.entries(schoolSchedule)) {
-            if (!calendarEvents[date]) {
-                calendarEvents[date] = events;
+        // Cloud sync configuration
+        const CLOUD_STORAGE_URL = 'https://jsonblob.com/api/jsonBlob/019b0ccd-db03-768a-a006-44ba031068e8';
+        let cloudEvents = {};
+        let calendarEvents = {};
+        let currentCalendarDate = new Date();
+        let selectedCalendarDate = null;
+        let cloudSyncEnabled = true;
+
+        // Load events from cloud and merge with school schedule
+        async function loadCalendarEvents() {
+            // Start with school schedule
+            calendarEvents = JSON.parse(JSON.stringify(schoolSchedule));
+
+            // Try to load from cloud
+            if (cloudSyncEnabled) {
+                try {
+                    const response = await fetch(CLOUD_STORAGE_URL);
+                    if (response.ok) {
+                        cloudEvents = await response.json();
+                        // Merge cloud events with calendar
+                        for (const [date, events] of Object.entries(cloudEvents)) {
+                            if (!calendarEvents[date]) {
+                                calendarEvents[date] = events;
+                            } else {
+                                // Add cloud events that don't exist in school schedule
+                                events.forEach(cloudEvent => {
+                                    const exists = calendarEvents[date].some(e => e.id === cloudEvent.id);
+                                    if (!exists) {
+                                        calendarEvents[date].push(cloudEvent);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log('Cloud sync unavailable, using local data');
+                }
+            }
+
+            // Also merge any localStorage events (for backwards compatibility)
+            const localEvents = JSON.parse(localStorage.getItem('studyhub_calendar') || '{}');
+            for (const [date, events] of Object.entries(localEvents)) {
+                if (!calendarEvents[date]) {
+                    calendarEvents[date] = events;
+                }
             }
         }
 
-        let currentCalendarDate = new Date();
-        let selectedCalendarDate = null;
+        // Save event to cloud
+        async function saveToCloud() {
+            if (!cloudSyncEnabled) return;
+
+            try {
+                // Get only user-added events (not from school schedule)
+                const userEvents = {};
+                for (const [date, events] of Object.entries(calendarEvents)) {
+                    const schoolEvents = schoolSchedule[date] || [];
+                    const schoolEventIds = schoolEvents.map(e => e.id);
+                    const userOnlyEvents = events.filter(e => !schoolEventIds.includes(e.id));
+                    if (userOnlyEvents.length > 0) {
+                        userEvents[date] = userOnlyEvents;
+                    }
+                }
+
+                await fetch(CLOUD_STORAGE_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userEvents)
+                });
+            } catch (error) {
+                console.log('Cloud save failed, saved locally');
+            }
+
+            // Also save to localStorage as backup
+            localStorage.setItem('studyhub_calendar', JSON.stringify(calendarEvents));
+        }
+
+        // Initialize calendar events
+        loadCalendarEvents();
 
         const hebrewMonths = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
         const hebrewDays = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
         const eventTypeNames = { course: 'קורס', homework: 'מטלה', test: 'מבחן' };
 
-        function showCalendar() {
+        async function showCalendar() {
             document.getElementById('menuCourses').classList.remove('active');
             document.getElementById('menuCalendar').classList.add('active');
+            // Reload events from cloud to get latest updates
+            await loadCalendarEvents();
             renderCalendar();
         }
 
@@ -2891,12 +2961,13 @@
             document.getElementById('calendarEventsList').innerHTML = html;
         }
 
-        function deleteCalendarEvent(idx) {
+        async function deleteCalendarEvent(idx) {
             calendarEvents[selectedCalendarDate].splice(idx, 1);
             if (calendarEvents[selectedCalendarDate].length === 0) {
                 delete calendarEvents[selectedCalendarDate];
             }
-            localStorage.setItem('studyhub_calendar', JSON.stringify(calendarEvents));
+            // Save to cloud and localStorage
+            await saveToCloud();
             renderCalendarEventsList();
             renderCalendar();
             showToast('האירוע נמחק');
@@ -2912,7 +2983,7 @@
             document.getElementById('calendarAddBtn').innerHTML = '<i class="fas fa-save"></i> שמור שינויים';
         }
 
-        function saveCalendarEvent() {
+        async function saveCalendarEvent() {
             const name = document.getElementById('eventName').value.trim();
             const type = document.getElementById('eventType').value;
 
@@ -2937,7 +3008,8 @@
                 showToast('האירוע נוסף בהצלחה');
             }
 
-            localStorage.setItem('studyhub_calendar', JSON.stringify(calendarEvents));
+            // Save to cloud and localStorage
+            await saveToCloud();
             document.getElementById('eventName').value = '';
             renderCalendarEventsList();
             renderCalendar();
