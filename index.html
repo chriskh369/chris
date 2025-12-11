@@ -2386,6 +2386,19 @@
                 showCalendar();
             });
 
+            // Auto-sync when coming back online
+            window.addEventListener('online', function() {
+                console.log('Back online - syncing...');
+                syncLocalToCloud();
+            });
+
+            // Sync when page becomes visible again (switching tabs/apps)
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    syncLocalToCloud();
+                }
+            });
+
             restorePageState();
         }
 
@@ -2500,46 +2513,64 @@
             });
         }
 
-        // Load data ONLY from cloud
+        // Load data from cloud with localStorage backup
         async function loadData() {
-            console.log('🔄 Loading from cloud...');
+            let loadedFromCloud = false;
+
+            // Try cloud first
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
                 const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    method: 'GET',
                     headers: {
                         'Authorization': `token ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json'
-                    }
+                    },
+                    signal: controller.signal,
+                    cache: 'no-cache'
                 });
-                console.log('📡 Status:', response.status);
+                clearTimeout(timeoutId);
+
                 if (response.ok) {
                     const gist = await response.json();
                     const content = gist.files[GIST_FILENAME]?.content;
                     if (content) {
-                        try {
-                            const cloudJson = JSON.parse(content);
-                            if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                                appData = cloudJson.appdata;
-                                localStorage.setItem('studyhub_data', JSON.stringify(appData));
-                                console.log('☁️ Loaded from cloud');
-                            } else {
-                                createDefaultData();
-                                await saveData();
-                            }
-                        } catch(parseErr) {
-                            console.log('❌ JSON parse error:', parseErr.message);
-                            createDefaultData();
+                        const cloudJson = JSON.parse(content);
+                        if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
+                            appData = cloudJson.appdata;
+                            // Save to localStorage as backup
+                            localStorage.setItem('studyhub_appdata_backup', JSON.stringify(appData));
+                            console.log('☁️ Loaded from cloud');
+                            loadedFromCloud = true;
                         }
-                    } else {
-                        createDefaultData();
-                        await saveData();
                     }
                 } else {
-                    console.log('❌ Cloud error:', response.status);
-                    createDefaultData();
+                    console.log('Cloud response not ok:', response.status);
                 }
             } catch(e) {
-                console.log('❌ Network error:', e.message || e);
+                console.log('Cloud load failed:', e.message || e);
+            }
+
+            // If cloud failed, try localStorage backup
+            if (!loadedFromCloud) {
+                try {
+                    const backup = localStorage.getItem('studyhub_appdata_backup');
+                    if (backup) {
+                        appData = JSON.parse(backup);
+                        console.log('📱 Loaded from local backup');
+                        loadedFromCloud = true;
+                    }
+                } catch(e) {
+                    console.log('Local backup load failed:', e);
+                }
+            }
+
+            // If still nothing, create default
+            if (!loadedFromCloud || Object.keys(appData).length === 0) {
                 createDefaultData();
+                await saveData();
             }
         }
 
@@ -2599,36 +2630,49 @@
             return merged;
         }
 
-        // Save data to localStorage AND cloud
+        // Save data to cloud and localStorage backup
         async function saveData() {
-            // Save to localStorage first (fast)
-            localStorage.setItem('studyhub_data', JSON.stringify(appData));
-            console.log('💾 Saved locally');
-
-            // Then save to cloud
+            // Always save to localStorage backup first
             try {
+                localStorage.setItem('studyhub_appdata_backup', JSON.stringify(appData));
+                console.log('📱 Saved to local backup');
+            } catch(e) {
+                console.log('Local backup save failed:', e);
+            }
+
+            // Then try to save to cloud
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
                 // Get current cloud to preserve calendar
                 let cloudJson = { appdata: {}, calendar: {} };
                 try {
                     const getResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                        method: 'GET',
                         headers: {
                             'Authorization': `token ${GITHUB_TOKEN}`,
                             'Accept': 'application/vnd.github.v3+json'
-                        }
+                        },
+                        signal: controller.signal,
+                        cache: 'no-cache'
                     });
                     if (getResponse.ok) {
                         const gist = await getResponse.json();
                         const content = gist.files[GIST_FILENAME]?.content;
-                        if (content) {
-                            try {
-                                cloudJson = JSON.parse(content);
-                            } catch(e) {}
-                        }
+                        if (content) cloudJson = JSON.parse(content);
                     }
-                } catch(e) {}
+                } catch(e) {
+                    console.log('Could not get existing cloud data:', e.message || e);
+                }
+
+                clearTimeout(timeoutId);
 
                 // Save appdata to cloud
                 cloudJson.appdata = appData;
+
+                const controller2 = new AbortController();
+                const timeoutId2 = setTimeout(() => controller2.abort(), 10000);
 
                 const saveResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     method: 'PATCH',
@@ -2639,18 +2683,42 @@
                     },
                     body: JSON.stringify({
                         files: { [GIST_FILENAME]: { content: JSON.stringify(cloudJson) } }
-                    })
+                    }),
+                    signal: controller2.signal
                 });
+                clearTimeout(timeoutId2);
+
                 if (saveResponse.ok) {
                     console.log('☁️ Saved to cloud');
+                    return true;
                 } else {
-                    console.log('❌ Cloud save failed:', saveResponse.status);
+                    console.log('Cloud save response not ok:', saveResponse.status);
+                    showToast('⚠️ שמירה מקומית בלבד - בדוק חיבור');
+                    return false;
                 }
-                return true;
             } catch (error) {
-                console.log('❌ Cloud save error:', error.message || error);
+                console.log('Cloud save failed:', error.message || error);
+                showToast('⚠️ שמירה מקומית בלבד - בדוק חיבור');
                 return false;
             }
+        }
+
+        // Retry syncing local data to cloud
+        async function syncLocalToCloud() {
+            try {
+                const backup = localStorage.getItem('studyhub_appdata_backup');
+                if (backup) {
+                    appData = JSON.parse(backup);
+                    const success = await saveData();
+                    if (success) {
+                        showToast('☁️ סונכרן בהצלחה לענן');
+                    }
+                    return success;
+                }
+            } catch(e) {
+                console.log('Sync failed:', e);
+            }
+            return false;
         }
 
         // Export data to file
