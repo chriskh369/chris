@@ -2386,7 +2386,6 @@
                 showCalendar();
             });
 
-
             restorePageState();
         }
 
@@ -2501,133 +2500,114 @@
             });
         }
 
-        // Count items in appData
-        function countAppDataItems(data) {
-            if (!data) return 0;
-            let count = 0;
-            // Count course IDs (like 'data-structures', 'databases', etc.)
-            for (const key in data) {
-                if (typeof data[key] === 'object' && data[key] !== null) {
-                    count++;
-                    // Count items in each category
-                    for (const catKey in data[key]) {
-                        if (Array.isArray(data[key][catKey])) {
-                            count += data[key][catKey].length;
-                        }
-                    }
-                }
-            }
-            return count;
-        }
-
-        // Load data - localStorage first, then sync with cloud
+        // Load data ONLY from cloud
         async function loadData() {
-            console.log('🔄 Loading data...');
-
-            // Step 1: Load from localStorage first (fast)
-            const localData = localStorage.getItem('studyhub_data');
-            if (localData) {
-                try {
-                    appData = JSON.parse(localData);
-                    console.log('💾 Loaded from localStorage');
-                } catch(e) {
-                    console.log('localStorage parse error');
-                }
-            }
-
-            // Step 2: Try to load from cloud
             try {
                 const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                    method: 'GET',
                     headers: {
                         'Authorization': `token ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json'
                     }
                 });
-
-                console.log('📡 Status:', response.status);
-
                 if (response.ok) {
                     const gist = await response.json();
                     const content = gist.files[GIST_FILENAME]?.content;
                     if (content) {
-                        try {
-                            const cloudJson = JSON.parse(content);
-                            if (cloudJson.appdata) {
-                                const cloudItems = countAppDataItems(cloudJson.appdata);
-                                const localItems = countAppDataItems(appData);
-
-                                console.log(`☁️ Cloud: ${cloudItems} items, Local: ${localItems} items`);
-
-                                // Use whichever has more data
-                                if (cloudItems >= localItems) {
-                                    appData = cloudJson.appdata;
-                                    localStorage.setItem('studyhub_data', JSON.stringify(appData));
-                                    console.log('☁️ Using cloud data');
-                                } else {
-                                    // Local has more - sync to cloud
-                                    console.log('💾 Local has more, syncing to cloud');
-                                    await saveToCloud();
-                                }
-                                return;
-                            }
-                        } catch(parseErr) {
-                            console.log('Cloud JSON parse error:', parseErr.message);
+                        const cloudJson = JSON.parse(content);
+                        if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
+                            appData = cloudJson.appdata;
+                            console.log('☁️ Loaded from cloud');
+                        } else {
+                            createDefaultData();
+                            await saveData();
                         }
-                    }
-
-                    // Cloud empty or invalid
-                    if (countAppDataItems(appData) === 0) {
-                        console.log('☁️ Cloud empty, creating defaults');
+                    } else {
                         createDefaultData();
                         await saveData();
-                    } else {
-                        // We have local data, sync it to cloud
-                        console.log('☁️ Cloud empty, syncing local to cloud');
-                        await saveToCloud();
                     }
                 } else {
-                    console.log('☁️ Cloud failed:', response.status);
-                    if (countAppDataItems(appData) === 0) {
-                        createDefaultData();
-                    }
-                }
-            } catch(e) {
-                console.log('❌ Network error:', e.message || e);
-                if (countAppDataItems(appData) === 0) {
                     createDefaultData();
                 }
+            } catch(e) {
+                console.log('Cloud load failed:', e);
+                createDefaultData();
             }
         }
 
-        // Save to cloud only (used internally)
-        async function saveToCloud() {
+        // Merge two app data objects - combine all items from both
+        function mergeAppData(data1, data2) {
+            const merged = JSON.parse(JSON.stringify(data1));
+
+            for (const courseId of Object.keys(data2)) {
+                if (!merged[courseId]) {
+                    merged[courseId] = data2[courseId];
+                    continue;
+                }
+
+                for (const catId of Object.keys(data2[courseId])) {
+                    if (!merged[courseId][catId]) {
+                        merged[courseId][catId] = data2[courseId][catId];
+                        continue;
+                    }
+
+                    // Merge items from data2 into merged
+                    const items2 = data2[courseId][catId];
+                    for (const item of items2) {
+                        // Check if item already exists (by name)
+                        const exists = merged[courseId][catId].some(m => m.name === item.name);
+                        if (!exists) {
+                            merged[courseId][catId].push(item);
+                        } else {
+                            // Merge notes and files from this item
+                            const existingItem = merged[courseId][catId].find(m => m.name === item.name);
+                            if (existingItem) {
+                                // Merge notes
+                                if (item.notes) {
+                                    if (!existingItem.notes) existingItem.notes = [];
+                                    for (const note of item.notes) {
+                                        const noteExists = existingItem.notes.some(n => n.text === note.text);
+                                        if (!noteExists) {
+                                            existingItem.notes.push(note);
+                                        }
+                                    }
+                                }
+                                // Merge files
+                                if (item.files) {
+                                    if (!existingItem.files) existingItem.files = [];
+                                    for (const file of item.files) {
+                                        const fileExists = existingItem.files.some(f => f.fileName === file.fileName);
+                                        if (!fileExists) {
+                                            existingItem.files.push(file);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return merged;
+        }
+
+        // Save data ONLY to cloud
+        async function saveData() {
             try {
                 // Get current cloud to preserve calendar
                 let cloudJson = { appdata: {}, calendar: {} };
                 try {
                     const getResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                        method: 'GET',
                         headers: {
                             'Authorization': `token ${GITHUB_TOKEN}`,
                             'Accept': 'application/vnd.github.v3+json'
-                        },
-                        cache: 'no-cache'
+                        }
                     });
                     if (getResponse.ok) {
                         const gist = await getResponse.json();
                         const content = gist.files[GIST_FILENAME]?.content;
-                        if (content) {
-                            try {
-                                cloudJson = JSON.parse(content);
-                            } catch(e) {
-                                console.log('Cloud parse error, starting fresh');
-                            }
-                        }
+                        if (content) cloudJson = JSON.parse(content);
                     }
-                } catch(e) {
-                    console.log('Could not get existing cloud data:', e.message || e);
-                }
+                } catch(e) {}
 
                 // Save appdata to cloud
                 cloudJson.appdata = appData;
@@ -2643,32 +2623,14 @@
                         files: { [GIST_FILENAME]: { content: JSON.stringify(cloudJson) } }
                     })
                 });
-
                 if (saveResponse.ok) {
                     console.log('☁️ Saved to cloud');
-                    return true;
-                } else {
-                    console.log('Cloud save failed:', saveResponse.status);
-                    return false;
                 }
+                return true;
             } catch (error) {
-                console.log('Cloud save error:', error.message || error);
+                console.log('Cloud save failed:', error);
                 return false;
             }
-        }
-
-        // Save data to localStorage AND cloud
-        async function saveData() {
-            // Always save to localStorage first (fast, reliable)
-            localStorage.setItem('studyhub_data', JSON.stringify(appData));
-            console.log('💾 Saved to localStorage');
-
-            // Then sync to cloud
-            const cloudOk = await saveToCloud();
-            if (!cloudOk) {
-                showToast('⚠️ שמור מקומית, שגיאה בענן');
-            }
-            return cloudOk;
         }
 
         // Export data to file
@@ -2979,12 +2941,14 @@
             }
         }
 
-        // Load events from cloud only
+        // Load events from cloud and localStorage
         async function loadCalendarEvents() {
-            userAddedEvents = {};
+            // First load from localStorage (immediate)
+            const stored = localStorage.getItem('studyhub_user_events');
+            userAddedEvents = JSON.parse(stored || '{}');
             mergeAllEvents();
 
-            // Load from cloud
+            // Then try to load from cloud (async)
             if (cloudSyncEnabled) {
                 try {
                     const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -2997,26 +2961,33 @@
                         const gist = await response.json();
                         const content = gist.files[GIST_FILENAME]?.content;
                         if (content) {
-                            try {
-                                const cloudJson = JSON.parse(content);
-                                if (cloudJson.calendar && Object.keys(cloudJson.calendar).length > 0) {
-                                    userAddedEvents = cloudJson.calendar;
-                                    mergeAllEvents();
-                                    console.log('☁️ Calendar loaded from cloud');
+                            const cloudJson = JSON.parse(content);
+                            if (cloudJson.calendar && Object.keys(cloudJson.calendar).length > 0) {
+                                for (const [date, events] of Object.entries(cloudJson.calendar)) {
+                                    if (!userAddedEvents[date]) {
+                                        userAddedEvents[date] = [];
+                                    }
+                                    events.forEach(cloudEvent => {
+                                        const exists = userAddedEvents[date].some(e => e.id === cloudEvent.id);
+                                        if (!exists) {
+                                            userAddedEvents[date].push(cloudEvent);
+                                        }
+                                    });
                                 }
-                            } catch (parseError) {
-                                console.log('Calendar JSON parse error:', parseError.message);
+                                localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
+                                mergeAllEvents();
                             }
                         }
                     }
                 } catch (error) {
-                    console.log('Calendar cloud sync failed:', error.message);
+                    console.log('Calendar cloud sync failed:', error);
                 }
             }
         }
 
-        // Save calendar events to cloud only
+        // Save calendar events to cloud and localStorage
         async function saveToCloud() {
+            localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
             if (!cloudSyncEnabled) return;
 
             try {
@@ -3424,13 +3395,10 @@
                     item.uploadDate = newFile.uploadDate;
                 }
 
-                saveData().then(success => {
-                    if (success) {
-                        showToast('הקובץ נוסף בהצלחה!');
-                    }
-                    renderItemDetail();
-                    setTimeout(setupDetailDropZone, 100);
-                });
+                saveData();
+                showToast('הקובץ נוסף בהצלחה!');
+                renderItemDetail();
+                setTimeout(setupDetailDropZone, 100);
             };
             reader.onerror = () => {
                 alert('שגיאה בקריאת הקובץ');
@@ -3716,23 +3684,22 @@
 
             if (pendingDeleteType === 'item') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
+                saveData();
                 viewingItem = null;
-                saveData().then(() => renderCourseView());
+                renderCourseView();
             } else if (pendingDeleteType === 'itemList') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
-                saveData().then(success => {
-                    if (success) showToast('הפריט נמחק');
-                    renderCourseView();
-                });
+                saveData();
+                showToast('הפריט נמחק');
+                renderCourseView();
             } else if (pendingDeleteType === 'note') {
                 const item = appData[currentCourse][currentCategory][viewingItem];
                 item.notes.splice(pendingDeleteIdx, 1);
-                saveData().then(success => {
-                    if (success) showToast('ההערה נמחקה');
-                    renderCourseView();
-                    renderItemDetail();
-                    setTimeout(setupDetailDropZone, 100);
-                });
+                saveData();
+                showToast('ההערה נמחקה');
+                renderCourseView();
+                renderItemDetail();
+                setTimeout(setupDetailDropZone, 100);
             } else if (pendingDeleteType === 'file') {
                 const item = appData[currentCourse][currentCategory][viewingItem];
                 item.files.splice(pendingDeleteIdx, 1);
@@ -3745,12 +3712,11 @@
                     item.fileType = null;
                     item.fileData = null;
                 }
-                saveData().then(success => {
-                    if (success) showToast('הקובץ נמחק');
-                    renderCourseView();
-                    renderItemDetail();
-                    setTimeout(setupDetailDropZone, 100);
-                });
+                saveData();
+                showToast('הקובץ נמחק');
+                renderCourseView();
+                renderItemDetail();
+                setTimeout(setupDetailDropZone, 100);
             }
             closeDeleteModal();
         }
@@ -3798,13 +3764,10 @@
                 date: new Date().toISOString()
             });
 
-            saveData().then(success => {
-                if (success) {
-                    showToast('ההערה נוספה בהצלחה!');
-                }
-                renderItemDetail();
-                setTimeout(setupDetailDropZone, 100);
-            });
+            saveData();
+            showToast('ההערה נוספה בהצלחה!');
+            renderItemDetail();
+            setTimeout(setupDetailDropZone, 100);
         }
 
         function deleteNote(noteIdx) {
@@ -3941,15 +3904,14 @@
                 appData[currentCourse][currentCategory].push(itemData);
             }
 
+            saveData();
             closeModal();
-            saveData().then(success => {
-                if (success) showToast('נשמר בהצלחה!');
-                if (viewingItem !== null) {
-                    renderItemDetail();
-                } else {
-                    renderCourseView();
-                }
-            });
+            showToast('נשמר בהצלחה!');
+            if (viewingItem !== null) {
+                renderItemDetail();
+            } else {
+                renderCourseView();
+            }
         }
 
         // ========== FILE ==========
