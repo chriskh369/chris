@@ -2547,7 +2547,7 @@
             syncFromCloud();
         }
 
-        // Background cloud sync - merge local and cloud data
+        // Background cloud sync - CLOUD IS SOURCE OF TRUTH
         function syncFromCloud() {
             console.log('🔄 Syncing with cloud...');
             fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -2583,16 +2583,8 @@
 
                 console.log('☁️ Cloud has data:', cloudHasData, '| 💾 Local has data:', localHasData);
 
-                if (cloudHasData && localHasData) {
-                    // Both have data - merge them
-                    const merged = mergeAppData(cloudJson.appdata, appData);
-                    appData = merged;
-                    localStorage.setItem('studyhub_data', JSON.stringify(appData));
-                    syncToCloud();
-                    rerenderCurrentPage();
-                    console.log('✅ Merged local + cloud');
-                } else if (cloudHasData) {
-                    // Only cloud has data - use it
+                if (cloudHasData) {
+                    // Cloud has data - USE IT (cloud is source of truth)
                     appData = cloudJson.appdata;
                     localStorage.setItem('studyhub_data', JSON.stringify(appData));
                     rerenderCurrentPage();
@@ -3007,12 +2999,12 @@
 
         // Load events from cloud and localStorage
         async function loadCalendarEvents() {
-            // First load from localStorage (immediate)
+            // First load from localStorage (immediate display)
             const stored = localStorage.getItem('studyhub_user_events');
             userAddedEvents = JSON.parse(stored || '{}');
             mergeAllEvents();
 
-            // Then sync with cloud
+            // Then sync with cloud - CLOUD IS THE SOURCE OF TRUTH
             if (cloudSyncEnabled) {
                 try {
                     const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -3034,26 +3026,8 @@
                         const cloudHasCalendar = cloudJson.calendar && Object.keys(cloudJson.calendar).length > 0;
                         const localHasCalendar = Object.keys(userAddedEvents).length > 0;
 
-                        if (cloudHasCalendar && localHasCalendar) {
-                            // Merge cloud and local calendars
-                            for (const [date, events] of Object.entries(cloudJson.calendar)) {
-                                if (!userAddedEvents[date]) {
-                                    userAddedEvents[date] = [];
-                                }
-                                events.forEach(cloudEvent => {
-                                    const exists = userAddedEvents[date].some(e => e.id === cloudEvent.id);
-                                    if (!exists) {
-                                        userAddedEvents[date].push(cloudEvent);
-                                    }
-                                });
-                            }
-                            localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
-                            mergeAllEvents();
-                            // Push merged calendar to cloud
-                            saveToCloud();
-                            console.log('📅 Calendar merged');
-                        } else if (cloudHasCalendar) {
-                            // Only cloud has calendar - use it
+                        if (cloudHasCalendar) {
+                            // Cloud has calendar - USE IT (cloud is source of truth)
                             userAddedEvents = cloudJson.calendar;
                             localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
                             mergeAllEvents();
