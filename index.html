@@ -3653,9 +3653,9 @@
         }
 
         // ========== ITEM ACTIONS ==========
-        function toggleComplete(idx) {
+        async function toggleComplete(idx) {
             appData[currentCourse][currentCategory][idx].completed = !appData[currentCourse][currentCategory][idx].completed;
-            saveData();
+            await saveData();
             renderCourseView();
         }
 
@@ -3676,7 +3676,7 @@
             pendingDeleteType = null;
         }
 
-        function executeDelete() {
+        async function executeDelete() {
             if (pendingDeleteIdx === null) {
                 closeDeleteModal();
                 return;
@@ -3684,18 +3684,18 @@
 
             if (pendingDeleteType === 'item') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
-                saveData();
+                await saveData();
                 viewingItem = null;
                 renderCourseView();
             } else if (pendingDeleteType === 'itemList') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
-                saveData();
+                await saveData();
                 showToast('הפריט נמחק');
                 renderCourseView();
             } else if (pendingDeleteType === 'note') {
                 const item = appData[currentCourse][currentCategory][viewingItem];
                 item.notes.splice(pendingDeleteIdx, 1);
-                saveData();
+                await saveData();
                 showToast('ההערה נמחקה');
                 renderCourseView();
                 renderItemDetail();
@@ -3712,7 +3712,7 @@
                     item.fileType = null;
                     item.fileData = null;
                 }
-                saveData();
+                await saveData();
                 showToast('הקובץ נמחק');
                 renderCourseView();
                 renderItemDetail();
@@ -3733,7 +3733,7 @@
             showDeleteModal(itemName, idx, 'itemList');
         }
 
-        function addNote() {
+        async function addNote() {
             const textArea = document.getElementById('newNoteText');
             const text = textArea.value.trim();
             if (!text) {
@@ -3764,7 +3764,7 @@
                 date: new Date().toISOString()
             });
 
-            saveData();
+            await saveData();
             showToast('ההערה נוספה בהצלחה!');
             renderItemDetail();
             setTimeout(setupDetailDropZone, 100);
