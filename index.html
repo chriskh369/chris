@@ -3259,6 +3259,7 @@
                 item.notes.splice(pendingDeleteIdx, 1);
                 saveData();
                 showToast('ההערה נמחקה');
+                renderCourseView();
                 renderItemDetail();
                 setTimeout(setupDetailDropZone, 100);
             } else if (pendingDeleteType === 'file') {
@@ -3275,6 +3276,7 @@
                 }
                 saveData();
                 showToast('הקובץ נמחק');
+                renderCourseView();
                 renderItemDetail();
                 setTimeout(setupDetailDropZone, 100);
             }
