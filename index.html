@@ -3120,12 +3120,18 @@
 
         // Remove user event
         function removeUserEvent(date, eventId) {
+            console.log('🗑️ Deleting event:', eventId, 'from date:', date);
+            console.log('📅 userAddedEvents before:', JSON.stringify(userAddedEvents[date]));
+
             if (userAddedEvents[date]) {
                 userAddedEvents[date] = userAddedEvents[date].filter(e => e.id !== eventId);
                 if (userAddedEvents[date].length === 0) {
                     delete userAddedEvents[date];
                 }
             }
+
+            console.log('📅 userAddedEvents after:', JSON.stringify(userAddedEvents[date]));
+            localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
             mergeAllEvents();
         }
 
@@ -3138,6 +3144,7 @@
                     event.type = newType;
                 }
             }
+            localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
             mergeAllEvents();
         }
 
