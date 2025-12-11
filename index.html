@@ -1674,10 +1674,10 @@
             transform: scale(1.05);
         }
 
-        /* Responsive - Mobile phones */
-        @media screen and (max-width: 1024px) {
+        /* Responsive - Mobile phones and tablets */
+        @media screen and (max-width: 1400px) {
             /* Force sidebar to bottom */
-            .sidebar {
+            nav.sidebar {
                 width: 100% !important;
                 height: auto !important;
                 position: fixed !important;
@@ -1692,8 +1692,10 @@
                 align-items: center;
                 justify-content: space-around;
                 padding: 12px 0;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
                 z-index: 1000;
                 background: rgba(15, 12, 41, 0.98);
+                transform: none !important;
             }
             .sidebar-header {
                 padding: 0;
