@@ -2370,9 +2370,9 @@
         let viewingItem = null;
 
         // ========== INIT ==========
-        async function init() {
+        function init() {
             checkLogin();
-            await loadData();
+            loadData();
 
             // Setup menu button event listeners for cross-browser compatibility
             document.getElementById('menuCourses').addEventListener('click', function(e) {
@@ -2500,59 +2500,56 @@
             });
         }
 
-        // Load data - localStorage first (instant), then sync with cloud
-        async function loadData() {
-            // Step 1: Load from localStorage INSTANTLY
+        // Load data - localStorage INSTANT, cloud in background
+        function loadData() {
+            // Load from localStorage INSTANTLY
             const localData = localStorage.getItem('studyhub_data');
             if (localData) {
                 try {
                     appData = JSON.parse(localData);
-                    console.log('💾 Loaded locally');
+                    console.log('💾 Loaded');
                 } catch(e) {}
-            }
-
-            // Step 2: Sync with cloud in background
-            try {
-                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                if (response.ok) {
-                    const gist = await response.json();
-                    const content = gist.files[GIST_FILENAME]?.content;
-                    if (content) {
-                        try {
-                            const cloudJson = JSON.parse(content);
-                            // Preserve calendar
-                            if (cloudJson.calendar) cloudCalendar = cloudJson.calendar;
-
-                            if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                                // If cloud has more data, use it
-                                const cloudSize = JSON.stringify(cloudJson.appdata).length;
-                                const localSize = JSON.stringify(appData).length;
-                                if (cloudSize > localSize) {
-                                    appData = cloudJson.appdata;
-                                    localStorage.setItem('studyhub_data', JSON.stringify(appData));
-                                    renderCourses();
-                                    console.log('☁️ Using cloud data');
-                                }
-                            }
-                        } catch(e) {
-                            console.log('Cloud parse error');
-                        }
-                    }
-                }
-            } catch(e) {
-                console.log('Cloud sync failed');
             }
 
             // If no data, create defaults
             if (!appData || Object.keys(appData).length === 0) {
                 createDefaultData();
-                saveData();
+                localStorage.setItem('studyhub_data', JSON.stringify(appData));
             }
+
+            // Sync with cloud in background (non-blocking)
+            syncFromCloud();
+        }
+
+        // Background cloud sync
+        function syncFromCloud() {
+            fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }).then(response => {
+                if (response.ok) return response.json();
+            }).then(gist => {
+                if (!gist) return;
+                const content = gist.files[GIST_FILENAME]?.content;
+                if (content) {
+                    try {
+                        const cloudJson = JSON.parse(content);
+                        if (cloudJson.calendar) cloudCalendar = cloudJson.calendar;
+                        if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
+                            const cloudSize = JSON.stringify(cloudJson.appdata).length;
+                            const localSize = JSON.stringify(appData).length;
+                            if (cloudSize > localSize) {
+                                appData = cloudJson.appdata;
+                                localStorage.setItem('studyhub_data', JSON.stringify(appData));
+                                renderCourses();
+                                console.log('☁️ Cloud sync');
+                            }
+                        }
+                    } catch(e) {}
+                }
+            }).catch(e => {});
         }
 
         // Merge two app data objects - combine all items from both
