@@ -2717,77 +2717,123 @@
         const CLOUD_STORAGE_URL = 'https://jsonblob.com/api/jsonBlob/019b0ccd-db03-768a-a006-44ba031068e8';
         let cloudEvents = {};
         let calendarEvents = {};
+        let userAddedEvents = {}; // Store user-added events separately
         let currentCalendarDate = new Date();
         let selectedCalendarDate = null;
         let cloudSyncEnabled = true;
 
-        // Load events from cloud and merge with school schedule
-        async function loadCalendarEvents() {
+        // Merge all events into calendarEvents
+        function mergeAllEvents() {
             // Start with school schedule
             calendarEvents = JSON.parse(JSON.stringify(schoolSchedule));
 
-            // Try to load from cloud
+            // Merge user-added events
+            for (const [date, events] of Object.entries(userAddedEvents)) {
+                if (!calendarEvents[date]) {
+                    calendarEvents[date] = [];
+                }
+                events.forEach(event => {
+                    const exists = calendarEvents[date].some(e => e.id === event.id);
+                    if (!exists) {
+                        calendarEvents[date].push(event);
+                    }
+                });
+            }
+        }
+
+        // Load events from cloud and localStorage
+        async function loadCalendarEvents() {
+            // First load from localStorage (immediate)
+            const stored = localStorage.getItem('studyhub_user_events');
+            console.log('Loading from localStorage:', stored);
+            userAddedEvents = JSON.parse(stored || '{}');
+            console.log('Parsed userAddedEvents:', userAddedEvents);
+            mergeAllEvents();
+            console.log('After merge, calendarEvents:', calendarEvents);
+
+            // Then try to load from cloud (async)
             if (cloudSyncEnabled) {
                 try {
                     const response = await fetch(CLOUD_STORAGE_URL);
                     if (response.ok) {
-                        cloudEvents = await response.json();
-                        // Merge cloud events with calendar
-                        for (const [date, events] of Object.entries(cloudEvents)) {
-                            if (!calendarEvents[date]) {
-                                calendarEvents[date] = events;
-                            } else {
-                                // Add cloud events that don't exist in school schedule
+                        const cloudData = await response.json();
+                        if (cloudData && Object.keys(cloudData).length > 0) {
+                            // Merge cloud events with local user events
+                            for (const [date, events] of Object.entries(cloudData)) {
+                                if (!userAddedEvents[date]) {
+                                    userAddedEvents[date] = [];
+                                }
                                 events.forEach(cloudEvent => {
-                                    const exists = calendarEvents[date].some(e => e.id === cloudEvent.id);
+                                    const exists = userAddedEvents[date].some(e => e.id === cloudEvent.id);
                                     if (!exists) {
-                                        calendarEvents[date].push(cloudEvent);
+                                        userAddedEvents[date].push(cloudEvent);
                                     }
                                 });
                             }
+                            // Save merged events locally
+                            localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
+                            mergeAllEvents();
                         }
                     }
                 } catch (error) {
                     console.log('Cloud sync unavailable, using local data');
                 }
             }
-
-            // Also merge any localStorage events (for backwards compatibility)
-            const localEvents = JSON.parse(localStorage.getItem('studyhub_calendar') || '{}');
-            for (const [date, events] of Object.entries(localEvents)) {
-                if (!calendarEvents[date]) {
-                    calendarEvents[date] = events;
-                }
-            }
         }
 
-        // Save event to cloud
+        // Save event to cloud and localStorage
         async function saveToCloud() {
+            // Always save to localStorage first
+            console.log('Saving userAddedEvents:', userAddedEvents);
+            localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
+            console.log('Saved to localStorage, verifying:', localStorage.getItem('studyhub_user_events'));
+
             if (!cloudSyncEnabled) return;
 
             try {
-                // Get only user-added events (not from school schedule)
-                const userEvents = {};
-                for (const [date, events] of Object.entries(calendarEvents)) {
-                    const schoolEvents = schoolSchedule[date] || [];
-                    const schoolEventIds = schoolEvents.map(e => e.id);
-                    const userOnlyEvents = events.filter(e => !schoolEventIds.includes(e.id));
-                    if (userOnlyEvents.length > 0) {
-                        userEvents[date] = userOnlyEvents;
-                    }
-                }
-
                 await fetch(CLOUD_STORAGE_URL, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userEvents)
+                    body: JSON.stringify(userAddedEvents)
                 });
+                console.log('Saved to cloud');
             } catch (error) {
-                console.log('Cloud save failed, saved locally');
+                console.log('Cloud save failed, saved locally only');
             }
+        }
 
-            // Also save to localStorage as backup
-            localStorage.setItem('studyhub_calendar', JSON.stringify(calendarEvents));
+        // Add user event
+        function addUserEvent(date, event) {
+            console.log('addUserEvent called with date:', date, 'event:', event);
+            if (!userAddedEvents[date]) {
+                userAddedEvents[date] = [];
+            }
+            userAddedEvents[date].push(event);
+            console.log('userAddedEvents after add:', userAddedEvents);
+            mergeAllEvents();
+        }
+
+        // Remove user event
+        function removeUserEvent(date, eventId) {
+            if (userAddedEvents[date]) {
+                userAddedEvents[date] = userAddedEvents[date].filter(e => e.id !== eventId);
+                if (userAddedEvents[date].length === 0) {
+                    delete userAddedEvents[date];
+                }
+            }
+            mergeAllEvents();
+        }
+
+        // Update user event
+        function updateUserEvent(date, eventId, newName, newType) {
+            if (userAddedEvents[date]) {
+                const event = userAddedEvents[date].find(e => e.id === eventId);
+                if (event) {
+                    event.name = newName;
+                    event.type = newType;
+                }
+            }
+            mergeAllEvents();
         }
 
         // Initialize calendar events
@@ -2962,10 +3008,15 @@
         }
 
         async function deleteCalendarEvent(idx) {
-            calendarEvents[selectedCalendarDate].splice(idx, 1);
-            if (calendarEvents[selectedCalendarDate].length === 0) {
-                delete calendarEvents[selectedCalendarDate];
+            const event = calendarEvents[selectedCalendarDate][idx];
+            // Check if this is a school schedule event (can't delete those)
+            const isSchoolEvent = schoolSchedule[selectedCalendarDate]?.some(e => e.id === event.id);
+            if (isSchoolEvent) {
+                showToast('לא ניתן למחוק אירועים מלוח הזמנים');
+                return;
             }
+            // Remove from user events
+            removeUserEvent(selectedCalendarDate, event.id);
             // Save to cloud and localStorage
             await saveToCloud();
             renderCalendarEventsList();
@@ -2993,18 +3044,26 @@
             }
 
             if (editingEventIdx !== null) {
-                // Update existing event
-                calendarEvents[selectedCalendarDate][editingEventIdx].name = name;
-                calendarEvents[selectedCalendarDate][editingEventIdx].type = type;
+                // Update existing event - get the event ID first
+                const event = calendarEvents[selectedCalendarDate][editingEventIdx];
+                // Check if this is a user-added event (not from school schedule)
+                const isSchoolEvent = schoolSchedule[selectedCalendarDate]?.some(e => e.id === event.id);
+                if (!isSchoolEvent) {
+                    updateUserEvent(selectedCalendarDate, event.id, name, type);
+                } else {
+                    // Can't edit school schedule events
+                    showToast('לא ניתן לערוך אירועים מלוח הזמנים');
+                    editingEventIdx = null;
+                    document.getElementById('calendarAddBtn').innerHTML = '<i class="fas fa-plus"></i> הוסף';
+                    return;
+                }
                 editingEventIdx = null;
                 document.getElementById('calendarAddBtn').innerHTML = '<i class="fas fa-plus"></i> הוסף';
                 showToast('האירוע עודכן בהצלחה');
             } else {
-                // Add new event
-                if (!calendarEvents[selectedCalendarDate]) {
-                    calendarEvents[selectedCalendarDate] = [];
-                }
-                calendarEvents[selectedCalendarDate].push({ name, type, id: Date.now() });
+                // Add new event using helper function
+                const newEvent = { name, type, id: Date.now() };
+                addUserEvent(selectedCalendarDate, newEvent);
                 showToast('האירוע נוסף בהצלחה');
             }
 
