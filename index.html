@@ -1528,6 +1528,112 @@
             background: rgba(239, 68, 68, 0.4);
         }
 
+        /* Delete Confirmation Modal */
+        .delete-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .delete-modal {
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d1f3d 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.2);
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .delete-modal-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .delete-modal-icon i {
+            font-size: 2rem;
+            color: #ef4444;
+        }
+
+        .delete-modal-title {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .delete-modal-text {
+            color: #a78bfa;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .delete-modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .delete-modal-btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .delete-modal-cancel {
+            background: rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .delete-modal-cancel:hover {
+            background: rgba(139, 92, 246, 0.4);
+        }
+
+        .delete-modal-confirm {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+        }
+
+        .delete-modal-confirm:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: scale(1.05);
+        }
+
         /* Responsive - Mobile phones */
         @media screen and (max-width: 1024px) {
             /* Force sidebar to bottom */
@@ -2055,6 +2161,25 @@
                 <i class="fas fa-plus"></i> הוסף
             </button>
             <div class="calendar-events-list" id="calendarEventsList"></div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="delete-modal-overlay" id="deleteModal">
+        <div class="delete-modal">
+            <div class="delete-modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="delete-modal-title">האם אתה בטוח?</h3>
+            <p class="delete-modal-text" id="deleteModalText">האם למחוק את הפריט הזה?</p>
+            <div class="delete-modal-buttons">
+                <button class="delete-modal-btn delete-modal-cancel" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i> ביטול
+                </button>
+                <button class="delete-modal-btn delete-modal-confirm" id="deleteModalConfirm">
+                    <i class="fas fa-trash"></i> מחק
+                </button>
+            </div>
         </div>
     </div>
 
@@ -3097,22 +3222,47 @@
             renderCourseView();
         }
 
-        function confirmDelete(idx) {
-            if (confirm('למחוק את הפריט?')) {
-                appData[currentCourse][currentCategory].splice(idx, 1);
+        let pendingDeleteIdx = null;
+        let pendingDeleteFromList = false;
+
+        function showDeleteModal(itemName, idx, fromList = false) {
+            pendingDeleteIdx = idx;
+            pendingDeleteFromList = fromList;
+            document.getElementById('deleteModalText').textContent = `האם למחוק את "${itemName}"?`;
+            document.getElementById('deleteModal').style.display = 'flex';
+            document.getElementById('deleteModalConfirm').onclick = executeDelete;
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            pendingDeleteIdx = null;
+            pendingDeleteFromList = false;
+        }
+
+        function executeDelete() {
+            if (pendingDeleteIdx !== null) {
+                appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
                 saveData();
-                viewingItem = null;
+                if (pendingDeleteFromList) {
+                    showToast('הפריט נמחק');
+                } else {
+                    viewingItem = null;
+                }
                 renderCourseView();
             }
+            closeDeleteModal();
+        }
+
+        function confirmDelete(idx) {
+            const item = appData[currentCourse][currentCategory][idx];
+            const itemName = item.name || item.title || item.text?.substring(0, 30) || 'פריט';
+            showDeleteModal(itemName, idx, false);
         }
 
         function confirmDeleteFromList(idx) {
-            if (confirm('למחוק את הפריט?')) {
-                appData[currentCourse][currentCategory].splice(idx, 1);
-                saveData();
-                showToast('הפריט נמחק');
-                renderCourseView();
-            }
+            const item = appData[currentCourse][currentCategory][idx];
+            const itemName = item.name || item.title || item.text?.substring(0, 30) || 'פריט';
+            showDeleteModal(itemName, idx, true);
         }
 
         function addNote() {
