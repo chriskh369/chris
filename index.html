@@ -2747,21 +2747,15 @@
         async function loadCalendarEvents() {
             // First load from localStorage (immediate)
             const stored = localStorage.getItem('studyhub_user_events');
-            console.log('Loading from localStorage:', stored);
             userAddedEvents = JSON.parse(stored || '{}');
-            console.log('Parsed userAddedEvents:', userAddedEvents);
             mergeAllEvents();
-            console.log('After merge, calendarEvents:', calendarEvents);
 
             // Then try to load from cloud (async)
             if (cloudSyncEnabled) {
                 try {
-                    console.log('Fetching from cloud...');
                     const response = await fetch(CLOUD_STORAGE_URL);
-                    console.log('Cloud response status:', response.status);
                     if (response.ok) {
                         const text = await response.text();
-                        console.log('Cloud data received:', text);
                         if (text && text.trim() !== '') {
                             const cloudData = JSON.parse(text);
                             if (cloudData && Object.keys(cloudData).length > 0) {
@@ -2780,12 +2774,11 @@
                                 // Save merged events locally
                                 localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
                                 mergeAllEvents();
-                                console.log('Merged cloud data with local');
                             }
                         }
                     }
                 } catch (error) {
-                    console.log('Cloud sync unavailable:', error);
+                    // Cloud sync unavailable, using local data only
                 }
             }
         }
@@ -2793,39 +2786,27 @@
         // Save event to cloud and localStorage
         async function saveToCloud() {
             // Always save to localStorage first
-            console.log('Saving userAddedEvents:', userAddedEvents);
             localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
-            console.log('Saved to localStorage, verifying:', localStorage.getItem('studyhub_user_events'));
 
             if (!cloudSyncEnabled) return;
 
             try {
-                const response = await fetch(CLOUD_STORAGE_URL, {
+                await fetch(CLOUD_STORAGE_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userAddedEvents)
                 });
-                console.log('Cloud save response:', response.status, response.ok);
-                if (response.ok) {
-                    console.log('Saved to cloud successfully');
-                } else {
-                    console.log('Cloud save failed with status:', response.status);
-                }
             } catch (error) {
-                console.log('Cloud save failed:', error);
+                // Cloud save failed, data saved locally only
             }
         }
 
         // Add user event
         function addUserEvent(date, event) {
-            console.log('addUserEvent called with date:', date, 'event:', event);
             if (!userAddedEvents[date]) {
                 userAddedEvents[date] = [];
             }
             userAddedEvents[date].push(event);
-            console.log('userAddedEvents after add:', userAddedEvents);
             mergeAllEvents();
         }
 
