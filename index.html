@@ -2503,11 +2503,19 @@
 
         // Count items in appData
         function countAppDataItems(data) {
-            if (!data || !data.courses) return 0;
-            let count = Object.keys(data.courses).length;
-            for (const courseId in data.courses) {
-                const course = data.courses[courseId];
-                if (course.items) count += course.items.length;
+            if (!data) return 0;
+            let count = 0;
+            // Count course IDs (like 'data-structures', 'databases', etc.)
+            for (const key in data) {
+                if (typeof data[key] === 'object' && data[key] !== null) {
+                    count++;
+                    // Count items in each category
+                    for (const catKey in data[key]) {
+                        if (Array.isArray(data[key][catKey])) {
+                            count += data[key][catKey].length;
+                        }
+                    }
+                }
             }
             return count;
         }
@@ -2569,7 +2577,7 @@
                     }
 
                     // Cloud empty or invalid
-                    if (!appData || !appData.courses) {
+                    if (countAppDataItems(appData) === 0) {
                         console.log('☁️ Cloud empty, creating defaults');
                         createDefaultData();
                         await saveData();
@@ -2580,13 +2588,13 @@
                     }
                 } else {
                     console.log('☁️ Cloud failed:', response.status);
-                    if (!appData || !appData.courses) {
+                    if (countAppDataItems(appData) === 0) {
                         createDefaultData();
                     }
                 }
             } catch(e) {
                 console.log('❌ Network error:', e.message || e);
-                if (!appData || !appData.courses) {
+                if (countAppDataItems(appData) === 0) {
                     createDefaultData();
                 }
             }
