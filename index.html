@@ -2560,6 +2560,11 @@
 
         // Background cloud sync - CLOUD IS SOURCE OF TRUTH
         function syncFromCloud() {
+            // Skip if we're currently pushing to cloud (prevent race condition)
+            if (isSyncing) {
+                console.log('⏳ Sync in progress, skipping...');
+                return;
+            }
             console.log('🔄 Syncing with cloud...');
             fetch(`https://api.github.com/gists/${GIST_ID}`, {
                 headers: {
@@ -2671,6 +2676,7 @@
         // Save data ONLY to cloud
         // Save to localStorage instantly, sync to cloud in background
         let cloudCalendar = {};
+        let isSyncing = false; // Prevent race condition
 
         function saveData() {
             // Save to localStorage INSTANTLY
@@ -2681,6 +2687,7 @@
         }
 
         async function syncToCloud() {
+            isSyncing = true;
             try {
                 const cloudJson = { appdata: appData, calendar: cloudCalendar };
                 await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -2698,6 +2705,7 @@
             } catch (error) {
                 console.log('Sync failed:', error);
             }
+            isSyncing = false;
         }
 
         // Export data to file
