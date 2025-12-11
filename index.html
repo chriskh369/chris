@@ -2564,18 +2564,19 @@
                         const cloudJson = JSON.parse(content);
                         if (cloudJson.calendar) cloudCalendar = cloudJson.calendar;
                         if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                            const cloudSize = JSON.stringify(cloudJson.appdata).length;
-                            const localSize = JSON.stringify(appData).length;
-                            if (cloudSize > localSize) {
-                                appData = cloudJson.appdata;
-                                localStorage.setItem('studyhub_data', JSON.stringify(appData));
-                                rerenderCurrentPage();
-                                console.log('☁️ Cloud sync');
-                            }
+                            // Always use cloud data - it's the source of truth
+                            appData = cloudJson.appdata;
+                            localStorage.setItem('studyhub_data', JSON.stringify(appData));
+                            rerenderCurrentPage();
+                            console.log('☁️ Cloud sync');
                         }
-                    } catch(e) {}
+                    } catch(e) {
+                        console.log('Cloud parse error:', e);
+                    }
                 }
-            }).catch(e => {});
+            }).catch(e => {
+                console.log('Cloud fetch error:', e);
+            });
         }
 
         // Merge two app data objects - combine all items from both
