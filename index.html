@@ -1281,6 +1281,11 @@
             gap: 8px;
         }
 
+        /* Hide mobile list on desktop */
+        .calendar-mobile-list {
+            display: none;
+        }
+
         .calendar-day-header {
             text-align: center;
             padding: 10px;
@@ -1774,9 +1779,9 @@
             .empty-state h3 { font-size: 1.1rem; }
             .empty-state p { font-size: 0.9rem; }
 
-            /* Calendar mobile - simple and clean */
+            /* Calendar mobile - list view */
             .calendar-container {
-                padding: 0 !important;
+                padding: 0 10px !important;
                 width: 100% !important;
                 max-width: 100vw !important;
                 box-sizing: border-box !important;
@@ -1799,43 +1804,67 @@
                 min-width: 130px;
                 text-align: center;
             }
+            /* Hide grid calendar on mobile */
             .calendar-grid {
-                display: grid !important;
-                grid-template-columns: repeat(7, 1fr) !important;
-                gap: 2px !important;
-                width: 100% !important;
-                padding: 0 5px !important;
-                box-sizing: border-box !important;
-            }
-            .calendar-day-header {
-                padding: 8px 0;
-                font-size: 0.75rem;
-                text-align: center;
-            }
-            .calendar-day {
-                min-height: auto !important;
-                height: auto !important;
-                padding: 8px 2px;
-                border-radius: 8px;
-                aspect-ratio: auto !important;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .calendar-day-number {
-                font-size: 0.9rem;
-                font-weight: 600;
-            }
-            .calendar-event {
                 display: none !important;
             }
-            .calendar-day.has-events::after {
-                content: '';
-                width: 6px;
-                height: 6px;
-                background: #ec4899;
-                border-radius: 50%;
-                margin-top: 4px;
+            /* Show mobile list view */
+            .calendar-mobile-list {
+                display: block !important;
+            }
+            .calendar-mobile-day {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(139, 92, 246, 0.2);
+                border-radius: 12px;
+                margin-bottom: 10px;
+                overflow: hidden;
+            }
+            .calendar-mobile-day.today {
+                border-color: #ec4899;
+                box-shadow: 0 0 10px rgba(236, 72, 153, 0.3);
+            }
+            .calendar-mobile-day-header {
+                background: rgba(139, 92, 246, 0.15);
+                padding: 10px 12px;
+                font-weight: 600;
+                color: #a78bfa;
+                display: flex;
+                justify-content: space-between;
+            }
+            .calendar-mobile-day.today .calendar-mobile-day-header {
+                background: rgba(236, 72, 153, 0.2);
+                color: #ec4899;
+            }
+            .calendar-mobile-events {
+                padding: 8px;
+            }
+            .calendar-mobile-event {
+                padding: 8px 10px;
+                margin-bottom: 6px;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                color: #fff;
+            }
+            .calendar-mobile-event:last-child {
+                margin-bottom: 0;
+            }
+            .calendar-mobile-event.course {
+                background: rgba(34, 211, 238, 0.2);
+                border-right: 3px solid #22d3ee;
+            }
+            .calendar-mobile-event.homework {
+                background: rgba(251, 191, 36, 0.2);
+                border-right: 3px solid #fbbf24;
+            }
+            .calendar-mobile-event.test {
+                background: rgba(239, 68, 68, 0.2);
+                border-right: 3px solid #ef4444;
+            }
+            .calendar-mobile-no-events {
+                color: #666;
+                font-size: 0.85rem;
+                text-align: center;
+                padding: 10px;
             }
             .calendar-modal { padding: 20px; max-width: 95%; }
             .calendar-modal-title { font-size: 1.1rem; }
@@ -2500,6 +2529,42 @@
             const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
             for (let day = 1; day <= remainingCells; day++) {
                 html += `<div class="calendar-day other-month"><div class="calendar-day-number">${day}</div></div>`;
+            }
+
+            html += `</div>`;
+
+            // Mobile list view
+            const hebrewDayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+            html += `<div class="calendar-mobile-list">`;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateObj = new Date(year, month, day);
+                const dayOfWeek = dateObj.getDay();
+                const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+                const dayEvents = calendarEvents[dateKey] || [];
+
+                // Only show days with events or today
+                if (dayEvents.length > 0 || isToday) {
+                    html += `
+                        <div class="calendar-mobile-day ${isToday ? 'today' : ''}" onclick="openCalendarModal('${dateKey}')">
+                            <div class="calendar-mobile-day-header">
+                                <span>יום ${hebrewDayNames[dayOfWeek]}, ${day} ${hebrewMonths[month]}</span>
+                                <span>${dayEvents.length} שיעורים</span>
+                            </div>
+                            <div class="calendar-mobile-events">
+                    `;
+
+                    if (dayEvents.length > 0) {
+                        dayEvents.forEach(event => {
+                            html += `<div class="calendar-mobile-event ${event.type}">${event.name}</div>`;
+                        });
+                    } else {
+                        html += `<div class="calendar-mobile-no-events">אין שיעורים היום</div>`;
+                    }
+
+                    html += `</div></div>`;
+                }
             }
 
             html += `</div></div>`;
