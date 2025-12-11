@@ -2543,7 +2543,7 @@
                             if (cloudSize > localSize) {
                                 appData = cloudJson.appdata;
                                 localStorage.setItem('studyhub_data', JSON.stringify(appData));
-                                renderCourses();
+                                rerenderCurrentPage();
                                 console.log('☁️ Cloud sync');
                             }
                         }
