@@ -2541,12 +2541,18 @@
                     if (response.ok) {
                         cloudJson = await response.json();
                     }
-                } catch(e) {}
+                } catch(e) {
+                    console.log('Cloud fetch for merge failed:', e);
+                }
 
-                // Update appdata while preserving calendar
-                cloudJson.appdata = appData;
+                // Merge appdata - combine cloud data with local data
+                if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
+                    cloudJson.appdata = mergeAppData(cloudJson.appdata, appData);
+                } else {
+                    cloudJson.appdata = appData;
+                }
 
-                await fetch(CLOUD_URL, {
+                const saveResponse = await fetch(CLOUD_URL, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2554,6 +2560,9 @@
                     },
                     body: JSON.stringify(cloudJson)
                 });
+                if (saveResponse.ok) {
+                    console.log('☁️ Cloud sync successful');
+                }
             } catch (error) {
                 console.log('Cloud save failed:', error);
             }
