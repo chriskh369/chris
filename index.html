@@ -2502,6 +2502,7 @@
 
         // Load data ONLY from cloud
         async function loadData() {
+            console.log('🔄 Loading from cloud...');
             try {
                 const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     headers: {
@@ -2509,27 +2510,35 @@
                         'Accept': 'application/vnd.github.v3+json'
                     }
                 });
+                console.log('📡 Status:', response.status);
                 if (response.ok) {
                     const gist = await response.json();
                     const content = gist.files[GIST_FILENAME]?.content;
                     if (content) {
-                        const cloudJson = JSON.parse(content);
-                        if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                            appData = cloudJson.appdata;
-                            console.log('☁️ Loaded from cloud');
-                        } else {
+                        try {
+                            const cloudJson = JSON.parse(content);
+                            if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
+                                appData = cloudJson.appdata;
+                                localStorage.setItem('studyhub_data', JSON.stringify(appData));
+                                console.log('☁️ Loaded from cloud');
+                            } else {
+                                createDefaultData();
+                                await saveData();
+                            }
+                        } catch(parseErr) {
+                            console.log('❌ JSON parse error:', parseErr.message);
                             createDefaultData();
-                            await saveData();
                         }
                     } else {
                         createDefaultData();
                         await saveData();
                     }
                 } else {
+                    console.log('❌ Cloud error:', response.status);
                     createDefaultData();
                 }
             } catch(e) {
-                console.log('Cloud load failed:', e);
+                console.log('❌ Network error:', e.message || e);
                 createDefaultData();
             }
         }
@@ -2590,8 +2599,13 @@
             return merged;
         }
 
-        // Save data ONLY to cloud
+        // Save data to localStorage AND cloud
         async function saveData() {
+            // Save to localStorage first (fast)
+            localStorage.setItem('studyhub_data', JSON.stringify(appData));
+            console.log('💾 Saved locally');
+
+            // Then save to cloud
             try {
                 // Get current cloud to preserve calendar
                 let cloudJson = { appdata: {}, calendar: {} };
@@ -2605,7 +2619,11 @@
                     if (getResponse.ok) {
                         const gist = await getResponse.json();
                         const content = gist.files[GIST_FILENAME]?.content;
-                        if (content) cloudJson = JSON.parse(content);
+                        if (content) {
+                            try {
+                                cloudJson = JSON.parse(content);
+                            } catch(e) {}
+                        }
                     }
                 } catch(e) {}
 
@@ -2625,10 +2643,12 @@
                 });
                 if (saveResponse.ok) {
                     console.log('☁️ Saved to cloud');
+                } else {
+                    console.log('❌ Cloud save failed:', saveResponse.status);
                 }
                 return true;
             } catch (error) {
-                console.log('Cloud save failed:', error);
+                console.log('❌ Cloud save error:', error.message || error);
                 return false;
             }
         }
