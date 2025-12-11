@@ -95,7 +95,7 @@
         }
 
         .menu-item {
-            padding: 12px 20px;
+            padding: 16px 24px;
             cursor: pointer;
             transition: all 0.15s ease-out;
             display: flex;
@@ -104,11 +104,20 @@
             font-weight: 500;
             border-right: 3px solid transparent;
             color: #a78bfa;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+            min-height: 48px;
         }
 
         .menu-item:hover {
             background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.15));
             color: #fff;
+        }
+
+        .menu-item:active {
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.35));
+            transform: scale(0.98);
         }
 
         .menu-item.active {
@@ -1687,22 +1696,26 @@
             .logo-icon { width: 40px; height: 40px; font-size: 16px; }
             .logo h1 { display: none !important; }
             .menu-item {
-                padding: 12px 20px;
+                padding: 16px 24px;
                 border-right: none !important;
                 border-bottom: 3px solid transparent;
                 font-size: 1.5rem;
                 display: flex !important;
                 align-items: center;
                 justify-content: center;
+                min-width: 60px;
+                min-height: 50px;
+                flex: 1;
             }
             .menu-item i {
                 font-size: 1.5rem;
+                pointer-events: none;
             }
             .menu-item.active {
                 border-bottom-color: #ec4899 !important;
                 border-right-color: transparent !important;
             }
-            .menu-item span { display: none !important; }
+            .menu-item span { display: none !important; pointer-events: none; }
             .logout-btn {
                 position: static !important;
                 margin: 0 !important;
