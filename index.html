@@ -3336,7 +3336,8 @@
 
         function deleteNote(noteIdx) {
             const item = appData[currentCourse][currentCategory][viewingItem];
-            const noteText = item.notes[noteIdx]?.substring(0, 30) || 'הערה';
+            const note = item.notes[noteIdx];
+            const noteText = (note?.text || note)?.substring(0, 30) || 'הערה';
             showDeleteModal(noteText, noteIdx, 'note');
         }
 
