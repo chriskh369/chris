@@ -3349,10 +3349,13 @@
                     item.uploadDate = newFile.uploadDate;
                 }
 
-                saveData();
-                showToast('הקובץ נוסף בהצלחה!');
-                renderItemDetail();
-                setTimeout(setupDetailDropZone, 100);
+                saveData().then(success => {
+                    if (success) {
+                        showToast('הקובץ נוסף בהצלחה!');
+                    }
+                    renderItemDetail();
+                    setTimeout(setupDetailDropZone, 100);
+                });
             };
             reader.onerror = () => {
                 alert('שגיאה בקריאת הקובץ');
@@ -3638,22 +3641,23 @@
 
             if (pendingDeleteType === 'item') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
-                saveData();
                 viewingItem = null;
-                renderCourseView();
+                saveData().then(() => renderCourseView());
             } else if (pendingDeleteType === 'itemList') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
-                saveData();
-                showToast('הפריט נמחק');
-                renderCourseView();
+                saveData().then(success => {
+                    if (success) showToast('הפריט נמחק');
+                    renderCourseView();
+                });
             } else if (pendingDeleteType === 'note') {
                 const item = appData[currentCourse][currentCategory][viewingItem];
                 item.notes.splice(pendingDeleteIdx, 1);
-                saveData();
-                showToast('ההערה נמחקה');
-                renderCourseView();
-                renderItemDetail();
-                setTimeout(setupDetailDropZone, 100);
+                saveData().then(success => {
+                    if (success) showToast('ההערה נמחקה');
+                    renderCourseView();
+                    renderItemDetail();
+                    setTimeout(setupDetailDropZone, 100);
+                });
             } else if (pendingDeleteType === 'file') {
                 const item = appData[currentCourse][currentCategory][viewingItem];
                 item.files.splice(pendingDeleteIdx, 1);
@@ -3666,11 +3670,12 @@
                     item.fileType = null;
                     item.fileData = null;
                 }
-                saveData();
-                showToast('הקובץ נמחק');
-                renderCourseView();
-                renderItemDetail();
-                setTimeout(setupDetailDropZone, 100);
+                saveData().then(success => {
+                    if (success) showToast('הקובץ נמחק');
+                    renderCourseView();
+                    renderItemDetail();
+                    setTimeout(setupDetailDropZone, 100);
+                });
             }
             closeDeleteModal();
         }
@@ -3718,10 +3723,13 @@
                 date: new Date().toISOString()
             });
 
-            saveData();
-            showToast('ההערה נוספה בהצלחה!');
-            renderItemDetail();
-            setTimeout(setupDetailDropZone, 100);
+            saveData().then(success => {
+                if (success) {
+                    showToast('ההערה נוספה בהצלחה!');
+                }
+                renderItemDetail();
+                setTimeout(setupDetailDropZone, 100);
+            });
         }
 
         function deleteNote(noteIdx) {
@@ -3858,14 +3866,15 @@
                 appData[currentCourse][currentCategory].push(itemData);
             }
 
-            saveData();
             closeModal();
-            showToast('נשמר בהצלחה!');
-            if (viewingItem !== null) {
-                renderItemDetail();
-            } else {
-                renderCourseView();
-            }
+            saveData().then(success => {
+                if (success) showToast('נשמר בהצלחה!');
+                if (viewingItem !== null) {
+                    renderItemDetail();
+                } else {
+                    renderCourseView();
+                }
+            });
         }
 
         // ========== FILE ==========
