@@ -2513,14 +2513,66 @@
             });
         }
 
-        // Load data from cloud with localStorage backup
+        // Save to IndexedDB (handles large data better than localStorage)
+        async function saveToIndexedDB(data) {
+            return new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open('StudyHubDB', 1);
+                    request.onerror = () => resolve(false);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('appdata')) {
+                            db.createObjectStore('appdata', { keyPath: 'id' });
+                        }
+                    };
+                    request.onsuccess = (e) => {
+                        try {
+                            const db = e.target.result;
+                            const tx = db.transaction('appdata', 'readwrite');
+                            const store = tx.objectStore('appdata');
+                            store.put({ id: 'main', data: data });
+                            tx.oncomplete = () => resolve(true);
+                            tx.onerror = () => resolve(false);
+                        } catch(err) { resolve(false); }
+                    };
+                } catch(err) { resolve(false); }
+            });
+        }
+
+        // Load from IndexedDB
+        async function loadFromIndexedDB() {
+            return new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open('StudyHubDB', 1);
+                    request.onerror = () => resolve(null);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('appdata')) {
+                            db.createObjectStore('appdata', { keyPath: 'id' });
+                        }
+                    };
+                    request.onsuccess = (e) => {
+                        try {
+                            const db = e.target.result;
+                            const tx = db.transaction('appdata', 'readonly');
+                            const store = tx.objectStore('appdata');
+                            const getReq = store.get('main');
+                            getReq.onsuccess = () => resolve(getReq.result?.data || null);
+                            getReq.onerror = () => resolve(null);
+                        } catch(err) { resolve(null); }
+                    };
+                } catch(err) { resolve(null); }
+            });
+        }
+
+        // Load data from cloud with local backup
         async function loadData() {
             let loadedFromCloud = false;
 
-            // Try cloud first
+            // Try cloud first with longer timeout for large files
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for large data
 
                 const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     method: 'GET',
@@ -2529,7 +2581,8 @@
                         'Accept': 'application/vnd.github.v3+json'
                     },
                     signal: controller.signal,
-                    cache: 'no-cache'
+                    cache: 'no-cache',
+                    mode: 'cors'
                 });
                 clearTimeout(timeoutId);
 
@@ -2540,9 +2593,9 @@
                         const cloudJson = JSON.parse(content);
                         if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
                             appData = cloudJson.appdata;
-                            // Save to localStorage as backup
-                            localStorage.setItem('studyhub_appdata_backup', JSON.stringify(appData));
-                            console.log('☁️ Loaded from cloud');
+                            // Save to IndexedDB as backup (handles large data)
+                            await saveToIndexedDB(appData);
+                            console.log('☁️ Loaded from cloud (with files)');
                             loadedFromCloud = true;
                         }
                     }
@@ -2553,17 +2606,31 @@
                 console.log('Cloud load failed:', e.message || e);
             }
 
-            // If cloud failed, try localStorage backup
+            // If cloud failed, try IndexedDB backup
+            if (!loadedFromCloud) {
+                try {
+                    const backup = await loadFromIndexedDB();
+                    if (backup && Object.keys(backup).length > 0) {
+                        appData = backup;
+                        console.log('📱 Loaded from IndexedDB backup');
+                        loadedFromCloud = true;
+                    }
+                } catch(e) {
+                    console.log('IndexedDB load failed:', e);
+                }
+            }
+
+            // If still nothing, try localStorage (for older data)
             if (!loadedFromCloud) {
                 try {
                     const backup = localStorage.getItem('studyhub_appdata_backup');
                     if (backup) {
                         appData = JSON.parse(backup);
-                        console.log('📱 Loaded from local backup');
+                        console.log('📱 Loaded from localStorage backup');
                         loadedFromCloud = true;
                     }
                 } catch(e) {
-                    console.log('Local backup load failed:', e);
+                    console.log('localStorage load failed:', e);
                 }
             }
 
@@ -2630,20 +2697,20 @@
             return merged;
         }
 
-        // Save data to cloud and localStorage backup
+        // Save data to cloud and local backup
         async function saveData() {
-            // Always save to localStorage backup first
+            // Always save to IndexedDB backup first (handles large files)
             try {
-                localStorage.setItem('studyhub_appdata_backup', JSON.stringify(appData));
-                console.log('📱 Saved to local backup');
+                await saveToIndexedDB(appData);
+                console.log('📱 Saved to IndexedDB backup');
             } catch(e) {
-                console.log('Local backup save failed:', e);
+                console.log('IndexedDB backup save failed:', e);
             }
 
             // Then try to save to cloud
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 sec for large files
 
                 // Get current cloud to preserve calendar
                 let cloudJson = { appdata: {}, calendar: {} };
@@ -2655,7 +2722,8 @@
                             'Accept': 'application/vnd.github.v3+json'
                         },
                         signal: controller.signal,
-                        cache: 'no-cache'
+                        cache: 'no-cache',
+                        mode: 'cors'
                     });
                     if (getResponse.ok) {
                         const gist = await getResponse.json();
@@ -2672,7 +2740,7 @@
                 cloudJson.appdata = appData;
 
                 const controller2 = new AbortController();
-                const timeoutId2 = setTimeout(() => controller2.abort(), 10000);
+                const timeoutId2 = setTimeout(() => controller2.abort(), 60000); // 60 sec for upload
 
                 const saveResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     method: 'PATCH',
@@ -2684,7 +2752,8 @@
                     body: JSON.stringify({
                         files: { [GIST_FILENAME]: { content: JSON.stringify(cloudJson) } }
                     }),
-                    signal: controller2.signal
+                    signal: controller2.signal,
+                    mode: 'cors'
                 });
                 clearTimeout(timeoutId2);
 

@@ -33,7 +33,8 @@
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" gist view 70ade01d4645cc8013a741b74d83561c --raw)",
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth token)",
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api user -q .login)",
-      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api gists/70ade01d4645cc8013a741b74d83561c --jq \".files[\"\"studyhub_cloud.json\"\"].content\")"
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api gists/70ade01d4645cc8013a741b74d83561c --jq \".files[\"\"studyhub_cloud.json\"\"].content\")",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api gists/70ade01d4645cc8013a741b74d83561c --jq \".files[\"\"studyhub_cloud.json\"\"].content | length\")"
     ]
   }
 }
