@@ -182,8 +182,8 @@
         .course-card {
             background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 18px;
-            padding: 25px;
+            border-radius: 36px;
+            padding: 50px;
             cursor: pointer;
             transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, border-color 0.15s ease-out;
             position: relative;
@@ -221,24 +221,24 @@
         .course-card:hover::after { opacity: 0.1; }
 
         .course-card-icon {
-            width: 55px;
-            height: 55px;
+            width: 110px;
+            height: 110px;
             background: linear-gradient(135deg, var(--color), color-mix(in srgb, var(--color) 60%, #ec4899));
-            border-radius: 14px;
+            border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            margin-bottom: 18px;
+            font-size: 44px;
+            margin-bottom: 36px;
             box-shadow: 0 8px 25px color-mix(in srgb, var(--color) 40%, transparent);
             position: relative;
             z-index: 1;
         }
 
         .course-card-name {
-            font-size: 1.2rem;
+            font-size: 2.4rem;
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-bottom: 12px;
             color: var(--color);
             position: relative;
             z-index: 1;
@@ -246,7 +246,7 @@
         }
 
         .course-card-count {
-            font-size: 0.85rem;
+            font-size: 1.7rem;
             color: #a78bfa;
             position: relative;
             z-index: 1;
@@ -1293,13 +1293,13 @@
             }
 
             .course-grid {
-                grid-template-columns: 1fr 1fr !important;
-                gap: 12px;
+                grid-template-columns: 1fr !important;
+                gap: 20px;
             }
-            .course-card { padding: 18px; border-radius: 14px; }
-            .course-card-icon { width: 45px; height: 45px; font-size: 18px; margin-bottom: 10px; }
-            .course-card-name { font-size: 1rem; }
-            .course-card-count { font-size: 0.85rem; margin-top: 6px; }
+            .course-card { padding: 36px; border-radius: 28px; }
+            .course-card-icon { width: 90px; height: 90px; font-size: 36px; margin-bottom: 20px; }
+            .course-card-name { font-size: 2rem; }
+            .course-card-count { font-size: 1.4rem; margin-top: 12px; }
 
             /* Inside course - back button */
             .back-btn {
