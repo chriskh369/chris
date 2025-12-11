@@ -2713,8 +2713,10 @@
             ]
         };
 
-        // Cloud sync configuration
-        const CLOUD_STORAGE_URL = 'https://jsonblob.com/api/jsonBlob/019b0ccd-db03-768a-a006-44ba031068e8';
+        // Cloud sync configuration - using KVdb.io (CORS enabled)
+        const CLOUD_BUCKET = 'WPa4gFU4rkg33ccTHVRSZU';
+        const CLOUD_KEY = 'studyhub_calendar';
+        const CLOUD_STORAGE_URL = `https://kvdb.io/${CLOUD_BUCKET}/${CLOUD_KEY}`;
         let cloudEvents = {};
         let calendarEvents = {};
         let userAddedEvents = {}; // Store user-added events separately
@@ -2755,30 +2757,31 @@
             if (cloudSyncEnabled) {
                 try {
                     console.log('Fetching from cloud...');
-                    const response = await fetch(CLOUD_STORAGE_URL, {
-                        headers: { 'Accept': 'application/json' }
-                    });
+                    const response = await fetch(CLOUD_STORAGE_URL);
                     console.log('Cloud response status:', response.status);
                     if (response.ok) {
-                        const cloudData = await response.json();
-                        console.log('Cloud data received:', cloudData);
-                        if (cloudData && Object.keys(cloudData).length > 0) {
-                            // Merge cloud events with local user events
-                            for (const [date, events] of Object.entries(cloudData)) {
-                                if (!userAddedEvents[date]) {
-                                    userAddedEvents[date] = [];
-                                }
-                                events.forEach(cloudEvent => {
-                                    const exists = userAddedEvents[date].some(e => e.id === cloudEvent.id);
-                                    if (!exists) {
-                                        userAddedEvents[date].push(cloudEvent);
+                        const text = await response.text();
+                        console.log('Cloud data received:', text);
+                        if (text && text.trim() !== '') {
+                            const cloudData = JSON.parse(text);
+                            if (cloudData && Object.keys(cloudData).length > 0) {
+                                // Merge cloud events with local user events
+                                for (const [date, events] of Object.entries(cloudData)) {
+                                    if (!userAddedEvents[date]) {
+                                        userAddedEvents[date] = [];
                                     }
-                                });
+                                    events.forEach(cloudEvent => {
+                                        const exists = userAddedEvents[date].some(e => e.id === cloudEvent.id);
+                                        if (!exists) {
+                                            userAddedEvents[date].push(cloudEvent);
+                                        }
+                                    });
+                                }
+                                // Save merged events locally
+                                localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
+                                mergeAllEvents();
+                                console.log('Merged cloud data with local');
                             }
-                            // Save merged events locally
-                            localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
-                            mergeAllEvents();
-                            console.log('Merged cloud data with local');
                         }
                     }
                 } catch (error) {
@@ -2798,10 +2801,9 @@
 
             try {
                 const response = await fetch(CLOUD_STORAGE_URL, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(userAddedEvents)
                 });
