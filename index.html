@@ -2547,7 +2547,7 @@
             syncFromCloud();
         }
 
-        // Background cloud sync
+        // Background cloud sync - merge local and cloud data
         function syncFromCloud() {
             fetch(`https://api.github.com/gists/${GIST_ID}`, {
                 headers: {
@@ -2564,11 +2564,18 @@
                         const cloudJson = JSON.parse(content);
                         if (cloudJson.calendar) cloudCalendar = cloudJson.calendar;
                         if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                            // Always use cloud data - it's the source of truth
-                            appData = cloudJson.appdata;
+                            // Merge local and cloud data together
+                            const merged = mergeAppData(cloudJson.appdata, appData);
+                            appData = merged;
                             localStorage.setItem('studyhub_data', JSON.stringify(appData));
+                            // Push merged data back to cloud
+                            syncToCloud();
                             rerenderCurrentPage();
-                            console.log('☁️ Cloud sync');
+                            console.log('☁️ Synced & merged');
+                        } else if (Object.keys(appData).length > 0) {
+                            // Cloud empty but local has data - push to cloud
+                            syncToCloud();
+                            console.log('☁️ Pushed local to cloud');
                         }
                     } catch(e) {
                         console.log('Cloud parse error:', e);
