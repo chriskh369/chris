@@ -28,7 +28,8 @@
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" repo edit chriskh369/chris --visibility public --accept-visibility-change-consequences)",
       "Bash(start \"\" \"https://chriskh369.github.io/chris/\")",
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api repos/chriskh369/chris/pages)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "Bash(curl:*)"
     ]
   }
 }

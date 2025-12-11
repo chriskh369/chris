@@ -2754,9 +2754,14 @@
             // Then try to load from cloud (async)
             if (cloudSyncEnabled) {
                 try {
-                    const response = await fetch(CLOUD_STORAGE_URL);
+                    console.log('Fetching from cloud...');
+                    const response = await fetch(CLOUD_STORAGE_URL, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    console.log('Cloud response status:', response.status);
                     if (response.ok) {
                         const cloudData = await response.json();
+                        console.log('Cloud data received:', cloudData);
                         if (cloudData && Object.keys(cloudData).length > 0) {
                             // Merge cloud events with local user events
                             for (const [date, events] of Object.entries(cloudData)) {
@@ -2773,10 +2778,11 @@
                             // Save merged events locally
                             localStorage.setItem('studyhub_user_events', JSON.stringify(userAddedEvents));
                             mergeAllEvents();
+                            console.log('Merged cloud data with local');
                         }
                     }
                 } catch (error) {
-                    console.log('Cloud sync unavailable, using local data');
+                    console.log('Cloud sync unavailable:', error);
                 }
             }
         }
@@ -2791,14 +2797,22 @@
             if (!cloudSyncEnabled) return;
 
             try {
-                await fetch(CLOUD_STORAGE_URL, {
+                const response = await fetch(CLOUD_STORAGE_URL, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify(userAddedEvents)
                 });
-                console.log('Saved to cloud');
+                console.log('Cloud save response:', response.status, response.ok);
+                if (response.ok) {
+                    console.log('Saved to cloud successfully');
+                } else {
+                    console.log('Cloud save failed with status:', response.status);
+                }
             } catch (error) {
-                console.log('Cloud save failed, saved locally only');
+                console.log('Cloud save failed:', error);
             }
         }
 
