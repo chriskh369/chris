@@ -2814,11 +2814,12 @@
         };
 
         // Cloud sync configuration - using KVdb.io (CORS enabled)
-        const CLOUD_BUCKET = 'WPa4gFU4rkg33ccTHVRSZU';
+        const CLOUD_BUCKET_CALENDAR = 'WPa4gFU4rkg33ccTHVRSZU';
+        const CLOUD_BUCKET_APPDATA = 'CqAqcuV1GYnjB2wtJABUN2';
         const CLOUD_KEY_CALENDAR = 'studyhub_calendar';
         const CLOUD_KEY_APPDATA = 'studyhub_appdata';
-        const CLOUD_STORAGE_URL = `https://kvdb.io/${CLOUD_BUCKET}/${CLOUD_KEY_CALENDAR}`;
-        const CLOUD_APPDATA_URL = `https://kvdb.io/${CLOUD_BUCKET}/${CLOUD_KEY_APPDATA}`;
+        const CLOUD_STORAGE_URL = `https://kvdb.io/${CLOUD_BUCKET_CALENDAR}/${CLOUD_KEY_CALENDAR}`;
+        const CLOUD_APPDATA_URL = `https://kvdb.io/${CLOUD_BUCKET_APPDATA}/${CLOUD_KEY_APPDATA}`;
         let cloudEvents = {};
         let calendarEvents = {};
         let userAddedEvents = {}; // Store user-added events separately
