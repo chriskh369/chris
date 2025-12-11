@@ -3385,35 +3385,40 @@
             input.value = '';
         }
 
-        function saveFileToItem(file) {
-            if (file.size > 5 * 1024 * 1024) {
-                alert('הקובץ גדול מדי (מקסימום 5MB)');
+        async function saveFileToItem(file) {
+            if (file.size > 10 * 1024 * 1024) {
+                alert('הקובץ גדול מדי (מקסימום 10MB)');
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const item = appData[currentCourse][currentCategory][viewingItem];
+            const item = appData[currentCourse][currentCategory][viewingItem];
 
-                // Ensure files array exists
-                if (!item.files) {
-                    item.files = [];
+            // Ensure files array exists
+            if (!item.files) {
+                item.files = [];
+            }
+
+            // Get uploader name
+            let uploader = localStorage.getItem('studyhub_username');
+            if (!uploader) {
+                uploader = prompt('מה השם שלך?');
+                if (uploader) {
+                    localStorage.setItem('studyhub_username', uploader);
                 }
+            }
 
-                // Get uploader name
-                let uploader = localStorage.getItem('studyhub_username');
-                if (!uploader) {
-                    uploader = prompt('מה השם שלך?');
-                    if (uploader) {
-                        localStorage.setItem('studyhub_username', uploader);
-                    }
-                }
+            // Show uploading toast
+            showToast('מעלה קובץ...');
 
+            // Upload to Cloudinary
+            const cloudinaryUrl = await uploadToCloudinary(file);
+
+            if (cloudinaryUrl) {
                 // Add new file to the array
                 const newFile = {
                     fileName: file.name,
                     fileType: file.type,
-                    fileData: ev.target.result,
+                    fileData: cloudinaryUrl,
                     uploader: uploader,
                     uploadDate: new Date().toISOString()
                 };
@@ -3429,14 +3434,12 @@
                 }
 
                 saveData();
-                showToast('הקובץ נוסף בהצלחה!');
+                showToast('הקובץ נוסף בהצלחה! ☁️');
                 renderItemDetail();
                 setTimeout(setupDetailDropZone, 100);
-            };
-            reader.onerror = () => {
-                alert('שגיאה בקריאת הקובץ');
-            };
-            reader.readAsDataURL(file);
+            } else {
+                alert('שגיאה בהעלאת הקובץ. נסה שוב.');
+            }
         }
 
         function backToList() {
