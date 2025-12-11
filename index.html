@@ -2319,7 +2319,46 @@
         function init() {
             checkLogin();
             loadData();
-            renderCourses();
+            restorePageState();
+        }
+
+        // Save current page state to localStorage
+        function savePageState() {
+            const state = {
+                page: currentCourse ? (viewingItem !== null ? 'item' : 'course') : (document.getElementById('menuCalendar').classList.contains('active') ? 'calendar' : 'home'),
+                course: currentCourse,
+                category: currentCategory,
+                item: viewingItem
+            };
+            localStorage.setItem('studyhub_page_state', JSON.stringify(state));
+        }
+
+        // Restore page state from localStorage
+        function restorePageState() {
+            try {
+                const saved = localStorage.getItem('studyhub_page_state');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    if (state.page === 'calendar') {
+                        showCalendar();
+                    } else if (state.page === 'course' && state.course) {
+                        currentCourse = state.course;
+                        currentCategory = state.category || 'presentations';
+                        renderCourseView();
+                    } else if (state.page === 'item' && state.course && state.item !== null) {
+                        currentCourse = state.course;
+                        currentCategory = state.category || 'presentations';
+                        viewingItem = state.item;
+                        renderItemDetail();
+                    } else {
+                        renderCourses();
+                    }
+                } else {
+                    renderCourses();
+                }
+            } catch(e) {
+                renderCourses();
+            }
         }
 
         function createDefaultData() {
@@ -2589,6 +2628,7 @@
             document.getElementById('menuCourses').classList.add('active');
             document.getElementById('menuCalendar').classList.remove('active');
             renderCourses();
+            savePageState();
         }
 
         // ========== CALENDAR ==========
@@ -2982,9 +3022,13 @@
         async function showCalendar() {
             document.getElementById('menuCourses').classList.remove('active');
             document.getElementById('menuCalendar').classList.add('active');
+            currentCourse = null;
+            currentCategory = null;
+            viewingItem = null;
             // Reload events from cloud to get latest updates
             await loadCalendarEvents();
             renderCalendar();
+            savePageState();
         }
 
         function renderCalendar() {
@@ -3215,18 +3259,21 @@
             currentCategory = 'presentations';
             viewingItem = null;
             renderCourseView();
+            savePageState();
         }
 
         function selectCategory(categoryId) {
             currentCategory = categoryId;
             viewingItem = null;
             renderCourseView();
+            savePageState();
         }
 
         function viewItem(idx) {
             viewingItem = idx;
             renderItemDetail();
             setTimeout(setupDetailDropZone, 100);
+            savePageState();
         }
 
         function setupDetailDropZone() {
@@ -3318,6 +3365,7 @@
         function backToList() {
             viewingItem = null;
             renderCourseView();
+            savePageState();
         }
 
         // ========== RENDER ==========
