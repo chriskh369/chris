@@ -3046,14 +3046,14 @@
                         const filesCount = item.files ? item.files.length : (item.fileName ? 1 : 0);
                         const notesCount = item.notes && item.notes.length ? item.notes.length : 0;
 
-                        // Group files by uploader
+                        // Group files by uploader - only if there are actual files
                         const uploaderCounts = {};
                         if (item.files && item.files.length > 0) {
                             item.files.forEach(file => {
                                 const name = file.uploader || 'אנונימי';
                                 uploaderCounts[name] = (uploaderCounts[name] || 0) + 1;
                             });
-                        } else if (item.uploader) {
+                        } else if (item.fileName && item.uploader) {
                             uploaderCounts[item.uploader] = 1;
                         }
 
@@ -3063,8 +3063,10 @@
                             ).join('')
                             : '';
 
+                        const hasFiles = filesCount > 0;
+
                         return `
-                        <div class="item-card ${item.completed ? 'completed' : ''} ${item.fileName ? 'has-file' : ''}">
+                        <div class="item-card ${item.completed ? 'completed' : ''} ${hasFiles ? 'has-file' : ''}">
                             <div class="item-header" onclick="viewItem(${idx})">
                                 <div class="item-checkbox ${item.completed ? 'checked' : ''}" onclick="event.stopPropagation(); toggleComplete(${idx})">
                                     <i class="fas fa-check"></i>
