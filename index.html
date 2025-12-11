@@ -1236,15 +1236,18 @@
 
         /* Calendar Styles */
         .calendar-container {
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
+            height: calc(100vh - 120px);
+            display: flex;
+            flex-direction: column;
         }
 
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
         .calendar-nav {
@@ -1257,10 +1260,10 @@
             background: rgba(139, 92, 246, 0.2);
             border: 1px solid rgba(139, 92, 246, 0.3);
             color: #a78bfa;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 10px 18px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: all 0.2s;
         }
 
@@ -1270,7 +1273,7 @@
         }
 
         .calendar-month-year {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 600;
             color: #fff;
         }
@@ -1278,7 +1281,9 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 12px;
+            grid-template-rows: auto repeat(6, 1fr);
+            gap: 8px;
+            flex: 1;
         }
 
         /* Hide mobile list on desktop */
@@ -1288,20 +1293,21 @@
 
         .calendar-day-header {
             text-align: center;
-            padding: 15px;
+            padding: 10px;
             font-weight: 600;
             color: #a78bfa;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .calendar-day {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            min-height: 140px;
-            padding: 12px;
+            border-radius: 10px;
+            min-height: 0;
+            padding: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            overflow: hidden;
         }
 
         .calendar-day:hover {
@@ -1320,8 +1326,8 @@
 
         .calendar-day-number {
             font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 8px;
+            font-size: 1rem;
+            margin-bottom: 4px;
             color: #fff;
         }
 
@@ -1330,10 +1336,10 @@
         }
 
         .calendar-event {
-            font-size: 0.85rem;
-            padding: 5px 8px;
-            border-radius: 6px;
-            margin-bottom: 5px;
+            font-size: 0.7rem;
+            padding: 3px 5px;
+            border-radius: 4px;
+            margin-bottom: 3px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
