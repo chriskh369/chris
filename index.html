@@ -2316,15 +2316,9 @@
         let viewingItem = null;
 
         // ========== INIT ==========
-        async function init() {
+        function init() {
             checkLogin();
-            try {
-                await loadData();
-            } catch(e) {
-                console.log('Load data error:', e);
-                createDefaultData();
-            }
-            // Always render courses on load
+            loadData();
             renderCourses();
         }
 
@@ -2388,13 +2382,24 @@
         }
 
         async function loadData() {
-            // Open IndexedDB for local cache
-            await openDB();
+            // FAST: Load local data first (instant display)
+            try {
+                const saved = localStorage.getItem('studyhub_chris_v5');
+                if (saved) appData = JSON.parse(saved);
+            } catch(e) {}
 
-            let cloudData = null;
-            let localData = null;
+            // If no local data, create defaults
+            if (!appData || Object.keys(appData).length === 0) {
+                createDefaultData();
+                saveDataLocally();
+            }
 
-            // Try to load from JSONBlob cloud
+            // BACKGROUND: Sync with cloud (don't wait)
+            syncWithCloud();
+        }
+
+        // Background cloud sync - doesn't block UI
+        async function syncWithCloud() {
             try {
                 const response = await fetch(CLOUD_URL, {
                     headers: { 'Accept': 'application/json' }
@@ -2402,52 +2407,21 @@
                 if (response.ok) {
                     const cloudJson = await response.json();
                     if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                        cloudData = cloudJson.appdata;
+                        // Merge cloud data with local
+                        const merged = mergeAppData(cloudJson.appdata, appData);
+                        if (JSON.stringify(merged) !== JSON.stringify(appData)) {
+                            appData = merged;
+                            saveDataLocally();
+                            renderCourses(); // Update UI with merged data
+                            console.log('☁️ Synced from cloud');
+                        }
+                    } else {
+                        // Cloud empty - push local data
+                        saveAppDataToCloud();
                     }
                 }
             } catch(e) {
-                console.log('Cloud load failed:', e);
-            }
-
-            // Load local data
-            if (db) {
-                try {
-                    const data = await new Promise((resolve) => {
-                        const tx = db.transaction(['data'], 'readonly');
-                        const store = tx.objectStore('data');
-                        const request = store.get('appData');
-                        request.onsuccess = () => resolve(request.result?.data);
-                        request.onerror = () => resolve(null);
-                    });
-                    if (data) localData = data;
-                } catch(e) {}
-            }
-            if (!localData) {
-                try {
-                    const saved = localStorage.getItem('studyhub_chris_v5');
-                    if (saved) localData = JSON.parse(saved);
-                } catch(e) {}
-            }
-
-            // Decide what to use
-            if (cloudData && Object.keys(cloudData).length > 0) {
-                // Cloud has data - merge with local and use
-                if (localData) {
-                    appData = mergeAppData(cloudData, localData);
-                    // Save merged data back to cloud
-                    await saveAppDataToCloud();
-                } else {
-                    appData = cloudData;
-                }
-                saveDataLocally();
-            } else if (localData) {
-                // No cloud data but have local - push to cloud
-                appData = localData;
-                await saveAppDataToCloud();
-            } else {
-                // No data anywhere - create default
-                createDefaultData();
-                await saveAppDataToCloud();
+                console.log('Cloud sync skipped:', e);
             }
         }
 
