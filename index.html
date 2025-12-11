@@ -1336,6 +1336,28 @@
             font-weight: 800;
         }
 
+        .calendar-day.has-test {
+            border-color: #f59e0b !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(251, 191, 36, 0.15));
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), 0 0 40px rgba(251, 191, 36, 0.3), inset 0 0 15px rgba(245, 158, 11, 0.1);
+            animation: testGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes testGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), 0 0 40px rgba(251, 191, 36, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.7), 0 0 60px rgba(251, 191, 36, 0.5);
+            }
+        }
+
+        .calendar-day.has-test .calendar-day-number {
+            color: #f59e0b;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
         .calendar-day-number {
             font-weight: 700;
             font-size: 1rem;
@@ -1369,8 +1391,10 @@
         }
 
         .calendar-event.test {
-            background: rgba(239, 68, 68, 0.3);
-            color: #ef4444;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(251, 191, 36, 0.3));
+            color: #f59e0b;
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(245, 158, 11, 0.3);
         }
 
         /* Calendar Modal */
@@ -1988,6 +2012,17 @@
                 background: rgba(239, 68, 68, 0.2);
                 color: #ef4444;
             }
+            .calendar-mobile-day.has-test {
+                border-color: #f59e0b !important;
+                background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.1));
+                box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), 0 0 30px rgba(251, 191, 36, 0.2);
+                animation: testGlow 2s ease-in-out infinite;
+            }
+            .calendar-mobile-day.has-test .calendar-mobile-day-header {
+                background: rgba(245, 158, 11, 0.25);
+                color: #f59e0b;
+                text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+            }
             .calendar-mobile-day-header {
                 background: rgba(139, 92, 246, 0.15);
                 padding: 10px 12px;
@@ -2022,8 +2057,9 @@
                 border-right: 3px solid #fbbf24;
             }
             .calendar-mobile-event.test {
-                background: rgba(239, 68, 68, 0.2);
-                border-right: 3px solid #ef4444;
+                background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.2));
+                border-right: 3px solid #f59e0b;
+                font-weight: 600;
             }
             .calendar-mobile-no-events {
                 color: #666;
@@ -2635,6 +2671,44 @@
                 { name: 'מתמ\' בדידה 10:55-13:15 כיתה 365', type: 'course', id: 6 },
                 { name: 'אבטחת מידע 13:35-15:55 כיתה 365', type: 'course', id: 7 },
                 { name: 'אנגלית ב\' 19:05-22:20 כיתה 303', type: 'course', id: 8 }
+            ],
+            // ========== TESTS - מועד א' ==========
+            '2026-02-01': [
+                { name: '📚 מבחן - אנגלית מתקדמים ב\' (16:00-18:15)', type: 'test', id: 201 }
+            ],
+            '2026-02-05': [
+                { name: '📚 מבחן - אבטחת מידע וסייבר (09:00-10:30)', type: 'test', id: 202 }
+            ],
+            '2026-02-10': [
+                { name: '📚 מבחן - מתמטיקה 2 (09:00-11:00)', type: 'test', id: 203 }
+            ],
+            '2026-02-15': [
+                { name: '📚 מבחן - בסיסי נתונים (09:00-12:00)', type: 'test', id: 204 }
+            ],
+            '2026-02-19': [
+                { name: '📚 מבחן - מבנה נתונים ואלגוריתמים (09:00-12:00)', type: 'test', id: 205 }
+            ],
+            '2026-02-25': [
+                { name: '📚 מבחן - מתמטיקה בדידה (09:00-11:00)', type: 'test', id: 206 }
+            ],
+            // ========== TESTS - מועד ב' ==========
+            '2026-03-05': [
+                { name: '📚 מבחן - אנגלית מתקדמים ב\' (16:00-18:15)', type: 'test', id: 211 }
+            ],
+            '2026-03-11': [
+                { name: '📚 מבחן - אבטחת מידע וסייבר (12:00-13:30)', type: 'test', id: 212 }
+            ],
+            '2026-03-18': [
+                { name: '📚 מבחן - מתמטיקה 2 (12:00-14:00)', type: 'test', id: 213 }
+            ],
+            '2026-03-25': [
+                { name: '📚 מבחן - בסיסי נתונים (12:00-15:00)', type: 'test', id: 214 }
+            ],
+            '2026-04-15': [
+                { name: '📚 מבחן - מבנה נתונים ואלגוריתמים (12:00-15:00)', type: 'test', id: 215 }
+            ],
+            '2026-04-29': [
+                { name: '📚 מבחן - מתמטיקה בדידה (12:00-14:00)', type: 'test', id: 216 }
             ]
         };
 
@@ -2708,8 +2782,9 @@
 
                 const hasEvents = dayEvents.length > 0 ? 'has-events' : '';
                 const hasHomework = dayEvents.some(e => e.type === 'homework') ? 'has-homework' : '';
+                const hasTest = dayEvents.some(e => e.type === 'test') ? 'has-test' : '';
                 html += `
-                    <div class="calendar-day ${isToday ? 'today' : ''} ${hasEvents} ${hasHomework}" onclick="openCalendarModal('${dateKey}')">
+                    <div class="calendar-day ${isToday ? 'today' : ''} ${hasEvents} ${hasHomework} ${hasTest}" onclick="openCalendarModal('${dateKey}')">
                         <div class="calendar-day-number">${day}</div>
                         ${eventsHtml}
                     </div>
@@ -2736,11 +2811,12 @@
                 const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
                 const dayEvents = calendarEvents[dateKey] || [];
                 const hasHomeworkMobile = dayEvents.some(e => e.type === 'homework') ? 'has-homework' : '';
+                const hasTestMobile = dayEvents.some(e => e.type === 'test') ? 'has-test' : '';
 
                 // Only show days with events or today
                 if (dayEvents.length > 0 || isToday) {
                     html += `
-                        <div class="calendar-mobile-day ${isToday ? 'today' : ''} ${hasHomeworkMobile}" onclick="openCalendarModal('${dateKey}')">
+                        <div class="calendar-mobile-day ${isToday ? 'today' : ''} ${hasHomeworkMobile} ${hasTestMobile}" onclick="openCalendarModal('${dateKey}')">
                             <div class="calendar-mobile-day-header">
                                 <span>יום ${hebrewDayNames[dayOfWeek]}, ${day} ${hebrewMonths[month]}</span>
                                 <span>${dayEvents.length} שיעורים</span>
