@@ -2524,14 +2524,22 @@
                             return;
                         }
                     }
+                    // Cloud exists but appdata is empty - create defaults and save
+                    console.log('☁️ Cloud empty - creating defaults');
+                    createDefaultData();
+                    await saveData();
+                } else {
+                    // Cloud request failed - create defaults but DON'T save (don't overwrite cloud)
+                    console.log('☁️ Cloud request failed - using local defaults only');
+                    createDefaultData();
+                    showToast('⚠️ לא ניתן להתחבר לענן');
                 }
             } catch(e) {
+                // Network error - create defaults but DON'T save (don't overwrite cloud)
                 console.log('Cloud load failed:', e.message || e);
+                createDefaultData();
+                showToast('⚠️ לא ניתן להתחבר לענן');
             }
-
-            // If cloud is empty or failed, create default
-            createDefaultData();
-            await saveData();
         }
 
         // Save data ONLY to cloud
