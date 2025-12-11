@@ -2307,6 +2307,13 @@
             { id: 'formulas', name: 'דף נוסחאות', icon: 'fa-calculator', color: '#38bdf8' }
         ];
 
+        // ========== CLOUD CONFIG ==========
+        const GIST_ID = '70ade01d4645cc8013a741b74d83561c';
+        const GIST_FILENAME = 'studyhub_cloud.json';
+        // Token parts (split to avoid detection)
+        const _t = ['gho','_dADfnYflfNde','RK5d2E8O2i7H','5oof27064jOs'];
+        const GITHUB_TOKEN = _t.join('');
+
         // ========== STATE ==========
         let appData = {};
         let currentCourse = null;
@@ -2879,12 +2886,6 @@
             ]
         };
 
-        // Cloud sync configuration - using GitHub Gist
-        const GIST_ID = '70ade01d4645cc8013a741b74d83561c';
-        const GIST_FILENAME = 'studyhub_cloud.json';
-        // Token parts (split to avoid detection)
-        const _t = ['gho','_dADfnYflfNde','RK5d2E8O2i7H','5oof27064jOs'];
-        const GITHUB_TOKEN = _t.join('');
         let cloudEvents = {};
         let calendarEvents = {};
         let userAddedEvents = {}; // Store user-added events separately
