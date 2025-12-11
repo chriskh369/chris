@@ -2361,6 +2361,19 @@
             }
         }
 
+        // Re-render the current page (used after cloud sync)
+        function rerenderCurrentPage() {
+            if (viewingItem !== null && currentCourse) {
+                renderItemDetail();
+            } else if (currentCourse) {
+                renderCourseView();
+            } else if (document.getElementById('menuCalendar').classList.contains('active')) {
+                renderCalendar();
+            } else {
+                renderCourses();
+            }
+        }
+
         function createDefaultData() {
             COURSES.forEach(course => {
                 appData[course.id] = {};
@@ -2446,7 +2459,8 @@
                             // USE CLOUD DATA DIRECTLY - cloud is the truth
                             appData = cloudJson.appdata;
                             saveDataLocally();
-                            renderCourses();
+                            // Re-render current page (not always courses)
+                            rerenderCurrentPage();
                             console.log('☁️ Loaded from cloud');
                         } else {
                             // Cloud empty - initialize with default data
