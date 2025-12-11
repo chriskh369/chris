@@ -2500,8 +2500,18 @@
             });
         }
 
-        // Load data ONLY from cloud
+        // Load data - localStorage first (instant), then sync with cloud
         async function loadData() {
+            // Step 1: Load from localStorage INSTANTLY
+            const localData = localStorage.getItem('studyhub_data');
+            if (localData) {
+                try {
+                    appData = JSON.parse(localData);
+                    console.log('💾 Loaded locally');
+                } catch(e) {}
+            }
+
+            // Step 2: Sync with cloud in background
             try {
                 const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     headers: {
@@ -2513,24 +2523,35 @@
                     const gist = await response.json();
                     const content = gist.files[GIST_FILENAME]?.content;
                     if (content) {
-                        const cloudJson = JSON.parse(content);
-                        if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
-                            appData = cloudJson.appdata;
-                            console.log('☁️ Loaded from cloud');
-                        } else {
-                            createDefaultData();
-                            await saveData();
+                        try {
+                            const cloudJson = JSON.parse(content);
+                            // Preserve calendar
+                            if (cloudJson.calendar) cloudCalendar = cloudJson.calendar;
+
+                            if (cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0) {
+                                // If cloud has more data, use it
+                                const cloudSize = JSON.stringify(cloudJson.appdata).length;
+                                const localSize = JSON.stringify(appData).length;
+                                if (cloudSize > localSize) {
+                                    appData = cloudJson.appdata;
+                                    localStorage.setItem('studyhub_data', JSON.stringify(appData));
+                                    renderCourses();
+                                    console.log('☁️ Using cloud data');
+                                }
+                            }
+                        } catch(e) {
+                            console.log('Cloud parse error');
                         }
-                    } else {
-                        createDefaultData();
-                        await saveData();
                     }
-                } else {
-                    createDefaultData();
                 }
             } catch(e) {
-                console.log('Cloud load failed:', e);
+                console.log('Cloud sync failed');
+            }
+
+            // If no data, create defaults
+            if (!appData || Object.keys(appData).length === 0) {
                 createDefaultData();
+                saveData();
             }
         }
 
@@ -2591,28 +2612,21 @@
         }
 
         // Save data ONLY to cloud
-        async function saveData() {
+        // Save to localStorage instantly, sync to cloud in background
+        let cloudCalendar = {};
+
+        function saveData() {
+            // Save to localStorage INSTANTLY
+            localStorage.setItem('studyhub_data', JSON.stringify(appData));
+
+            // Sync to cloud in background (non-blocking)
+            syncToCloud();
+        }
+
+        async function syncToCloud() {
             try {
-                // Get current cloud to preserve calendar
-                let cloudJson = { appdata: {}, calendar: {} };
-                try {
-                    const getResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                        headers: {
-                            'Authorization': `token ${GITHUB_TOKEN}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    });
-                    if (getResponse.ok) {
-                        const gist = await getResponse.json();
-                        const content = gist.files[GIST_FILENAME]?.content;
-                        if (content) cloudJson = JSON.parse(content);
-                    }
-                } catch(e) {}
-
-                // Save appdata to cloud
-                cloudJson.appdata = appData;
-
-                const saveResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                const cloudJson = { appdata: appData, calendar: cloudCalendar };
+                await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     method: 'PATCH',
                     headers: {
                         'Authorization': `token ${GITHUB_TOKEN}`,
@@ -2623,13 +2637,9 @@
                         files: { [GIST_FILENAME]: { content: JSON.stringify(cloudJson) } }
                     })
                 });
-                if (saveResponse.ok) {
-                    console.log('☁️ Saved to cloud');
-                }
-                return true;
+                console.log('☁️ Synced');
             } catch (error) {
-                console.log('Cloud save failed:', error);
-                return false;
+                console.log('Sync failed:', error);
             }
         }
 
@@ -3653,9 +3663,9 @@
         }
 
         // ========== ITEM ACTIONS ==========
-        async function toggleComplete(idx) {
+        function toggleComplete(idx) {
             appData[currentCourse][currentCategory][idx].completed = !appData[currentCourse][currentCategory][idx].completed;
-            await saveData();
+            saveData();
             renderCourseView();
         }
 
@@ -3676,7 +3686,7 @@
             pendingDeleteType = null;
         }
 
-        async function executeDelete() {
+        function executeDelete() {
             if (pendingDeleteIdx === null) {
                 closeDeleteModal();
                 return;
@@ -3684,18 +3694,18 @@
 
             if (pendingDeleteType === 'item') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
-                await saveData();
+                saveData();
                 viewingItem = null;
                 renderCourseView();
             } else if (pendingDeleteType === 'itemList') {
                 appData[currentCourse][currentCategory].splice(pendingDeleteIdx, 1);
-                await saveData();
+                saveData();
                 showToast('הפריט נמחק');
                 renderCourseView();
             } else if (pendingDeleteType === 'note') {
                 const item = appData[currentCourse][currentCategory][viewingItem];
                 item.notes.splice(pendingDeleteIdx, 1);
-                await saveData();
+                saveData();
                 showToast('ההערה נמחקה');
                 renderCourseView();
                 renderItemDetail();
@@ -3712,7 +3722,7 @@
                     item.fileType = null;
                     item.fileData = null;
                 }
-                await saveData();
+                saveData();
                 showToast('הקובץ נמחק');
                 renderCourseView();
                 renderItemDetail();
@@ -3733,7 +3743,7 @@
             showDeleteModal(itemName, idx, 'itemList');
         }
 
-        async function addNote() {
+        function addNote() {
             const textArea = document.getElementById('newNoteText');
             const text = textArea.value.trim();
             if (!text) {
@@ -3764,7 +3774,7 @@
                 date: new Date().toISOString()
             });
 
-            await saveData();
+            saveData();
             showToast('ההערה נוספה בהצלחה!');
             renderItemDetail();
             setTimeout(setupDetailDropZone, 100);
