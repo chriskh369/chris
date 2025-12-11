@@ -2418,6 +2418,12 @@
             });
 
             restorePageState();
+
+            // Auto-sync every 10 seconds
+            setInterval(() => {
+                syncFromCloud();
+                loadCalendarEvents();
+            }, 10000);
         }
 
         // Save current page state to localStorage
