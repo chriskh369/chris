@@ -2385,6 +2385,8 @@
             // Open IndexedDB
             await openDB();
 
+            let localData = null;
+
             // Try IndexedDB first
             if (db) {
                 try {
@@ -2396,23 +2398,95 @@
                         request.onerror = () => resolve(null);
                     });
                     if (data) {
-                        appData = data;
-                        return;
+                        localData = data;
                     }
                 } catch(e) {}
             }
 
-            // Try localStorage
-            try {
-                const saved = localStorage.getItem('studyhub_chris_v5');
-                if (saved) {
-                    appData = JSON.parse(saved);
-                    return;
-                }
-            } catch(e) {}
+            // Try localStorage if no IndexedDB data
+            if (!localData) {
+                try {
+                    const saved = localStorage.getItem('studyhub_chris_v5');
+                    if (saved) {
+                        localData = JSON.parse(saved);
+                    }
+                } catch(e) {}
+            }
 
-            // Create default
-            createDefaultData();
+            // Load from cloud and merge
+            try {
+                const response = await fetch(CLOUD_APPDATA_URL);
+                if (response.ok) {
+                    const text = await response.text();
+                    if (text && text.trim() !== '') {
+                        const cloudData = JSON.parse(text);
+                        if (cloudData && Object.keys(cloudData).length > 0) {
+                            // Merge cloud data with local data
+                            appData = mergeAppData(localData, cloudData);
+                            saveData(); // Save merged data
+                            return;
+                        }
+                    }
+                }
+            } catch(e) {
+                // Cloud unavailable
+            }
+
+            // Use local data or create default
+            if (localData) {
+                appData = localData;
+            } else {
+                createDefaultData();
+            }
+        }
+
+        // Merge local and cloud app data
+        function mergeAppData(local, cloud) {
+            if (!local) return cloud;
+            if (!cloud) return local;
+
+            const merged = JSON.parse(JSON.stringify(local));
+
+            // Merge each course
+            for (const courseId of Object.keys(cloud)) {
+                if (!merged[courseId]) {
+                    merged[courseId] = cloud[courseId];
+                    continue;
+                }
+
+                // Merge each category in the course
+                for (const catId of Object.keys(cloud[courseId])) {
+                    if (!merged[courseId][catId]) {
+                        merged[courseId][catId] = cloud[courseId][catId];
+                        continue;
+                    }
+
+                    // Merge items - add cloud items that don't exist locally
+                    const localItems = merged[courseId][catId];
+                    const cloudItems = cloud[courseId][catId];
+
+                    for (const cloudItem of cloudItems) {
+                        const existsLocally = localItems.some(item =>
+                            item.name === cloudItem.name && item.date === cloudItem.date
+                        );
+                        if (!existsLocally) {
+                            localItems.push(cloudItem);
+                        } else {
+                            // Update existing item if cloud version is newer
+                            const localItem = localItems.find(item =>
+                                item.name === cloudItem.name && item.date === cloudItem.date
+                            );
+                            if (localItem && cloudItem.uploadDate && localItem.uploadDate) {
+                                if (new Date(cloudItem.uploadDate) > new Date(localItem.uploadDate)) {
+                                    Object.assign(localItem, cloudItem);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return merged;
         }
 
         function saveData() {
@@ -2425,9 +2499,6 @@
                     request.onerror = (e) => {
                         console.error('IndexedDB save error:', e);
                     };
-                    tx.oncomplete = () => {
-                        console.log('Data saved to IndexedDB');
-                    };
                 } catch(e) {
                     console.error('IndexedDB error:', e);
                 }
@@ -2438,7 +2509,22 @@
             } catch (e) {
                 console.log('localStorage full, using IndexedDB only');
             }
+            // Sync to cloud
+            saveAppDataToCloud();
             return true;
+        }
+
+        // Save app data to cloud
+        async function saveAppDataToCloud() {
+            try {
+                await fetch(CLOUD_APPDATA_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(appData)
+                });
+            } catch (error) {
+                // Cloud save failed, data saved locally only
+            }
         }
 
         // Export data to file
@@ -2724,8 +2810,10 @@
 
         // Cloud sync configuration - using KVdb.io (CORS enabled)
         const CLOUD_BUCKET = 'WPa4gFU4rkg33ccTHVRSZU';
-        const CLOUD_KEY = 'studyhub_calendar';
-        const CLOUD_STORAGE_URL = `https://kvdb.io/${CLOUD_BUCKET}/${CLOUD_KEY}`;
+        const CLOUD_KEY_CALENDAR = 'studyhub_calendar';
+        const CLOUD_KEY_APPDATA = 'studyhub_appdata';
+        const CLOUD_STORAGE_URL = `https://kvdb.io/${CLOUD_BUCKET}/${CLOUD_KEY_CALENDAR}`;
+        const CLOUD_APPDATA_URL = `https://kvdb.io/${CLOUD_BUCKET}/${CLOUD_KEY_APPDATA}`;
         let cloudEvents = {};
         let calendarEvents = {};
         let userAddedEvents = {}; // Store user-added events separately
