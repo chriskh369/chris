@@ -2903,12 +2903,12 @@
             return { urgent, important, reminder };
         }
 
-        // Get only UNSEEN notifications for current user (for display in dropdown)
-        function getNotifications() {
+        // Get only UNSEEN notifications for badge count
+        function getUnseenNotifications() {
             const { urgent, important, reminder } = getAllNotifications();
             const seenIds = getUnseenNotificationIds(); // This returns the SET of seen IDs
 
-            // Filter to only show notifications the user hasn't seen yet
+            // Filter to only unseen notifications (for badge count)
             const filterUnseen = (items) => items.filter(item => {
                 const notificationId = `${item.date}_${item.name}`;
                 return !seenIds.has(notificationId);
@@ -2919,6 +2919,11 @@
                 important: filterUnseen(important),
                 reminder: filterUnseen(reminder)
             };
+        }
+
+        // Get ALL notifications for display in dropdown (until dismissed or date passed)
+        function getNotifications() {
+            return getAllNotifications();
         }
 
         function renderNotifications() {
@@ -3003,13 +3008,17 @@
 
             container.innerHTML = html;
 
-            // Update badge based on priority
-            if (urgent.length > 0) {
-                updateNotificationBadge(totalCount, 'urgent');
-            } else if (important.length > 0) {
-                updateNotificationBadge(totalCount, 'important');
+            // Update badge based on UNSEEN notifications only
+            const unseen = getUnseenNotifications();
+            const unseenCount = unseen.urgent.length + unseen.important.length + unseen.reminder.length;
+            if (unseen.urgent.length > 0) {
+                updateNotificationBadge(unseenCount, 'urgent');
+            } else if (unseen.important.length > 0) {
+                updateNotificationBadge(unseenCount, 'important');
+            } else if (unseenCount > 0) {
+                updateNotificationBadge(unseenCount, 'reminder');
             } else {
-                updateNotificationBadge(totalCount, 'reminder');
+                updateNotificationBadge(0, null);
             }
         }
 
@@ -3038,15 +3047,15 @@
                 if (!dropdown.classList.contains('show')) {
                     // Reload from cloud to get latest dismissals
                     await loadNotificationsFromCloud();
-                    // Just update the badge, not the content
-                    const { urgent, important, reminder } = getNotifications();
-                    const totalCount = urgent.length + important.length + reminder.length;
-                    if (urgent.length > 0) {
-                        updateNotificationBadge(totalCount, 'urgent');
-                    } else if (important.length > 0) {
-                        updateNotificationBadge(totalCount, 'important');
-                    } else if (totalCount > 0) {
-                        updateNotificationBadge(totalCount, 'reminder');
+                    // Just update the badge based on UNSEEN notifications
+                    const unseen = getUnseenNotifications();
+                    const unseenCount = unseen.urgent.length + unseen.important.length + unseen.reminder.length;
+                    if (unseen.urgent.length > 0) {
+                        updateNotificationBadge(unseenCount, 'urgent');
+                    } else if (unseen.important.length > 0) {
+                        updateNotificationBadge(unseenCount, 'important');
+                    } else if (unseenCount > 0) {
+                        updateNotificationBadge(unseenCount, 'reminder');
                     } else {
                         updateNotificationBadge(0, null);
                     }
