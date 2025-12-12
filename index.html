@@ -3588,15 +3588,24 @@
             }
 
             let nextSchoolDayHtml = '<p style="color: #6b7280; text-align: center;">אין ימי לימוד קרובים</p>';
-            if (nextSchoolDate && schoolSchedule[nextSchoolDate]) {
+            if (nextSchoolDate && calendarEvents[nextSchoolDate]) {
                 const nDate = new Date(nextSchoolDate);
                 const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
                 const dayName = dayNames[nDate.getDay()];
                 const dateDisplay = nDate.toLocaleDateString('he-IL', { day: 'numeric', month: 'long' });
-                const classes = schoolSchedule[nextSchoolDate];
-                const classesHtml = classes.map(c =>
-                    '<div style="background: rgba(139, 92, 246, 0.1); border-radius: 10px; padding: 15px; border-right: 3px solid #8b5cf6;"><div style="color: #e0e7ff; font-size: 0.95rem;">' + c.name + '</div></div>'
-                ).join('');
+                const events = calendarEvents[nextSchoolDate];
+                const classesHtml = events.map(c => {
+                    let bgColor = 'rgba(139, 92, 246, 0.1)';
+                    let borderColor = '#8b5cf6';
+                    if (c.type === 'test') {
+                        bgColor = 'rgba(245, 158, 11, 0.15)';
+                        borderColor = '#f59e0b';
+                    } else if (c.type === 'homework' || c.type === 'assignment') {
+                        bgColor = 'rgba(239, 68, 68, 0.15)';
+                        borderColor = '#ef4444';
+                    }
+                    return '<div style="background: ' + bgColor + '; border-radius: 10px; padding: 15px; border-right: 3px solid ' + borderColor + ';"><div style="color: #e0e7ff; font-size: 0.95rem;">' + c.name + '</div></div>';
+                }).join('');
                 nextSchoolDayHtml = '<div style="text-align: center; margin-bottom: 18px;"><div style="font-size: 1.5rem; color: #fff; font-weight: 600;">יום ' + dayName + '</div><div style="font-size: 1rem; color: #a78bfa;">' + dateDisplay + '</div></div><div style="display: flex; flex-direction: column; gap: 12px;">' + classesHtml + '</div>';
             }
 
