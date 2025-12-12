@@ -2767,6 +2767,7 @@
 
         // Save notifications to cloud
         async function saveNotificationsToCloud() {
+            const username = localStorage.getItem('studyhub_username') || 'guest';
             try {
                 // Get current cloud data
                 const getResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
@@ -2783,8 +2784,9 @@
                     if (content) cloudJson = JSON.parse(content);
                 }
 
-                // Update notifications
-                cloudJson.notifications = cloudNotifications;
+                // ONLY update current user's notification data (don't overwrite other users)
+                if (!cloudJson.notifications) cloudJson.notifications = {};
+                cloudJson.notifications[username] = cloudNotifications[username];
 
                 // Save back to cloud
                 await fetch(`https://api.github.com/gists/${GIST_ID}`, {
