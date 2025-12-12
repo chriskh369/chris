@@ -3587,7 +3587,14 @@
                 const dayName = dayNames[nDate.getDay()];
                 const dateDisplay = nDate.toLocaleDateString('he-IL', { day: 'numeric', month: 'long' });
                 const events = calendarEvents[nextSchoolDate];
-                const classesHtml = events.map(c => {
+
+                // Sort: courses first, then homework/assignments, then tests last
+                const sortedEvents = [...events].sort((a, b) => {
+                    const order = { 'course': 0, 'homework': 1, 'assignment': 1, 'test': 2 };
+                    return (order[a.type] || 0) - (order[b.type] || 0);
+                });
+
+                const classesHtml = sortedEvents.map(c => {
                     let bgColor = 'rgba(139, 92, 246, 0.1)';
                     let borderColor = '#8b5cf6';
                     if (c.type === 'test') {
