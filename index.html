@@ -2020,15 +2020,12 @@
             }
             .logout-btn span { display: none !important; }
 
-            /* Mobile logo - top right */
+            /* Mobile logo - top right - use absolute on body */
             .mobile-logo {
                 display: flex !important;
-                position: fixed !important;
-                -webkit-position: fixed !important;
+                position: absolute !important;
                 top: 12px !important;
                 right: 12px !important;
-                left: auto !important;
-                bottom: auto !important;
                 align-items: center;
                 justify-content: center;
                 z-index: 99999 !important;
@@ -2036,10 +2033,6 @@
                 background: none;
                 padding: 0;
                 border: none;
-                -webkit-transform: translateZ(0);
-                transform: translateZ(0);
-                -webkit-backface-visibility: hidden;
-                backface-visibility: hidden;
             }
             .mobile-logo .logo-icon {
                 width: 42px;
@@ -3162,6 +3155,16 @@
 
             // Initialize notifications
             initNotifications();
+
+            // Keep mobile logo fixed on scroll (iOS/Android fix)
+            const mobileLogo = document.querySelector('.mobile-logo');
+            if (mobileLogo && window.innerWidth <= 1400) {
+                function updateLogoPosition() {
+                    mobileLogo.style.top = (window.scrollY + 12) + 'px';
+                }
+                window.addEventListener('scroll', updateLogoPosition, { passive: true });
+                updateLogoPosition();
+            }
 
             // Auto-sync every 10 seconds
             setInterval(() => {
