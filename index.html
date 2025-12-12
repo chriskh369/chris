@@ -198,6 +198,8 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 18px;
+            padding-left: 80px;
+            margin-top: 60px;
         }
 
         .course-card {
@@ -1255,11 +1257,258 @@
             background: rgba(239, 68, 68, 0.2);
         }
 
+        /* Notification Bell Styles */
+        .notification-bell {
+            position: fixed;
+            -webkit-position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 55px;
+            height: 55px;
+            background: rgba(15, 12, 41, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 14px;
+            -webkit-border-radius: 14px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9998;
+            -webkit-transition: all 0.15s ease-out;
+            transition: all 0.15s ease-out;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+
+        .notification-bell:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.5);
+            -webkit-transform: scale(1.05);
+            transform: scale(1.05);
+        }
+
+        .notification-bell:active {
+            -webkit-transform: scale(0.95);
+            transform: scale(0.95);
+        }
+
+        .notification-bell i {
+            color: #a78bfa;
+            font-size: 1.5rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            -webkit-border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: none;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            padding: 0 5px;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        .notification-badge.urgent {
+            background: #ef4444;
+            color: #fff;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .notification-badge.important {
+            background: #f59e0b;
+            color: #fff;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .notification-badge.reminder {
+            background: #eab308;
+            color: #1a1a2e;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .notification-dropdown {
+            position: fixed;
+            -webkit-position: fixed;
+            top: 85px;
+            left: 20px;
+            width: 320px;
+            max-height: 70vh;
+            background: rgba(15, 12, 41, 0.98);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            -webkit-border-radius: 16px;
+            z-index: 9998;
+            display: none;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            -webkit-box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+
+        .notification-dropdown.show {
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 18px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .notification-header h3 {
+            color: #fff;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .notification-header button {
+            background: none;
+            border: none;
+            color: #a78bfa;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+        }
+
+        .notification-content {
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification-box {
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .notification-box.urgent {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .notification-box.important {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .notification-box.reminder {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .notification-box-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .notification-box.urgent .notification-box-title {
+            color: #ef4444;
+        }
+
+        .notification-box.important .notification-box-title {
+            color: #f59e0b;
+        }
+
+        .notification-box.reminder .notification-box-title {
+            color: #eab308;
+        }
+
+        .notification-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .notification-delete {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px 8px;
+            margin-left: 5px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            font-size: 0.8rem;
+        }
+
+        .notification-delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .notification-item-name {
+            color: #e0e7ff;
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        .notification-item-date {
+            font-size: 0.75rem;
+            white-space: nowrap;
+            margin-right: 10px;
+        }
+
+        .notification-box.urgent .notification-item-date {
+            color: #f87171;
+        }
+
+        .notification-box.important .notification-item-date {
+            color: #fbbf24;
+        }
+
+        .notification-box.reminder .notification-item-date {
+            color: #facc15;
+        }
+
+        .notification-empty {
+            color: #6b7280;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
         /* Calendar Styles */
         .calendar-container {
             max-width: 100%;
             margin: 0 auto;
-            height: calc(100vh - 120px);
+            margin-top: -55px;
+            height: calc(100vh - 45px);
             display: flex;
             flex-direction: column;
         }
@@ -1756,6 +2005,53 @@
             }
             .logout-btn span { display: none !important; }
 
+            /* Notification bell mobile */
+            .notification-bell {
+                top: 12px;
+                left: 12px;
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                -webkit-border-radius: 12px;
+            }
+            .notification-bell i {
+                font-size: 1.3rem;
+            }
+            .notification-badge {
+                top: -4px;
+                right: -4px;
+                min-width: 18px;
+                height: 18px;
+                font-size: 0.7rem;
+            }
+            .notification-dropdown {
+                top: 70px;
+                left: 12px;
+                right: 12px;
+                width: auto;
+                max-width: calc(100vw - 24px);
+                max-height: 60vh;
+            }
+            .notification-header {
+                padding: 12px 15px;
+            }
+            .notification-content {
+                padding: 12px;
+                gap: 10px;
+            }
+            .notification-box {
+                padding: 10px;
+            }
+            .notification-item {
+                padding: 8px;
+            }
+            .notification-item-name {
+                font-size: 0.8rem;
+            }
+            .notification-item-date {
+                font-size: 0.7rem;
+            }
+
             .main {
                 margin-right: 0 !important;
                 padding: 15px 12px 12px 12px !important;
@@ -2199,6 +2495,23 @@
         </button>
     </nav>
 
+    <!-- Notification Bell -->
+    <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" id="notificationBadge"></span>
+    </div>
+
+    <!-- Notification Dropdown -->
+    <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-header">
+            <h3>התראות</h3>
+            <button onclick="toggleNotifications()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="notification-content" id="notificationContent">
+            <!-- Boxes will be rendered here -->
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="main" id="mainContent"></main>
 
@@ -2343,6 +2656,294 @@
             }
         }
 
+        // ========== NOTIFICATION SYSTEM ==========
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('show');
+            if (dropdown.classList.contains('show')) {
+                renderNotifications();
+                // Clear the badge when opened and mark as seen today
+                const badge = document.getElementById('notificationBadge');
+                badge.style.display = 'none';
+                badge.textContent = '';
+                markNotificationsSeen();
+            }
+        }
+
+        // Mark notifications as seen for today (badge won't show again until tomorrow)
+        function markNotificationsSeen() {
+            const username = localStorage.getItem('studyhub_username') || 'guest';
+            const key = `studyhub_notifications_seen_${username}`;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = today.toISOString().split('T')[0];
+            localStorage.setItem(key, todayStr);
+        }
+
+        // Check if notifications were seen today
+        function wereNotificationsSeenToday() {
+            const username = localStorage.getItem('studyhub_username') || 'guest';
+            const key = `studyhub_notifications_seen_${username}`;
+            const seenDate = localStorage.getItem(key);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = today.toISOString().split('T')[0];
+            return seenDate === todayStr;
+        }
+
+        // Get dismissed notifications for current user (cleaned up)
+        function getDismissedNotifications() {
+            const username = localStorage.getItem('studyhub_username') || 'guest';
+            const key = `studyhub_dismissed_notifications_${username}`;
+            const dismissed = JSON.parse(localStorage.getItem(key) || '{}');
+
+            // Clean up old entries - remove past dates and reset for new day
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = today.toISOString().split('T')[0];
+
+            const cleaned = {};
+            for (const [notificationId, dismissData] of Object.entries(dismissed)) {
+                const eventDate = notificationId.split('_')[0];
+                const eventDateObj = new Date(eventDate);
+                eventDateObj.setHours(0, 0, 0, 0);
+
+                // If event date is in the past, don't keep it (permanently dismissed)
+                if (eventDateObj < today) {
+                    continue;
+                }
+
+                // If dismissed today, keep it hidden
+                if (dismissData.dismissedOn === todayStr) {
+                    cleaned[notificationId] = dismissData;
+                }
+                // If dismissed on a previous day, don't keep it (show again)
+            }
+
+            localStorage.setItem(key, JSON.stringify(cleaned));
+            return cleaned;
+        }
+
+        // Dismiss a notification for current user (until next day)
+        function dismissNotification(date, name) {
+            const username = localStorage.getItem('studyhub_username') || 'guest';
+            const key = `studyhub_dismissed_notifications_${username}`;
+            const dismissed = JSON.parse(localStorage.getItem(key) || '{}');
+            const notificationId = `${date}_${name}`;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = today.toISOString().split('T')[0];
+
+            dismissed[notificationId] = {
+                dismissedOn: todayStr
+            };
+            localStorage.setItem(key, JSON.stringify(dismissed));
+            renderNotifications();
+        }
+
+        function getNotifications() {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const urgent = [];    // דחוף - today or overdue
+            const important = []; // חשוב - tomorrow
+            const reminder = [];  // תזכורת - in 3 days
+
+            // Get dismissed notifications for this user (auto-cleaned)
+            const dismissed = getDismissedNotifications();
+
+            // Loop through all dates in calendarEvents object
+            for (const [dateStr, events] of Object.entries(calendarEvents)) {
+                events.forEach(event => {
+                    // Only check tests and assignments/homework
+                    if (event.type !== 'test' && event.type !== 'assignment' && event.type !== 'homework') {
+                        return;
+                    }
+
+                    // Check if this notification was dismissed today
+                    const notificationId = `${dateStr}_${event.name}`;
+                    if (dismissed[notificationId]) {
+                        return;
+                    }
+
+                    const eventDate = new Date(dateStr);
+                    eventDate.setHours(0, 0, 0, 0);
+
+                    const diffDays = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
+
+                    const item = {
+                        name: event.name,
+                        date: dateStr,
+                        type: event.type,
+                        diffDays: diffDays
+                    };
+
+                    if (diffDays < 0) {
+                        // Overdue - דחוף
+                        item.label = 'עבר התאריך!';
+                        urgent.push(item);
+                    } else if (diffDays === 0) {
+                        // Today - דחוף
+                        item.label = 'היום!';
+                        urgent.push(item);
+                    } else if (diffDays === 1) {
+                        // Tomorrow - חשוב
+                        item.label = 'מחר';
+                        important.push(item);
+                    } else if (diffDays <= 3) {
+                        // In 2-3 days - תזכורת
+                        item.label = `בעוד ${diffDays} ימים`;
+                        reminder.push(item);
+                    }
+                });
+            }
+
+            // Sort by date
+            urgent.sort((a, b) => a.diffDays - b.diffDays);
+            important.sort((a, b) => a.diffDays - b.diffDays);
+            reminder.sort((a, b) => a.diffDays - b.diffDays);
+
+            return { urgent, important, reminder };
+        }
+
+        function renderNotifications() {
+            const { urgent, important, reminder } = getNotifications();
+            const container = document.getElementById('notificationContent');
+
+            const totalCount = urgent.length + important.length + reminder.length;
+
+            if (totalCount === 0) {
+                container.innerHTML = '<div class="notification-empty"><i class="fas fa-check-circle" style="font-size: 2rem; color: #10b981; margin-bottom: 10px; display: block;"></i>אין התראות חדשות</div>';
+                updateNotificationBadge(0, null);
+                return;
+            }
+
+            let html = '';
+
+            // דחוף box
+            if (urgent.length > 0) {
+                html += `
+                    <div class="notification-box urgent">
+                        <div class="notification-box-title">
+                            <i class="fas fa-exclamation-circle"></i>
+                            דחוף (${urgent.length})
+                        </div>
+                        ${urgent.map(item => `
+                            <div class="notification-item">
+                                <button class="notification-delete" onclick="dismissNotification('${item.date}', '${item.name.replace(/'/g, "\\'")}')"><i class="fas fa-times"></i></button>
+                                <span class="notification-item-name">
+                                    <i class="fas fa-${item.type === 'test' ? 'file-alt' : 'tasks'}"></i>
+                                    ${item.name}
+                                </span>
+                                <span class="notification-item-date">${item.label}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // חשוב box
+            if (important.length > 0) {
+                html += `
+                    <div class="notification-box important">
+                        <div class="notification-box-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            חשוב (${important.length})
+                        </div>
+                        ${important.map(item => `
+                            <div class="notification-item">
+                                <button class="notification-delete" onclick="dismissNotification('${item.date}', '${item.name.replace(/'/g, "\\'")}')"><i class="fas fa-times"></i></button>
+                                <span class="notification-item-name">
+                                    <i class="fas fa-${item.type === 'test' ? 'file-alt' : 'tasks'}"></i>
+                                    ${item.name}
+                                </span>
+                                <span class="notification-item-date">${item.label}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // תזכורת box
+            if (reminder.length > 0) {
+                html += `
+                    <div class="notification-box reminder">
+                        <div class="notification-box-title">
+                            <i class="fas fa-bell"></i>
+                            תזכורת (${reminder.length})
+                        </div>
+                        ${reminder.map(item => `
+                            <div class="notification-item">
+                                <button class="notification-delete" onclick="dismissNotification('${item.date}', '${item.name.replace(/'/g, "\\'")}')"><i class="fas fa-times"></i></button>
+                                <span class="notification-item-name">
+                                    <i class="fas fa-${item.type === 'test' ? 'file-alt' : 'tasks'}"></i>
+                                    ${item.name}
+                                </span>
+                                <span class="notification-item-date">${item.label}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+
+            // Update badge based on priority
+            if (urgent.length > 0) {
+                updateNotificationBadge(totalCount, 'urgent');
+            } else if (important.length > 0) {
+                updateNotificationBadge(totalCount, 'important');
+            } else {
+                updateNotificationBadge(totalCount, 'reminder');
+            }
+        }
+
+        function updateNotificationBadge(count, priority) {
+            const badge = document.getElementById('notificationBadge');
+            badge.className = 'notification-badge';
+
+            // Don't show badge if user already saw notifications today
+            if (count === 0 || !priority || wereNotificationsSeenToday()) {
+                badge.style.display = 'none';
+                badge.textContent = '';
+            } else {
+                badge.classList.add(priority);
+                badge.textContent = count;
+            }
+        }
+
+        // Update notifications periodically
+        function initNotifications() {
+            renderNotifications();
+            // Update every minute
+            setInterval(() => {
+                const dropdown = document.getElementById('notificationDropdown');
+                if (!dropdown.classList.contains('show')) {
+                    // Just update the badge, not the content
+                    const { urgent, important, reminder } = getNotifications();
+                    const totalCount = urgent.length + important.length + reminder.length;
+                    if (urgent.length > 0) {
+                        updateNotificationBadge(totalCount, 'urgent');
+                    } else if (important.length > 0) {
+                        updateNotificationBadge(totalCount, 'important');
+                    } else if (totalCount > 0) {
+                        updateNotificationBadge(totalCount, 'reminder');
+                    } else {
+                        updateNotificationBadge(0, null);
+                    }
+                }
+            }, 60000);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const bell = document.getElementById('notificationBell');
+            if (dropdown && bell && !dropdown.contains(e.target) && !bell.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
         // ========== DATA ==========
         const COURSES = [
             { id: 1, name: 'מתמטיקה 2', icon: 'fa-square-root-alt', color: '#818cf8' },
@@ -2431,6 +3032,9 @@
             });
 
             restorePageState();
+
+            // Initialize notifications
+            initNotifications();
 
             // Auto-sync every 10 seconds
             setInterval(() => {
@@ -2941,6 +3545,7 @@
                         border-radius: 16px;
                         padding: 20px;
                         margin-bottom: 15px;
+                        margin-top: 60px;
                         text-align: center;
                     }
                     .home-greeting h2 {
