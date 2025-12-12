@@ -98,6 +98,11 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Mobile logo - hidden on desktop */
+        .mobile-logo {
+            display: none;
+        }
+
         .menu-item {
             padding: 12px 20px;
             cursor: pointer;
@@ -2005,6 +2010,34 @@
             }
             .logout-btn span { display: none !important; }
 
+            /* Mobile logo - top right */
+            .mobile-logo {
+                display: flex !important;
+                position: fixed;
+                top: 12px;
+                right: 12px;
+                align-items: center;
+                gap: 8px;
+                z-index: 9998;
+                cursor: pointer;
+                background: rgba(15, 12, 41, 0.95);
+                padding: 8px 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(139, 92, 246, 0.3);
+            }
+            .mobile-logo .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            .mobile-logo span {
+                font-size: 1rem;
+                font-weight: 600;
+                background: linear-gradient(135deg, #fff, #a78bfa, #f472b6);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
             /* Notification bell mobile */
             .notification-bell {
                 top: 12px;
@@ -2495,6 +2528,12 @@
             <span>התנתק</span>
         </button>
     </nav>
+
+    <!-- Mobile Logo (top right on phones) -->
+    <div class="mobile-logo" onclick="showHomePage()">
+        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+        <span>StudyHub</span>
+    </div>
 
     <!-- Notification Bell -->
     <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
