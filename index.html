@@ -2013,16 +2013,23 @@
             /* Mobile logo - top right */
             .mobile-logo {
                 display: flex !important;
-                position: fixed;
-                top: 12px;
-                right: 12px;
+                position: fixed !important;
+                -webkit-position: fixed !important;
+                top: 12px !important;
+                right: 12px !important;
+                left: auto !important;
+                bottom: auto !important;
                 align-items: center;
                 justify-content: center;
-                z-index: 9998;
+                z-index: 99999 !important;
                 cursor: pointer;
                 background: none;
                 padding: 0;
                 border: none;
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
             }
             .mobile-logo .logo-icon {
                 width: 42px;
@@ -2466,6 +2473,11 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Logo (top right on phones) - placed first for iOS fixed positioning -->
+    <div class="mobile-logo" onclick="showHomePage()">
+        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+    </div>
+
     <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
@@ -2521,11 +2533,6 @@
             <span>התנתק</span>
         </button>
     </nav>
-
-    <!-- Mobile Logo (top right on phones) -->
-    <div class="mobile-logo" onclick="showHomePage()">
-        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
-    </div>
 
     <!-- Notification Bell -->
     <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
