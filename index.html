@@ -2719,12 +2719,12 @@
             return new Set(userData.seenNotifications);
         }
 
-        // Get dismissed notifications for current user (cleaned up)
+        // Get dismissed notifications for current user
+        // Dismissed notifications stay hidden until the event date passes
         function getDismissedNotifications() {
             const username = localStorage.getItem('studyhub_username') || 'guest';
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const todayStr = today.toISOString().split('T')[0];
 
             const userData = cloudNotifications[username];
             if (!userData || !userData.dismissed) return {};
@@ -2735,22 +2735,19 @@
                 const eventDateObj = new Date(eventDate);
                 eventDateObj.setHours(0, 0, 0, 0);
 
-                // If event date is in the past, don't keep it (permanently dismissed)
+                // If event date is in the past, don't keep it (event already passed)
                 if (eventDateObj < today) {
                     continue;
                 }
 
-                // If dismissed today, keep it hidden
-                if (dismissData.dismissedOn === todayStr) {
-                    cleaned[notificationId] = dismissData;
-                }
-                // If dismissed on a previous day, don't keep it (show again)
+                // Keep dismissed notification hidden until event date passes
+                cleaned[notificationId] = dismissData;
             }
 
             return cleaned;
         }
 
-        // Dismiss a notification for current user (until next day)
+        // Dismiss a notification for current user (stays hidden until event date passes)
         async function dismissNotification(date, name) {
             const username = localStorage.getItem('studyhub_username') || 'guest';
             const notificationId = `${date}_${name}`;
