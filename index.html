@@ -2670,40 +2670,47 @@
             }
         }
 
+        // Cloud notification data per user
+        let cloudNotifications = {};
+
         // Mark notifications as seen for today (badge won't show again until tomorrow)
-        function markNotificationsSeen() {
+        async function markNotificationsSeen() {
             const username = localStorage.getItem('studyhub_username') || 'guest';
-            const key = `studyhub_notifications_seen_${username}`;
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const todayStr = today.toISOString().split('T')[0];
-            localStorage.setItem(key, todayStr);
+
+            // Update local
+            if (!cloudNotifications[username]) cloudNotifications[username] = { seen: null, dismissed: {} };
+            cloudNotifications[username].seen = todayStr;
+
+            // Save to cloud
+            await saveNotificationsToCloud();
         }
 
         // Check if notifications were seen today
         function wereNotificationsSeenToday() {
             const username = localStorage.getItem('studyhub_username') || 'guest';
-            const key = `studyhub_notifications_seen_${username}`;
-            const seenDate = localStorage.getItem(key);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const todayStr = today.toISOString().split('T')[0];
-            return seenDate === todayStr;
+
+            const userData = cloudNotifications[username];
+            return userData && userData.seen === todayStr;
         }
 
         // Get dismissed notifications for current user (cleaned up)
         function getDismissedNotifications() {
             const username = localStorage.getItem('studyhub_username') || 'guest';
-            const key = `studyhub_dismissed_notifications_${username}`;
-            const dismissed = JSON.parse(localStorage.getItem(key) || '{}');
-
-            // Clean up old entries - remove past dates and reset for new day
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const todayStr = today.toISOString().split('T')[0];
 
+            const userData = cloudNotifications[username];
+            if (!userData || !userData.dismissed) return {};
+
             const cleaned = {};
-            for (const [notificationId, dismissData] of Object.entries(dismissed)) {
+            for (const [notificationId, dismissData] of Object.entries(userData.dismissed)) {
                 const eventDate = notificationId.split('_')[0];
                 const eventDateObj = new Date(eventDate);
                 eventDateObj.setHours(0, 0, 0, 0);
@@ -2720,25 +2727,92 @@
                 // If dismissed on a previous day, don't keep it (show again)
             }
 
-            localStorage.setItem(key, JSON.stringify(cleaned));
             return cleaned;
         }
 
         // Dismiss a notification for current user (until next day)
-        function dismissNotification(date, name) {
+        async function dismissNotification(date, name) {
             const username = localStorage.getItem('studyhub_username') || 'guest';
-            const key = `studyhub_dismissed_notifications_${username}`;
-            const dismissed = JSON.parse(localStorage.getItem(key) || '{}');
             const notificationId = `${date}_${name}`;
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const todayStr = today.toISOString().split('T')[0];
 
-            dismissed[notificationId] = {
+            // Update local
+            if (!cloudNotifications[username]) cloudNotifications[username] = { seen: null, dismissed: {} };
+            if (!cloudNotifications[username].dismissed) cloudNotifications[username].dismissed = {};
+
+            cloudNotifications[username].dismissed[notificationId] = {
                 dismissedOn: todayStr
             };
-            localStorage.setItem(key, JSON.stringify(dismissed));
+
+            // Save to cloud
+            await saveNotificationsToCloud();
             renderNotifications();
+        }
+
+        // Save notifications to cloud
+        async function saveNotificationsToCloud() {
+            try {
+                // Get current cloud data
+                const getResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                let cloudJson = { appdata: {}, calendar: {}, notifications: {} };
+                if (getResponse.ok) {
+                    const gist = await getResponse.json();
+                    const content = gist.files[GIST_FILENAME]?.content;
+                    if (content) cloudJson = JSON.parse(content);
+                }
+
+                // Update notifications
+                cloudJson.notifications = cloudNotifications;
+
+                // Save back to cloud
+                await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: { [GIST_FILENAME]: { content: JSON.stringify(cloudJson) } }
+                    })
+                });
+                console.log('🔔 Notifications synced to cloud');
+            } catch (error) {
+                console.log('Notification sync failed:', error);
+            }
+        }
+
+        // Load notifications from cloud
+        async function loadNotificationsFromCloud() {
+            try {
+                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const gist = await response.json();
+                    const content = gist.files[GIST_FILENAME]?.content;
+                    if (content) {
+                        const cloudJson = JSON.parse(content);
+                        if (cloudJson.notifications) {
+                            cloudNotifications = cloudJson.notifications;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Failed to load notifications:', error);
+            }
         }
 
         function getNotifications() {
@@ -2913,12 +2987,16 @@
         }
 
         // Update notifications periodically
-        function initNotifications() {
+        async function initNotifications() {
+            // Load notification data from cloud first
+            await loadNotificationsFromCloud();
             renderNotifications();
             // Update every minute
-            setInterval(() => {
+            setInterval(async () => {
                 const dropdown = document.getElementById('notificationDropdown');
                 if (!dropdown.classList.contains('show')) {
+                    // Reload from cloud to get latest dismissals
+                    await loadNotificationsFromCloud();
                     // Just update the badge, not the content
                     const { urgent, important, reminder } = getNotifications();
                     const totalCount = urgent.length + important.length + reminder.length;
