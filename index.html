@@ -2452,11 +2452,6 @@
     </style>
 </head>
 <body>
-    <!-- Fixed wrapper for mobile logo - outside scrollable content -->
-    <div id="mobileLogoWrapper" style="position:fixed;top:12px;right:12px;z-index:99999;display:none;">
-        <div class="logo-icon" onclick="showHomePage()" style="cursor:pointer;"><i class="fas fa-graduation-cap"></i></div>
-    </div>
-
     <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
@@ -3131,16 +3126,6 @@
 
             // Initialize notifications
             initNotifications();
-
-            // Show mobile logo on small screens
-            function checkMobileLogo() {
-                const wrapper = document.getElementById('mobileLogoWrapper');
-                if (wrapper) {
-                    wrapper.style.display = window.innerWidth <= 1400 ? 'block' : 'none';
-                }
-            }
-            checkMobileLogo();
-            window.addEventListener('resize', checkMobileLogo);
 
             // Auto-sync every 10 seconds
             setInterval(() => {
