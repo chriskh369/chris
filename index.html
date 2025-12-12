@@ -4475,11 +4475,48 @@
                 const diffDays = Math.floor((eventDate - today) / (1000 * 60 * 60 * 24));
 
                 if (diffDays >= 0 && diffDays <= 3) {
-                    // Reset "seen" so the badge shows for the new notification
-                    const username = localStorage.getItem('studyhub_username') || 'guest';
-                    if (cloudNotifications[username]) {
-                        cloudNotifications[username].seen = null;
-                        await saveNotificationsToCloud();
+                    // Reset "seen" for ALL users so everyone sees the new notification badge
+                    for (const user of Object.keys(cloudNotifications)) {
+                        if (cloudNotifications[user]) {
+                            cloudNotifications[user].seen = null;
+                        }
+                    }
+                    // Save all users' reset status to cloud
+                    try {
+                        const getResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                            headers: {
+                                'Authorization': `token ${GITHUB_TOKEN}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        });
+                        if (getResponse.ok) {
+                            const gist = await getResponse.json();
+                            const content = gist.files[GIST_FILENAME]?.content;
+                            if (content) {
+                                const cloudJson = JSON.parse(content);
+                                // Reset seen for all users in cloud
+                                if (cloudJson.notifications) {
+                                    for (const user of Object.keys(cloudJson.notifications)) {
+                                        if (cloudJson.notifications[user]) {
+                                            cloudJson.notifications[user].seen = null;
+                                        }
+                                    }
+                                }
+                                await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                                    method: 'PATCH',
+                                    headers: {
+                                        'Authorization': `token ${GITHUB_TOKEN}`,
+                                        'Accept': 'application/vnd.github.v3+json',
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        files: { [GIST_FILENAME]: { content: JSON.stringify(cloudJson) } }
+                                    })
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Failed to reset notifications for all users:', error);
                     }
                 }
 
