@@ -4429,6 +4429,28 @@
             document.getElementById('eventName').value = '';
             renderCalendarEventsList();
             renderCalendar();
+
+            // Refresh notifications if a test/homework/assignment was added
+            if (type === 'test' || type === 'assignment' || type === 'homework') {
+                // Check if this is a new notification (within 3 days)
+                const eventDate = new Date(selectedCalendarDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                eventDate.setHours(0, 0, 0, 0);
+                const diffDays = Math.floor((eventDate - today) / (1000 * 60 * 60 * 24));
+
+                if (diffDays >= 0 && diffDays <= 3) {
+                    // Reset "seen" so the badge shows for the new notification
+                    const username = localStorage.getItem('studyhub_username') || 'guest';
+                    if (cloudNotifications[username]) {
+                        cloudNotifications[username].seen = null;
+                        await saveNotificationsToCloud();
+                    }
+                }
+
+                await loadNotificationsFromCloud();
+                renderNotifications();
+            }
         }
 
         function selectCourse(courseId) {
