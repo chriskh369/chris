@@ -4441,6 +4441,7 @@
         async function saveCalendarEvent() {
             const name = document.getElementById('eventName').value.trim();
             const type = document.getElementById('eventType').value;
+            const isNewEvent = editingEventIdx === null; // Check BEFORE we modify editingEventIdx
 
             if (!name) {
                 showToast('נא להזין שם לאירוע');
@@ -4490,13 +4491,52 @@
             renderCalendarEventsList();
             renderCalendar();
 
-            // Refresh notifications if a test/homework/assignment was added
-            if (type === 'test' || type === 'assignment' || type === 'homework') {
-                // New notifications will automatically appear for all users
-                // because they won't be in anyone's seenNotifications list
-                await loadNotificationsFromCloud();
-                renderNotifications();
+            // Refresh notifications if a NEW test/homework/assignment was added
+            if (isNewEvent && (type === 'test' || type === 'assignment' || type === 'homework')) {
+                // Check if this event is within notification range (3 days)
+                const eventDate = new Date(selectedCalendarDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                eventDate.setHours(0, 0, 0, 0);
+                const diffDays = Math.floor((eventDate - today) / (1000 * 60 * 60 * 24));
+
+                if (diffDays >= 0 && diffDays <= 3) {
+                    // Mark all existing notifications as seen, except the new one
+                    await refreshNotificationsAfterNewEvent(selectedCalendarDate, name);
+                }
             }
+        }
+
+        // Separate function to handle notification refresh after adding event
+        async function refreshNotificationsAfterNewEvent(eventDate, eventName) {
+            const username = localStorage.getItem('studyhub_username') || 'guest';
+
+            // Load latest from cloud
+            await loadNotificationsFromCloud();
+
+            // Get all current notifications (including the new one)
+            const { urgent, important, reminder } = getAllNotifications();
+            const allNotifications = [...urgent, ...important, ...reminder];
+
+            // Mark ALL notifications EXCEPT the new one as seen for this user
+            if (!cloudNotifications[username]) cloudNotifications[username] = { seenNotifications: [], dismissed: {} };
+            if (!cloudNotifications[username].seenNotifications) cloudNotifications[username].seenNotifications = [];
+
+            const newNotificationId = `${eventDate}_${eventName}`;
+
+            allNotifications.forEach(item => {
+                const notificationId = `${item.date}_${item.name}`;
+                // Mark as seen UNLESS it's the notification we just added
+                if (notificationId !== newNotificationId && !cloudNotifications[username].seenNotifications.includes(notificationId)) {
+                    cloudNotifications[username].seenNotifications.push(notificationId);
+                }
+            });
+
+            // Save to cloud
+            await saveNotificationsToCloud();
+
+            // Re-render to show only the new notification
+            renderNotifications();
         }
 
         function selectCourse(courseId) {
