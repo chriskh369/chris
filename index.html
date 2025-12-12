@@ -2172,13 +2172,18 @@
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-header">
-            <div class="logo" onclick="goHome()" style="cursor: pointer;">
+            <div class="logo" onclick="showHomePage()" style="cursor: pointer;">
                 <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
                 <h1>StudyHub</h1>
             </div>
         </div>
 
-        <button type="button" class="menu-item active" id="menuCourses">
+        <button type="button" class="menu-item active" id="menuHome">
+            <i class="fas fa-home"></i>
+            <span>דף בית</span>
+        </button>
+
+        <button type="button" class="menu-item" id="menuCourses">
             <i class="fas fa-book"></i>
             <span>קורסים</span>
         </button>
@@ -2235,7 +2240,7 @@
     </div>
 
     <!-- Calendar Modal -->
-    <div class="calendar-modal-overlay" id="calendarModal">
+    <div class="calendar-modal-overlay" id="calendarModal" onclick="if(event.target === this) closeCalendarModal()">
         <div class="calendar-modal">
             <div class="calendar-modal-header">
                 <h3 class="calendar-modal-title" id="calendarModalTitle">הוסף אירוע</h3>
@@ -2405,7 +2410,15 @@
             checkLogin();
             loadData();
 
+            // Initialize calendar events before rendering any page
+            mergeAllEvents();
+
             // Setup menu button event listeners for cross-browser compatibility
+            document.getElementById('menuHome').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showHomePage();
+            });
             document.getElementById('menuCourses').addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2428,8 +2441,16 @@
 
         // Save current page state to localStorage
         function savePageState() {
+            let page = 'homepage';
+            if (currentCourse) {
+                page = viewingItem !== null ? 'item' : 'course';
+            } else if (document.getElementById('menuCalendar').classList.contains('active')) {
+                page = 'calendar';
+            } else if (document.getElementById('menuCourses').classList.contains('active')) {
+                page = 'courses';
+            }
             const state = {
-                page: currentCourse ? (viewingItem !== null ? 'item' : 'course') : (document.getElementById('menuCalendar').classList.contains('active') ? 'calendar' : 'home'),
+                page: page,
                 course: currentCourse,
                 category: currentCategory,
                 item: viewingItem
@@ -2445,23 +2466,31 @@
                     const state = JSON.parse(saved);
                     if (state.page === 'calendar') {
                         showCalendar();
+                    } else if (state.page === 'courses') {
+                        goHome();
                     } else if (state.page === 'course' && state.course) {
                         currentCourse = state.course;
                         currentCategory = state.category || 'presentations';
+                        document.getElementById('menuHome').classList.remove('active');
+                        document.getElementById('menuCourses').classList.add('active');
+                        document.getElementById('menuCalendar').classList.remove('active');
                         renderCourseView();
                     } else if (state.page === 'item' && state.course && state.item !== null) {
                         currentCourse = state.course;
                         currentCategory = state.category || 'presentations';
                         viewingItem = state.item;
+                        document.getElementById('menuHome').classList.remove('active');
+                        document.getElementById('menuCourses').classList.add('active');
+                        document.getElementById('menuCalendar').classList.remove('active');
                         renderItemDetail();
                     } else {
-                        renderCourses();
+                        showHomePage();
                     }
                 } else {
-                    renderCourses();
+                    showHomePage();
                 }
             } catch(e) {
-                renderCourses();
+                showHomePage();
             }
         }
 
@@ -2473,8 +2502,10 @@
                 renderCourseView();
             } else if (document.getElementById('menuCalendar').classList.contains('active')) {
                 renderCalendar();
-            } else {
+            } else if (document.getElementById('menuCourses').classList.contains('active')) {
                 renderCourses();
+            } else {
+                renderHomePage();
             }
         }
 
@@ -2603,6 +2634,11 @@
                 }
 
                 if (cloudJson.calendar) cloudCalendar = cloudJson.calendar;
+                if (cloudJson.schoolSchedule && Object.keys(cloudJson.schoolSchedule).length > 0) {
+                    schoolSchedule = cloudJson.schoolSchedule;
+                    localStorage.setItem('studyhub_school_schedule', JSON.stringify(schoolSchedule));
+                    mergeAllEvents();
+                }
 
                 const cloudHasData = cloudJson.appdata && Object.keys(cloudJson.appdata).length > 0;
                 const localHasData = appData && Object.keys(appData).length > 0;
@@ -2703,7 +2739,7 @@
         async function syncToCloud() {
             isSyncing = true;
             try {
-                const cloudJson = { appdata: appData, calendar: cloudCalendar };
+                const cloudJson = { appdata: appData, calendar: cloudCalendar, schoolSchedule: schoolSchedule };
                 await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     method: 'PATCH',
                     headers: {
@@ -2760,10 +2796,294 @@
         }
 
         // ========== NAVIGATION ==========
+        function showHomePage() {
+            currentCourse = null;
+            currentCategory = null;
+            viewingItem = null;
+            document.getElementById('menuHome').classList.add('active');
+            document.getElementById('menuCourses').classList.remove('active');
+            document.getElementById('menuCalendar').classList.remove('active');
+            renderHomePage();
+            savePageState();
+        }
+
+        function renderHomePage() {
+            const main = document.getElementById('mainContent');
+
+            // Get greeting based on time of day
+            const hour = new Date().getHours();
+            let greeting = 'שלום';
+            if (hour >= 5 && hour < 12) {
+                greeting = 'בוקר טוב';
+            } else if (hour >= 12 && hour < 17) {
+                greeting = 'צהריים טובים';
+            } else if (hour >= 17 && hour < 21) {
+                greeting = 'ערב טוב';
+            } else {
+                greeting = 'לילה טוב';
+            }
+
+            // Get username
+            let username = localStorage.getItem('studyhub_username') || 'אורח';
+
+            // Get upcoming events (next 7 days)
+            const today = new Date();
+            const upcomingEvents = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const events = calendarEvents[dateStr] || [];
+                events.forEach(ev => {
+                    upcomingEvents.push({ ...ev, date: dateStr, dateObj: date });
+                });
+            }
+
+            // Get total counts
+            let totalFiles = 0;
+            let totalNotes = 0;
+            COURSES.forEach(course => {
+                CATEGORIES.forEach(cat => {
+                    const items = appData[course.id]?.[cat.id] || [];
+                    items.forEach(item => {
+                        totalFiles += (item.files?.length || 0) + (item.fileData ? 1 : 0);
+                        totalNotes += item.notes?.length || 0;
+                    });
+                });
+            });
+
+            // Find next school day
+            const todayDate = new Date();
+            todayDate.setHours(0,0,0,0);
+            const sortedDates = Object.keys(schoolSchedule).sort();
+            let nextSchoolDate = null;
+            for (const dateStr of sortedDates) {
+                const d = new Date(dateStr);
+                if (d >= todayDate) {
+                    nextSchoolDate = dateStr;
+                    break;
+                }
+            }
+
+            let nextSchoolDayHtml = '<p style="color: #6b7280; text-align: center;">אין ימי לימוד קרובים</p>';
+            if (nextSchoolDate && schoolSchedule[nextSchoolDate]) {
+                const nDate = new Date(nextSchoolDate);
+                const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+                const dayName = dayNames[nDate.getDay()];
+                const dateDisplay = nDate.toLocaleDateString('he-IL', { day: 'numeric', month: 'long' });
+                const classes = schoolSchedule[nextSchoolDate];
+                const classesHtml = classes.map(c =>
+                    '<div style="background: rgba(139, 92, 246, 0.1); border-radius: 10px; padding: 15px; border-right: 3px solid #8b5cf6;"><div style="color: #e0e7ff; font-size: 0.95rem;">' + c.name + '</div></div>'
+                ).join('');
+                nextSchoolDayHtml = '<div style="text-align: center; margin-bottom: 18px;"><div style="font-size: 1.5rem; color: #fff; font-weight: 600;">יום ' + dayName + '</div><div style="font-size: 1rem; color: #a78bfa;">' + dateDisplay + '</div></div><div style="display: flex; flex-direction: column; gap: 12px;">' + classesHtml + '</div>';
+            }
+
+            // Find upcoming assignments (type: assignment or homework) from calendarEvents
+            const upcomingAssignments = [];
+            const allCalendarDates = Object.keys(calendarEvents).sort();
+            for (const dateStr of allCalendarDates) {
+                const d = new Date(dateStr);
+                if (d >= todayDate) {
+                    const events = calendarEvents[dateStr];
+                    events.forEach(ev => {
+                        if (ev.type === 'assignment' || ev.type === 'homework') {
+                            upcomingAssignments.push({ ...ev, date: dateStr, dateObj: d });
+                        }
+                    });
+                }
+            }
+            // Sort by date and take first 5
+            upcomingAssignments.sort((a, b) => a.dateObj - b.dateObj);
+            const top5Assignments = upcomingAssignments.slice(0, 5);
+
+            let assignmentsHtml = '<p style="color: #6b7280; text-align: center;">אין מטלות קרובות</p>';
+            if (top5Assignments.length > 0) {
+                assignmentsHtml = '<div style="display: flex; flex-direction: column; gap: 12px;">' +
+                    top5Assignments.map(a => {
+                        const aDate = new Date(a.date);
+                        const dateDisplay = aDate.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
+                        return '<div style="background: rgba(239, 68, 68, 0.1); border-radius: 10px; padding: 15px; border-right: 3px solid #ef4444; display: flex; justify-content: space-between; align-items: center;"><div style="color: #e0e7ff; font-size: 0.95rem;">' + a.name + '</div><div style="color: #ef4444; font-size: 0.85rem; white-space: nowrap;">' + dateDisplay + '</div></div>';
+                    }).join('') + '</div>';
+            }
+
+            // Find upcoming tests from calendarEvents
+            const upcomingTests = [];
+            for (const dateStr of allCalendarDates) {
+                const d = new Date(dateStr);
+                if (d >= todayDate) {
+                    const events = calendarEvents[dateStr];
+                    events.forEach(ev => {
+                        if (ev.type === 'test') {
+                            upcomingTests.push({ ...ev, date: dateStr, dateObj: d });
+                        }
+                    });
+                }
+            }
+            // Sort by date and take first 5
+            upcomingTests.sort((a, b) => a.dateObj - b.dateObj);
+            const top5Tests = upcomingTests.slice(0, 5);
+
+            let testsHtml = '<p style="color: #6b7280; text-align: center;">אין מבחנים קרובים</p>';
+            if (top5Tests.length > 0) {
+                testsHtml = '<div style="display: flex; flex-direction: column; gap: 12px;">' +
+                    top5Tests.map(t => {
+                        const tDate = new Date(t.date);
+                        const dateDisplay = tDate.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
+                        return '<div style="background: rgba(245, 158, 11, 0.1); border-radius: 10px; padding: 15px; border-right: 3px solid #f59e0b; display: flex; justify-content: space-between; align-items: center;"><div style="color: #e0e7ff; font-size: 0.95rem;">' + t.name + '</div><div style="color: #f59e0b; font-size: 0.85rem; white-space: nowrap;">' + dateDisplay + '</div></div>';
+                    }).join('') + '</div>';
+            }
+
+            main.innerHTML = `
+                <style>
+                    .home-greeting {
+                        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1));
+                        border: 1px solid rgba(139, 92, 246, 0.25);
+                        border-radius: 16px;
+                        padding: 20px;
+                        margin-bottom: 15px;
+                        text-align: center;
+                    }
+                    .home-greeting h2 {
+                        font-size: clamp(1.3rem, 4vw, 1.8rem);
+                        color: #fff;
+                        margin-bottom: 3px;
+                    }
+                    .home-greeting p {
+                        color: #a78bfa;
+                        font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+                    }
+                    .home-courses-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                        gap: 12px;
+                    }
+                    .home-course-card {
+                        background: linear-gradient(135deg, var(--course-color-20), var(--course-color-10));
+                        border: 1px solid var(--course-color-40);
+                        border-radius: 10px;
+                        padding: 15px 10px;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.15s ease-out;
+                        -webkit-tap-highlight-color: transparent;
+                    }
+                    .home-course-card:hover, .home-course-card:active {
+                        transform: translateY(-3px);
+                        box-shadow: 0 10px 30px var(--course-color-30);
+                    }
+                    .home-info-boxes {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 15px;
+                        margin-top: 20px;
+                    }
+                    .home-info-box {
+                        background: rgba(15, 12, 41, 0.6);
+                        border-radius: 14px;
+                        padding: 18px;
+                        min-height: 420px;
+                        -webkit-backdrop-filter: blur(10px);
+                        backdrop-filter: blur(10px);
+                    }
+                    .home-info-box h3 {
+                        margin-bottom: 15px;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 1rem;
+                    }
+                    @media (max-width: 900px) {
+                        .home-info-boxes {
+                            grid-template-columns: 1fr 1fr;
+                        }
+                        .home-info-box:first-child {
+                            grid-column: 1 / -1;
+                        }
+                    }
+                    @media (max-width: 600px) {
+                        .home-info-boxes {
+                            grid-template-columns: 1fr;
+                        }
+                        .home-info-box {
+                            min-height: auto;
+                            padding: 15px;
+                        }
+                        .home-info-box:first-child {
+                            grid-column: auto;
+                        }
+                        .home-courses-grid {
+                            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                            gap: 8px;
+                        }
+                        .home-course-card {
+                            padding: 12px 8px;
+                        }
+                        .home-course-card i {
+                            font-size: 1.2rem !important;
+                        }
+                        .home-course-card div {
+                            font-size: 0.75rem !important;
+                        }
+                    }
+                </style>
+                <h1 class="page-title" style="margin-bottom: 15px;">דף בית</h1>
+
+                <div class="home-greeting">
+                    <h2>${greeting}, ${username}!</h2>
+                    <p>מה נלמד היום?</p>
+                </div>
+
+                <div style="background: rgba(15, 12, 41, 0.6); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 14px; padding: 18px; margin-bottom: 20px; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);">
+                    <h3 style="color: #a78bfa; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 1rem;">
+                        <i class="fas fa-th-large"></i>
+                        גישה מהירה לקורסים
+                    </h3>
+                    <div class="home-courses-grid">
+                        ${COURSES.map(course => `
+                            <div class="home-course-card" onclick="selectCourse(${course.id})" style="--course-color-20: ${course.color}20; --course-color-10: ${course.color}10; --course-color-40: ${course.color}40; --course-color-30: ${course.color}30;">
+                                <i class="fas ${course.icon}" style="font-size: 1.4rem; color: ${course.color}; margin-bottom: 8px; display: block;"></i>
+                                <div style="color: #e0e7ff; font-size: 0.85rem;">${course.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="home-info-boxes">
+                    <!-- Box 1: Next School Day -->
+                    <div class="home-info-box" style="border: 1px solid rgba(139, 92, 246, 0.2);">
+                        <h3 style="color: #a78bfa;">
+                            <i class="fas fa-school"></i>
+                            יום לימודים הבא
+                        </h3>
+                        ${nextSchoolDayHtml}
+                    </div>
+
+                    <!-- Box 2: Upcoming Assignments -->
+                    <div class="home-info-box" style="border: 1px solid rgba(239, 68, 68, 0.2);">
+                        <h3 style="color: #ef4444;">
+                            <i class="fas fa-tasks"></i>
+                            מטלות קרובות
+                        </h3>
+                        ${assignmentsHtml}
+                    </div>
+
+                    <!-- Box 3: Upcoming Tests -->
+                    <div class="home-info-box" style="border: 1px solid rgba(245, 158, 11, 0.2);">
+                        <h3 style="color: #f59e0b;">
+                            <i class="fas fa-file-alt"></i>
+                            מבחנים קרובים
+                        </h3>
+                        ${testsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
         function goHome() {
             currentCourse = null;
             currentCategory = null;
             viewingItem = null;
+            document.getElementById('menuHome').classList.remove('active');
             document.getElementById('menuCourses').classList.add('active');
             document.getElementById('menuCalendar').classList.remove('active');
             renderCourses();
@@ -2771,8 +3091,8 @@
         }
 
         // ========== CALENDAR ==========
-        // School schedule data
-        const schoolSchedule = {
+        // School schedule data (now synced to cloud)
+        let schoolSchedule = {
             // December 2025 - Sundays
             '2025-12-07': [
                 { name: 'מבנה נתונים (ת) 08:15-09:45 כיתה 312', type: 'course', id: 1 },
@@ -3099,6 +3419,7 @@
                 } catch(e) {}
 
                 cloudJson.calendar = userAddedEvents;
+                cloudJson.schoolSchedule = schoolSchedule;
 
                 await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     method: 'PATCH',
@@ -3163,6 +3484,7 @@
         const eventTypeNames = { course: 'קורס', homework: 'מטלה', test: 'מבחן' };
 
         async function showCalendar() {
+            document.getElementById('menuHome').classList.remove('active');
             document.getElementById('menuCourses').classList.remove('active');
             document.getElementById('menuCalendar').classList.add('active');
             currentCourse = null;
@@ -3298,6 +3620,9 @@
         function closeCalendarModal() {
             document.getElementById('calendarModal').style.display = 'none';
             selectedCalendarDate = null;
+            editingEventIdx = null;
+            document.getElementById('calendarAddBtn').innerHTML = '<i class="fas fa-plus"></i> הוסף';
+            document.getElementById('eventName').value = '';
         }
 
         function renderCalendarEventsList() {
@@ -3332,10 +3657,23 @@
 
         async function deleteCalendarEvent(idx) {
             const event = calendarEvents[selectedCalendarDate][idx];
-            // Check if this is a school schedule event (can't delete those)
+            // Check if this is a school schedule event
             const isSchoolEvent = schoolSchedule[selectedCalendarDate]?.some(e => e.id === event.id);
             if (isSchoolEvent) {
-                showToast('לא ניתן למחוק אירועים מלוח הזמנים');
+                // Delete from school schedule
+                const schoolIdx = schoolSchedule[selectedCalendarDate].findIndex(e => e.id === event.id);
+                if (schoolIdx !== -1) {
+                    schoolSchedule[selectedCalendarDate].splice(schoolIdx, 1);
+                    if (schoolSchedule[selectedCalendarDate].length === 0) {
+                        delete schoolSchedule[selectedCalendarDate];
+                    }
+                    localStorage.setItem('studyhub_school_schedule', JSON.stringify(schoolSchedule));
+                    mergeAllEvents();
+                    await saveToCloud();
+                    renderCalendarEventsList();
+                    renderCalendar();
+                    showToast('השיעור נמחק');
+                }
                 return;
             }
             // Remove from user events
@@ -3369,24 +3707,37 @@
             if (editingEventIdx !== null) {
                 // Update existing event - get the event ID first
                 const event = calendarEvents[selectedCalendarDate][editingEventIdx];
-                // Check if this is a user-added event (not from school schedule)
+                // Check if this is a school schedule event
                 const isSchoolEvent = schoolSchedule[selectedCalendarDate]?.some(e => e.id === event.id);
-                if (!isSchoolEvent) {
-                    updateUserEvent(selectedCalendarDate, event.id, name, type);
+                if (isSchoolEvent) {
+                    // Update in school schedule
+                    const schoolEvent = schoolSchedule[selectedCalendarDate].find(e => e.id === event.id);
+                    if (schoolEvent) {
+                        schoolEvent.name = name;
+                        schoolEvent.type = type;
+                        localStorage.setItem('studyhub_school_schedule', JSON.stringify(schoolSchedule));
+                        mergeAllEvents();
+                    }
                 } else {
-                    // Can't edit school schedule events
-                    showToast('לא ניתן לערוך אירועים מלוח הזמנים');
-                    editingEventIdx = null;
-                    document.getElementById('calendarAddBtn').innerHTML = '<i class="fas fa-plus"></i> הוסף';
-                    return;
+                    updateUserEvent(selectedCalendarDate, event.id, name, type);
                 }
                 editingEventIdx = null;
                 document.getElementById('calendarAddBtn').innerHTML = '<i class="fas fa-plus"></i> הוסף';
                 showToast('האירוע עודכן בהצלחה');
             } else {
-                // Add new event using helper function
+                // Add new event - if it's a course, add to schoolSchedule; otherwise to userAddedEvents
                 const newEvent = { name, type, id: Date.now() };
-                addUserEvent(selectedCalendarDate, newEvent);
+                if (type === 'course') {
+                    // Add to school schedule
+                    if (!schoolSchedule[selectedCalendarDate]) {
+                        schoolSchedule[selectedCalendarDate] = [];
+                    }
+                    schoolSchedule[selectedCalendarDate].push(newEvent);
+                    localStorage.setItem('studyhub_school_schedule', JSON.stringify(schoolSchedule));
+                    mergeAllEvents();
+                } else {
+                    addUserEvent(selectedCalendarDate, newEvent);
+                }
                 showToast('האירוע נוסף בהצלחה');
             }
 
@@ -3401,6 +3752,9 @@
             currentCourse = courseId;
             currentCategory = 'presentations';
             viewingItem = null;
+            document.getElementById('menuHome').classList.remove('active');
+            document.getElementById('menuCourses').classList.add('active');
+            document.getElementById('menuCalendar').classList.remove('active');
             renderCourseView();
             savePageState();
         }
