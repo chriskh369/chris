@@ -2873,9 +2873,8 @@
                     };
 
                     if (diffDays < 0) {
-                        // Overdue - דחוף
-                        item.label = 'עבר התאריך!';
-                        urgent.push(item);
+                        // Past event - skip it, don't show in notifications
+                        return;
                     } else if (diffDays === 0) {
                         // Today - דחוף
                         item.label = 'היום!';
