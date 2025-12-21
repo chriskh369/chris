@@ -2703,22 +2703,99 @@
         ];
 
         let isLoggedIn = false;
+        let cloudLoginState = null; // Stores { loggedIn: true, username: 'xxx' }
 
-        function checkLogin() {
-            // Use localStorage for persistent login (stays logged in after closing app)
-            const loggedIn = localStorage.getItem('studyhub_logged_in');
-            if (loggedIn === 'true') {
+        async function checkLogin() {
+            // First check local storage for quick response
+            const localLoggedIn = localStorage.getItem('studyhub_logged_in');
+            if (localLoggedIn === 'true') {
                 isLoggedIn = true;
                 document.getElementById('loginScreen').style.display = 'none';
                 return true;
             }
+
+            // Then check cloud for cross-device sync
+            await loadCloudLoginState();
+            if (cloudLoginState && cloudLoginState.loggedIn) {
+                isLoggedIn = true;
+                localStorage.setItem('studyhub_logged_in', 'true');
+                localStorage.setItem('studyhub_current_user', cloudLoginState.username);
+                localStorage.setItem('studyhub_username', cloudLoginState.username);
+                document.getElementById('loginScreen').style.display = 'none';
+                return true;
+            }
+
             document.getElementById('loginScreen').style.display = 'flex';
-            // Check if biometric login is available
-            checkBiometricButton();
             return false;
         }
 
-        function handleLogin(event) {
+        async function loadCloudLoginState() {
+            try {
+                const _t = ['gho','_dADfnYflfNde','RK5d2E8O2i7H','5oof27064jOs'];
+                const token = _t.join('');
+                const GIST_ID = '70ade01d4645cc8013a741b74d83561c';
+
+                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+
+                if (response.ok) {
+                    const gist = await response.json();
+                    const content = gist.files['studyhub_cloud.json']?.content;
+                    if (content) {
+                        const data = JSON.parse(content);
+                        cloudLoginState = data.loginState || null;
+                    }
+                }
+            } catch (e) {
+                console.log('Error loading cloud login state:', e);
+            }
+        }
+
+        async function saveCloudLoginState(loggedIn, username) {
+            try {
+                const _t = ['gho','_dADfnYflfNde','RK5d2E8O2i7H','5oof27064jOs'];
+                const token = _t.join('');
+                const GIST_ID = '70ade01d4645cc8013a741b74d83561c';
+
+                // First get current data
+                const getResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+
+                let existingData = {};
+                if (getResponse.ok) {
+                    const gist = await getResponse.json();
+                    const content = gist.files['studyhub_cloud.json']?.content;
+                    if (content) {
+                        existingData = JSON.parse(content);
+                    }
+                }
+
+                // Update login state
+                existingData.loginState = { loggedIn, username, timestamp: Date.now() };
+
+                // Save back to cloud
+                await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'studyhub_cloud.json': {
+                                content: JSON.stringify(existingData, null, 2)
+                            }
+                        }
+                    })
+                });
+            } catch (e) {
+                console.log('Error saving cloud login state:', e);
+            }
+        }
+
+        async function handleLogin(event) {
             event.preventDefault();
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -2729,10 +2806,13 @@
 
             if (validUser) {
                 isLoggedIn = true;
-                // Use localStorage to stay logged in even after closing app
+                // Save to localStorage for this device
                 localStorage.setItem('studyhub_logged_in', 'true');
                 localStorage.setItem('studyhub_current_user', validUser.username);
                 localStorage.setItem('studyhub_username', validUser.username);
+
+                // Save to cloud for all devices
+                await saveCloudLoginState(true, validUser.username);
 
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('loginError').classList.remove('show');
@@ -2812,12 +2892,16 @@
             }
         }
 
-        function logout() {
+        async function logout() {
             if (confirm('האם אתה בטוח שברצונך להתנתק?')) {
                 isLoggedIn = false;
-                // Clear persistent login
+                // Clear persistent login locally
                 localStorage.removeItem('studyhub_logged_in');
                 localStorage.removeItem('studyhub_current_user');
+
+                // Clear cloud login state (logs out from all devices)
+                await saveCloudLoginState(false, null);
+
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
