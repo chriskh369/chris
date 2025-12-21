@@ -1,5 +1,5 @@
-// StudyHub Service Worker v6.0
-const CACHE_NAME = 'studyhub-v6';
+// StudyHub Service Worker v7.0
+const CACHE_NAME = 'studyhub-v7';
 const OFFLINE_URL = '/chris/';
 
 // Files to cache for offline use

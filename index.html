@@ -5917,10 +5917,15 @@
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New version available
-                                    showToast('גרסה חדשה זמינה! רענן את הדף.');
+                                    // Auto-activate new version
+                                    newWorker.postMessage('skipWaiting');
                                 }
                             });
+                        });
+
+                        // Reload when new service worker takes control
+                        navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            window.location.reload();
                         });
                     })
                     .catch((error) => {
