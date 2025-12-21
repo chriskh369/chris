@@ -3598,19 +3598,16 @@
                     toggle.checked = enabled;
                     pushNotificationPermission = enabled;
                 } else {
-                    // If browser has permission granted, enable notifications
-                    // (either from localStorage or if permission was previously granted)
+                    // If browser permission is granted, always enable notifications
                     const hasPermission = Notification.permission === 'granted';
-                    const savedEnabled = localStorage.getItem('studyhub_push_enabled');
-
-                    // If permission is granted and user never explicitly disabled, enable by default
-                    const enabled = hasPermission && savedEnabled !== 'false';
-                    toggle.checked = enabled;
-                    pushNotificationPermission = enabled;
-
-                    // Save the state if permission is granted
-                    if (hasPermission && savedEnabled === null) {
+                    if (hasPermission) {
+                        toggle.checked = true;
+                        pushNotificationPermission = true;
                         localStorage.setItem('studyhub_push_enabled', 'true');
+                    } else {
+                        const enabled = localStorage.getItem('studyhub_push_enabled') === 'true';
+                        toggle.checked = enabled;
+                        pushNotificationPermission = enabled;
                     }
                 }
             }
