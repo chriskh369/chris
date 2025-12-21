@@ -3592,6 +3592,20 @@
 
         // Test notification button
         async function testNotification() {
+            // Check if running in Android app - use native notification
+            if (window.AndroidNotification && typeof window.AndroidNotification.showNotification === 'function') {
+                try {
+                    window.AndroidNotification.showNotification('StudyHub', 'זוהי התראת בדיקה! ההתראות עובדות!');
+                    showToast('התראה נשלחה לטלפון!');
+                    return;
+                } catch (e) {
+                    console.error('Android notification error:', e);
+                    showToast('שגיאה: ' + e.message);
+                    return;
+                }
+            }
+
+            // Web notification fallback
             if (Notification.permission !== 'granted') {
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') {
@@ -3605,7 +3619,7 @@
                 if ('serviceWorker' in navigator) {
                     const registration = await navigator.serviceWorker.ready;
                     await registration.showNotification('StudyHub', {
-                        body: 'זוהי התראת בדיקה! ההתראות עובדות! 🎉',
+                        body: 'זוהי התראת בדיקה! ההתראות עובדות!',
                         icon: '/chris/icons/icon-192.png',
                         badge: '/chris/icons/icon-192.png',
                         tag: 'test-' + Date.now(),
@@ -3615,7 +3629,7 @@
                     showToast('התראה נשלחה!');
                 } else {
                     new Notification('StudyHub', {
-                        body: 'זוהי התראת בדיקה! ההתראות עובדות! 🎉',
+                        body: 'זוהי התראת בדיקה! ההתראות עובדות!',
                         icon: '/chris/icons/icon-192.png'
                     });
                     showToast('התראה נשלחה!');
@@ -5213,11 +5227,23 @@
 
             // Send push notification to phone's notification bar
             if (urgencyLabel) {
-                sendPushNotification(
-                    'אירוע חדש: ' + eventName,
-                    urgencyLabel,
-                    'new-event-' + eventDate
-                );
+                // Try direct Android notification first
+                if (window.AndroidNotification && typeof window.AndroidNotification.showNotification === 'function') {
+                    try {
+                        const msg = 'אירוע חדש: ' + eventName + ' - ' + urgencyLabel;
+                        window.AndroidNotification.showNotification('StudyHub', msg);
+                        console.log('Direct Android notification sent for new event');
+                    } catch (e) {
+                        console.log('Direct Android notification failed:', e);
+                    }
+                } else {
+                    // Fallback to sendPushNotification for web
+                    sendPushNotification(
+                        'אירוע חדש: ' + eventName,
+                        urgencyLabel,
+                        'new-event-' + eventDate
+                    );
+                }
             }
         }
 
