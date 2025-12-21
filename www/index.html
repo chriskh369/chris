@@ -3396,23 +3396,41 @@
                 return;
             }
 
-            try {
-                // Use direct Notification API (more reliable on desktop)
-                if ('Notification' in window && Notification.permission === 'granted') {
-                    const notification = new Notification('StudyHub', {
-                        body: message,
-                        icon: 'icons/icon-192.png',
-                        tag: uniqueTag
-                    });
+            // Check browser permission
+            if (!('Notification' in window) || Notification.permission !== 'granted') {
+                console.log('Browser notification permission not granted');
+                return;
+            }
 
-                    notification.onclick = function() {
-                        window.focus();
-                        notification.close();
-                    };
-                    console.log('Notification sent:', title);
-                }
+            try {
+                // Try direct Notification API first
+                const notification = new Notification('StudyHub', {
+                    body: message,
+                    icon: 'icons/icon-192.png',
+                    tag: uniqueTag
+                });
+
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+                console.log('Notification sent:', title);
             } catch (e) {
-                console.log('Notification error:', e);
+                console.log('Direct notification failed, trying Service Worker:', e);
+                // Fallback to Service Worker for PWA
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const registration = await navigator.serviceWorker.ready;
+                        await registration.showNotification('StudyHub', {
+                            body: message,
+                            icon: '/chris/icons/icon-192.png',
+                            tag: uniqueTag
+                        });
+                        console.log('Notification sent via SW:', title);
+                    }
+                } catch (swError) {
+                    console.log('Service Worker notification also failed:', swError);
+                }
             }
         }
 
@@ -3539,6 +3557,8 @@
                 if (Notification.permission === 'denied') {
                     showToast('התראות חסומות. הפעל אותן בהגדרות הדפדפן');
                     toggle.checked = false;
+                    pushNotificationPermission = false;
+                    localStorage.setItem('studyhub_push_enabled', 'false');
                     return;
                 }
 
@@ -3547,6 +3567,8 @@
                     if (permission !== 'granted') {
                         showToast('לא ניתן להפעיל התראות');
                         toggle.checked = false;
+                        pushNotificationPermission = false;
+                        localStorage.setItem('studyhub_push_enabled', 'false');
                         return;
                     }
                 }
@@ -3577,10 +3599,17 @@
                     toggle.checked = enabled;
                     pushNotificationPermission = enabled;
                 } else {
-                    const enabled = localStorage.getItem('studyhub_push_enabled') === 'true' &&
-                                   Notification.permission === 'granted';
-                    toggle.checked = enabled;
-                    pushNotificationPermission = enabled;
+                    // If browser permission is granted, auto-enable notifications
+                    if (Notification.permission === 'granted') {
+                        toggle.checked = true;
+                        pushNotificationPermission = true;
+                        localStorage.setItem('studyhub_push_enabled', 'true');
+                    } else {
+                        // Permission not granted - check localStorage but don't enable
+                        const savedEnabled = localStorage.getItem('studyhub_push_enabled') === 'true';
+                        toggle.checked = savedEnabled && Notification.permission !== 'denied';
+                        pushNotificationPermission = false; // Can't send without permission
+                    }
                 }
             }
         }

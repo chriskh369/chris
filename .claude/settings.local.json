@@ -73,7 +73,8 @@
       "Bash(cmd /c:*)",
       "Bash(dir \"C:\\\\Users\\\\User\\\\AppData\\\\Local\\\\Android\")",
       "Bash(powershell -NoProfile -ExecutionPolicy Bypass -Command \"[Environment]::SetEnvironmentVariable\\(''JAVA_HOME'',''D:\\\\Downloads\\\\Android studio\\\\jbr'',''Process''\\); [Environment]::SetEnvironmentVariable\\(''ANDROID_HOME'',''C:\\\\Users\\\\User\\\\AppData\\\\Local\\\\Android\\\\Sdk'',''Process''\\); Set-Location ''D:\\\\GitHub\\\\chris\\\\android''; & .\\\\gradlew.bat assembleDebug 2>&1\")",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(git log:*)"
     ]
   }
 }
