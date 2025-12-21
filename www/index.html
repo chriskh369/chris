@@ -3379,8 +3379,6 @@
             // Make each notification unique so they don't replace each other
             const uniqueTag = (tag || 'studyhub') + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 
-            console.log('sendPushNotification called:', title, 'permission:', pushNotificationPermission);
-
             // Check if running in Android app with our notification interface
             if (window.AndroidNotification && typeof window.AndroidNotification.showNotification === 'function') {
                 try {
@@ -3392,56 +3390,55 @@
                 }
             }
 
-            // For web: check if browser has permission (ignore the toggle state for direct calls)
-            const hasPermission = 'Notification' in window && Notification.permission === 'granted';
-
-            if (!hasPermission) {
-                console.log('Browser notification permission not granted');
+            // Check if notifications are enabled (for web)
+            if (!pushNotificationPermission) {
+                console.log('Push notifications not enabled');
                 return;
             }
 
             try {
-                // Use direct Notification API (more reliable on desktop)
-                const notification = new Notification('StudyHub', {
-                    body: message,
-                    icon: 'icons/icon-192.png',
-                    badge: 'icons/icon-192.png',
-                    tag: uniqueTag,
-                    requireInteraction: true  // Keep notification visible until user interacts
-                });
+                // Try service worker first (works better on mobile/PWA)
+                if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
+                    const registration = await navigator.serviceWorker.ready;
+                    if (registration) {
+                        await registration.showNotification('StudyHub', {
+                            body: message,
+                            icon: '/chris/icons/icon-192.png',
+                            badge: '/chris/icons/icon-192.png',
+                            tag: uniqueTag,
+                            requireInteraction: false,
+                            vibrate: [200, 100, 200],
+                            silent: false,
+                            data: { url: '/chris/' }
+                        });
+                        console.log('Notification sent via SW:', title);
+                        return;
+                    }
+                }
 
-                notification.onclick = function() {
-                    window.focus();
-                    notification.close();
-                };
-                console.log('Notification sent directly:', title, '- message:', message);
+                // Fallback to regular notification
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    const notification = new Notification('StudyHub', {
+                        body: message,
+                        icon: 'icons/icon-192.png',
+                        badge: 'icons/icon-192.png',
+                        tag: uniqueTag,
+                        requireInteraction: false
+                    });
+
+                    notification.onclick = function() {
+                        window.focus();
+                        notification.close();
+                    };
+                    console.log('Notification sent directly:', title);
+                }
             } catch (e) {
                 console.log('Notification error:', e);
-                // Fallback to service worker if direct fails
-                try {
-                    if ('serviceWorker' in navigator) {
-                        const registration = await navigator.serviceWorker.ready;
-                        if (registration) {
-                            await registration.showNotification('StudyHub', {
-                                body: message,
-                                icon: '/chris/icons/icon-192.png',
-                                badge: '/chris/icons/icon-192.png',
-                                tag: uniqueTag,
-                                requireInteraction: true,
-                                vibrate: [200, 100, 200]
-                            });
-                            console.log('Notification sent via SW fallback:', title);
-                        }
-                    }
-                } catch (e2) {
-                    console.log('SW fallback also failed:', e2);
-                }
             }
         }
 
         function checkAndSendPushNotifications(unseen) {
             const totalUnseen = unseen.urgent.length + unseen.important.length + unseen.reminder.length;
-            console.log('checkAndSendPushNotifications: total=' + totalUnseen + ', last=' + lastNotificationCount);
 
             // Only send push if there are NEW unseen notifications
             if (totalUnseen > lastNotificationCount && totalUnseen > 0) {
@@ -5229,8 +5226,6 @@
 
         // Separate function to handle notification refresh after adding event
         async function refreshNotificationsAfterNewEvent(eventDate, eventName) {
-            console.log('refreshNotificationsAfterNewEvent called:', eventDate, eventName);
-
             // Load latest from cloud (which now includes the new event)
             await loadNotificationsFromCloud();
 
@@ -5238,16 +5233,14 @@
             // (existing unseen + the new one we just added)
             renderNotifications();
 
-            // Calculate days until event
+            // Immediately trigger a native Android notification for the new event
+            // This ensures the notification appears in the phone's notification bar
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const evtDate = new Date(eventDate);
             evtDate.setHours(0, 0, 0, 0);
             const diffDays = Math.floor((evtDate - today) / (1000 * 60 * 60 * 24));
 
-            console.log('Event in', diffDays, 'days');
-
-            // Create urgency label based on days
             let urgencyLabel = '';
             if (diffDays === 0) {
                 urgencyLabel = 'היום!';
@@ -5257,13 +5250,10 @@
                 urgencyLabel = 'בעוד יומיים';
             } else if (diffDays === 3) {
                 urgencyLabel = 'בעוד 3 ימים';
-            } else if (diffDays > 3) {
-                urgencyLabel = 'בעוד ' + diffDays + ' ימים';
             }
 
-            // Send push notification for the new event
+            // Send push notification to phone's notification bar
             if (urgencyLabel) {
-                console.log('Sending notification for new event:', eventName, urgencyLabel);
                 // Try direct Android notification first
                 if (window.AndroidNotification && typeof window.AndroidNotification.showNotification === 'function') {
                     try {
@@ -5275,15 +5265,12 @@
                     }
                 } else {
                     // Fallback to sendPushNotification for web
-                    console.log('Using web notification');
                     sendPushNotification(
                         'אירוע חדש: ' + eventName,
                         urgencyLabel,
-                        'new-event-' + eventDate + '-' + Date.now()
+                        'new-event-' + eventDate
                     );
                 }
-            } else {
-                console.log('No urgency label - event is in the past?');
             }
         }
 
