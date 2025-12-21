@@ -44,6 +44,9 @@ public class MainActivity extends BridgeActivity {
         // Add JavaScript interface
         webView.addJavascriptInterface(new NotificationInterface(), "AndroidNotification");
 
+        // Check for app updates
+        new AppUpdater(this).checkForUpdates();
+
         Log.d(TAG, "=== MainActivity setup complete ===");
     }
 
