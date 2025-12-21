@@ -2539,17 +2539,9 @@
                     <label for="loginPassword">סיסמה</label>
                     <input type="password" id="loginPassword" name="password" placeholder="הכנס סיסמה" required autocomplete="current-password">
                 </div>
-                <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" id="rememberMe" name="remember" style="width: auto;">
-                    <label for="rememberMe" style="margin: 0; cursor: pointer;">זכור אותי</label>
-                </div>
                 <button type="submit" class="login-btn">
                     <i class="fas fa-sign-in-alt"></i>
                     התחבר
-                </button>
-                <button type="button" class="login-btn biometric-btn" id="biometricBtn" style="display: none; background: linear-gradient(135deg, #10b981, #059669); margin-top: 10px;" onclick="quickLogin()">
-                    <i class="fas fa-bolt"></i>
-                    התחברות מהירה
                 </button>
             </form>
         </div>
@@ -2713,8 +2705,9 @@
         let isLoggedIn = false;
 
         function checkLogin() {
-            const session = sessionStorage.getItem('studyhub_logged_in');
-            if (session === 'true') {
+            // Use localStorage for persistent login (stays logged in after closing app)
+            const loggedIn = localStorage.getItem('studyhub_logged_in');
+            if (loggedIn === 'true') {
                 isLoggedIn = true;
                 document.getElementById('loginScreen').style.display = 'none';
                 return true;
@@ -2729,7 +2722,6 @@
             event.preventDefault();
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
 
             const validUser = VALID_USERS.find(u =>
                 u.username.toLowerCase() === username.toLowerCase() && u.password === password
@@ -2737,14 +2729,10 @@
 
             if (validUser) {
                 isLoggedIn = true;
-                sessionStorage.setItem('studyhub_logged_in', 'true');
-                sessionStorage.setItem('studyhub_current_user', validUser.username);
+                // Use localStorage to stay logged in even after closing app
+                localStorage.setItem('studyhub_logged_in', 'true');
+                localStorage.setItem('studyhub_current_user', validUser.username);
                 localStorage.setItem('studyhub_username', validUser.username);
-
-                // Save credentials if "Remember me" is checked
-                if (rememberMe) {
-                    saveCredentialsForBiometric(validUser.username, password);
-                }
 
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('loginError').classList.remove('show');
@@ -2799,8 +2787,9 @@
 
             if (validUser) {
                 isLoggedIn = true;
-                sessionStorage.setItem('studyhub_logged_in', 'true');
-                sessionStorage.setItem('studyhub_current_user', validUser.username);
+                // Use localStorage to stay logged in even after closing app
+                localStorage.setItem('studyhub_logged_in', 'true');
+                localStorage.setItem('studyhub_current_user', validUser.username);
                 localStorage.setItem('studyhub_username', validUser.username);
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('loginError').classList.remove('show');
@@ -2826,8 +2815,9 @@
         function logout() {
             if (confirm('האם אתה בטוח שברצונך להתנתק?')) {
                 isLoggedIn = false;
-                sessionStorage.removeItem('studyhub_logged_in');
-                sessionStorage.removeItem('studyhub_current_user');
+                // Clear persistent login
+                localStorage.removeItem('studyhub_logged_in');
+                localStorage.removeItem('studyhub_current_user');
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
