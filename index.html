@@ -2582,8 +2582,18 @@
     </style>
 </head>
 <body>
+    <!-- Quick login check - runs immediately before page renders -->
+    <script>
+        (function() {
+            // If not logged in locally, show login screen immediately
+            if (localStorage.getItem('studyhub_logged_in') !== 'true') {
+                document.write('<style>#loginScreen{display:flex!important}</style>');
+            }
+        })();
+    </script>
+
     <!-- Login Screen -->
-    <div class="login-screen" id="loginScreen">
+    <div class="login-screen" id="loginScreen" style="display: none;">
         <div class="login-box">
             <div class="login-logo">
                 <div class="login-logo-icon"><i class="fas fa-graduation-cap"></i></div>
