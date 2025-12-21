@@ -35,6 +35,9 @@ public class MainActivity extends BridgeActivity {
         // Request notification permission for Android 13+
         requestNotificationPermission();
 
+        // TEST: Show a notification directly from MainActivity
+        showTestNotification();
+
         // Schedule background notification checks
         scheduleNotificationWorker();
 
@@ -44,6 +47,38 @@ public class MainActivity extends BridgeActivity {
 
         // Add JavaScript interface for notifications
         webView.addJavascriptInterface(new NotificationInterface(), "AndroidNotification");
+    }
+
+    private void showTestNotification() {
+        // Wait a bit for permission to be granted
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                Log.d("StudyHub", "Showing test notification...");
+
+                // Check permission
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        Log.w("StudyHub", "Permission not granted yet");
+                        return;
+                    }
+                }
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("StudyHub App Started")
+                        .setContentText("App opened at " + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date()))
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true)
+                        .setDefaults(NotificationCompat.DEFAULT_ALL);
+
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                notificationManager.notify(1, builder.build());
+                Log.d("StudyHub", "Test notification sent!");
+            } catch (Exception e) {
+                Log.e("StudyHub", "Error showing test notification: " + e.getMessage());
+            }
+        }, 2000); // Wait 2 seconds for permission dialog
     }
 
     private void scheduleNotificationWorker() {
