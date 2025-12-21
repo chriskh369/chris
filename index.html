@@ -2478,26 +2478,26 @@
             </div>
             <p class="login-title">התחבר כדי לגשת לחומרי הלימוד</p>
             <div class="login-error" id="loginError">שם משתמש או סיסמה שגויים</div>
-            <form class="login-form" onsubmit="handleLogin(event)">
+            <form class="login-form" id="loginForm" name="login" method="post" action="#" onsubmit="handleLogin(event)" autocomplete="on">
                 <div class="form-group">
-                    <label>שם משתמש</label>
-                    <input type="text" id="loginUsername" placeholder="הכנס שם משתמש" required>
+                    <label for="loginUsername">שם משתמש</label>
+                    <input type="text" id="loginUsername" name="username" placeholder="הכנס שם משתמש" required autocomplete="username" inputmode="text">
                 </div>
                 <div class="form-group">
-                    <label>סיסמה</label>
-                    <input type="password" id="loginPassword" placeholder="הכנס סיסמה" required>
+                    <label for="loginPassword">סיסמה</label>
+                    <input type="password" id="loginPassword" name="password" placeholder="הכנס סיסמה" required autocomplete="current-password">
                 </div>
                 <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" id="rememberMe" style="width: auto;">
+                    <input type="checkbox" id="rememberMe" name="remember" style="width: auto;">
                     <label for="rememberMe" style="margin: 0; cursor: pointer;">זכור אותי</label>
                 </div>
                 <button type="submit" class="login-btn">
                     <i class="fas fa-sign-in-alt"></i>
                     התחבר
                 </button>
-                <button type="button" class="login-btn biometric-btn" id="biometricBtn" style="display: none; background: linear-gradient(135deg, #10b981, #059669); margin-top: 10px;" onclick="biometricLogin()">
-                    <i class="fas fa-fingerprint"></i>
-                    התחבר עם טביעת אצבע
+                <button type="button" class="login-btn biometric-btn" id="biometricBtn" style="display: none; background: linear-gradient(135deg, #10b981, #059669); margin-top: 10px;" onclick="quickLogin()">
+                    <i class="fas fa-bolt"></i>
+                    התחברות מהירה
                 </button>
             </form>
         </div>
@@ -2723,52 +2723,14 @@
                    localStorage.getItem('studyhub_biometric_enabled') === 'true';
         }
 
-        async function biometricLogin() {
+        // Quick login using saved credentials
+        function quickLogin() {
             const saved = getSavedCredentials();
             if (!saved) {
                 showToast('לא נמצאו פרטי התחברות שמורים');
                 return;
             }
-
-            try {
-                // Try WebAuthn biometric first
-                if (window.PublicKeyCredential && navigator.credentials) {
-                    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-                    if (available) {
-                        // Create a challenge for biometric verification
-                        const credential = await navigator.credentials.create({
-                            publicKey: {
-                                challenge: new Uint8Array(32),
-                                rp: { name: "StudyHub" },
-                                user: {
-                                    id: new Uint8Array(16),
-                                    name: saved.username,
-                                    displayName: saved.username
-                                },
-                                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                                authenticatorSelection: {
-                                    authenticatorAttachment: "platform",
-                                    userVerification: "required"
-                                },
-                                timeout: 60000
-                            }
-                        }).catch(() => null);
-
-                        if (credential) {
-                            performSavedLogin(saved);
-                            return;
-                        }
-                    }
-                }
-
-                // Fallback: Just verify with saved credentials (still shows system auth on some devices)
-                performSavedLogin(saved);
-
-            } catch (e) {
-                console.log('Biometric error:', e);
-                // Fallback to saved credentials
-                performSavedLogin(saved);
-            }
+            performSavedLogin(saved);
         }
 
         function performSavedLogin(credentials) {
