@@ -5944,14 +5944,14 @@
         }
 
         // ========== FIREBASE PUSH NOTIFICATIONS ==========
-        // Firebase configuration - Replace with your own from Firebase Console
+        // Firebase configuration for StudyHub-Push
         const firebaseConfig = {
-            apiKey: "AIzaSyC_XyZ_placeholder_key_here",
-            authDomain: "studyhub-chris.firebaseapp.com",
-            projectId: "studyhub-chris",
-            storageBucket: "studyhub-chris.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456"
+            apiKey: "AIzaSyDmf_rSXQqEOdwd1ByauoNn6XZohWi0TnU",
+            authDomain: "studyhub-push.firebaseapp.com",
+            projectId: "studyhub-push",
+            storageBucket: "studyhub-push.firebasestorage.app",
+            messagingSenderId: "843406915404",
+            appId: "1:843406915404:web:198625675fc8ede1b3c1e9"
         };
 
         let firebaseMessaging = null;
@@ -5969,7 +5969,7 @@
 
                     // Get FCM token
                     fcmToken = await firebaseMessaging.getToken({
-                        vapidKey: 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U',
+                        vapidKey: 'BAJC2piIYLgu8AHzhyij6UR2cH6Fw-nyc5XVyjSwrqU_vh4U1-Qz3-EibYTaqJwvWWShCcn9mt5NzNnZgL56MPc',
                         serviceWorkerRegistration: registration
                     });
 

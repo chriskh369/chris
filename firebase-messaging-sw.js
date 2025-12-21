@@ -2,14 +2,14 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
-// Firebase configuration - StudyHub
+// Firebase configuration - StudyHub-Push
 const firebaseConfig = {
-  apiKey: "AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  apiKey: "AIzaSyDmf_rSXQqEOdwd1ByauoNn6XZohWi0TnU",
   authDomain: "studyhub-push.firebaseapp.com",
   projectId: "studyhub-push",
-  storageBucket: "studyhub-push.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:xxxxxxxxxxxxxxxx"
+  storageBucket: "studyhub-push.firebasestorage.app",
+  messagingSenderId: "843406915404",
+  appId: "1:843406915404:web:198625675fc8ede1b3c1e9"
 };
 
 // Initialize Firebase
