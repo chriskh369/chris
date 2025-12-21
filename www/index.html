@@ -5218,6 +5218,45 @@
                     // Refresh notifications to include the new event (badge count will increment)
                     await refreshNotificationsAfterNewEvent(selectedCalendarDate, name);
                 }
+
+                // ALWAYS show browser notification when adding a new event
+                showBrowserNotification(name, type, diffDays);
+            }
+        }
+
+        // Direct browser notification - simple and reliable
+        function showBrowserNotification(eventName, eventType, daysUntil) {
+            // Skip if not supported or no permission
+            if (!('Notification' in window) || Notification.permission !== 'granted') {
+                console.log('Browser notifications not available');
+                return;
+            }
+
+            let urgency = '';
+            if (daysUntil === 0) urgency = 'היום!';
+            else if (daysUntil === 1) urgency = 'מחר';
+            else if (daysUntil === 2) urgency = 'בעוד יומיים';
+            else if (daysUntil === 3) urgency = 'בעוד 3 ימים';
+            else urgency = 'בעוד ' + daysUntil + ' ימים';
+
+            const typeHebrew = eventType === 'test' ? 'מבחן' : (eventType === 'assignment' ? 'עבודה' : 'שיעורי בית');
+
+            try {
+                const notification = new Notification('StudyHub - אירוע חדש', {
+                    body: eventName + ' (' + typeHebrew + ') - ' + urgency,
+                    icon: 'icons/icon-192.png',
+                    tag: 'new-event-' + Date.now(),
+                    requireInteraction: false
+                });
+
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+
+                console.log('Browser notification shown for:', eventName);
+            } catch (e) {
+                console.log('Browser notification error:', e);
             }
         }
 
