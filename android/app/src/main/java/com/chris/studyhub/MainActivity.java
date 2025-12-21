@@ -6,115 +6,77 @@ import android.app.NotificationManager;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
+
 import com.getcapacitor.BridgeActivity;
-import java.util.concurrent.TimeUnit;
-import android.util.Log;
 
 public class MainActivity extends BridgeActivity {
+    private static final String TAG = "StudyHub";
     private static final String CHANNEL_ID = "studyhub_notifications";
     private static final int NOTIFICATION_PERMISSION_CODE = 1001;
-    private static final String NOTIFICATION_WORK_TAG = "studyhub_notification_check";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "=== MainActivity onCreate ===");
 
-        // Create notification channel
+        // Create notification channel FIRST
         createNotificationChannel();
 
         // Request notification permission for Android 13+
         requestNotificationPermission();
 
-        // TEST: Show a notification directly from MainActivity
-        showTestNotification();
+        // Schedule background notifications using AlarmManager
+        NotificationScheduler.scheduleImmediate(this); // Test immediately
+        NotificationScheduler.scheduleNextAlarm(this); // Then every 15 min
 
-        // Schedule background notification checks
-        scheduleNotificationWorker();
-
-        // Disable cache to always get fresh content
+        // Disable cache
         WebView webView = getBridge().getWebView();
         webView.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);
 
-        // Add JavaScript interface for notifications
+        // Add JavaScript interface
         webView.addJavascriptInterface(new NotificationInterface(), "AndroidNotification");
+
+        Log.d(TAG, "=== MainActivity setup complete ===");
     }
 
-    private void showTestNotification() {
-        // Wait a bit for permission to be granted
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            try {
-                Log.d("StudyHub", "Showing test notification...");
-
-                // Check permission
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        Log.w("StudyHub", "Permission not granted yet");
-                        return;
-                    }
-                }
-
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("StudyHub App Started")
-                        .setContentText("App opened at " + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date()))
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setAutoCancel(true)
-                        .setDefaults(NotificationCompat.DEFAULT_ALL);
-
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-                notificationManager.notify(1, builder.build());
-                Log.d("StudyHub", "Test notification sent!");
-            } catch (Exception e) {
-                Log.e("StudyHub", "Error showing test notification: " + e.getMessage());
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Notification permission GRANTED");
+                // Permission granted, schedule immediate test
+                NotificationScheduler.scheduleImmediate(this);
+            } else {
+                Log.w(TAG, "Notification permission DENIED");
             }
-        }, 2000); // Wait 2 seconds for permission dialog
-    }
-
-    private void scheduleNotificationWorker() {
-        Log.d("StudyHub", "Scheduling notification worker...");
-
-        // Run once immediately for testing
-        OneTimeWorkRequest immediateWork = new OneTimeWorkRequest.Builder(NotificationWorker.class).build();
-        WorkManager.getInstance(this).enqueue(immediateWork);
-        Log.d("StudyHub", "Immediate worker enqueued");
-
-        // Schedule periodic work to check for notifications every 15 minutes (minimum allowed)
-        PeriodicWorkRequest notificationWork = new PeriodicWorkRequest.Builder(
-                NotificationWorker.class,
-                15, TimeUnit.MINUTES
-        ).build();
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                NOTIFICATION_WORK_TAG,
-                ExistingPeriodicWorkPolicy.KEEP,
-                notificationWork
-        );
-        Log.d("StudyHub", "Periodic worker scheduled");
+        }
     }
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "StudyHub Notifications";
-            String description = "Notifications for assignments and tests";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "StudyHub Notifications",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Notifications for assignments and tests");
             channel.enableVibration(true);
             channel.setVibrationPattern(new long[]{200, 100, 200});
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+                Log.d(TAG, "Notification channel created");
+            }
         }
     }
 
@@ -122,9 +84,12 @@ public class MainActivity extends BridgeActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Requesting notification permission...");
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.POST_NOTIFICATIONS},
                         NOTIFICATION_PERMISSION_CODE);
+            } else {
+                Log.d(TAG, "Notification permission already granted");
             }
         }
     }
@@ -133,24 +98,31 @@ public class MainActivity extends BridgeActivity {
     public class NotificationInterface {
         @JavascriptInterface
         public void showNotification(String title, String message) {
+            Log.d(TAG, "JS called showNotification: " + title);
             runOnUiThread(() -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        return;
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            Log.w(TAG, "No permission for JS notification");
+                            return;
+                        }
                     }
+
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle(title)
+                            .setContentText(message)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setAutoCancel(true)
+                            .setDefaults(NotificationCompat.DEFAULT_ALL);
+
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+                    notificationManager.notify((int) System.currentTimeMillis(), builder.build());
+                    Log.d(TAG, "JS notification sent");
+                } catch (Exception e) {
+                    Log.e(TAG, "Error in JS notification: " + e.getMessage());
                 }
-
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle(title)
-                        .setContentText(message)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setAutoCancel(true)
-                        .setVibrate(new long[]{200, 100, 200});
-
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
-                notificationManager.notify((int) System.currentTimeMillis(), builder.build());
             });
         }
     }
