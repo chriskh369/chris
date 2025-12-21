@@ -3440,27 +3440,41 @@
 
             // Only send push if there are NEW unseen notifications
             if (totalUnseen > lastNotificationCount && totalUnseen > 0) {
-                if (unseen.urgent.length > 0) {
-                    const item = unseen.urgent[0];
+                // Send a notification for EACH new unseen item
+                const newCount = totalUnseen - lastNotificationCount;
+                let sentCount = 0;
+
+                // Send urgent notifications
+                for (const item of unseen.urgent) {
+                    if (sentCount >= newCount) break;
                     sendPushNotification(
                         'דחוף! ' + item.name,
                         item.label + ' - ' + (item.course || 'StudyHub'),
-                        'urgent-' + item.date
+                        'urgent-' + item.date + '-' + Date.now()
                     );
-                } else if (unseen.important.length > 0) {
-                    const item = unseen.important[0];
+                    sentCount++;
+                }
+
+                // Send important notifications
+                for (const item of unseen.important) {
+                    if (sentCount >= newCount) break;
                     sendPushNotification(
                         'חשוב: ' + item.name,
                         item.label + ' - ' + (item.course || 'StudyHub'),
-                        'important-' + item.date
+                        'important-' + item.date + '-' + Date.now()
                     );
-                } else if (unseen.reminder.length > 0) {
-                    const item = unseen.reminder[0];
+                    sentCount++;
+                }
+
+                // Send reminder notifications
+                for (const item of unseen.reminder) {
+                    if (sentCount >= newCount) break;
                     sendPushNotification(
                         'תזכורת: ' + item.name,
                         item.label + ' - ' + (item.course || 'StudyHub'),
-                        'reminder-' + item.date
+                        'reminder-' + item.date + '-' + Date.now()
                     );
+                    sentCount++;
                 }
             }
 
@@ -3592,12 +3606,6 @@
 
         // Test notification button
         async function testNotification() {
-            // DEBUG: Show what's available
-            const hasAndroid = !!window.AndroidNotification;
-            const hasMethod = hasAndroid && typeof window.AndroidNotification.showNotification === 'function';
-
-            alert('Debug:\nAndroidNotification exists: ' + hasAndroid + '\nshowNotification method: ' + hasMethod + '\nUser Agent: ' + navigator.userAgent.substring(0, 50));
-
             // Check if running in Android app - use native notification
             if (window.AndroidNotification && typeof window.AndroidNotification.showNotification === 'function') {
                 try {
