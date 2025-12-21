@@ -5191,6 +5191,34 @@
             // Re-render notifications - this will update the badge to include ALL unseen notifications
             // (existing unseen + the new one we just added)
             renderNotifications();
+
+            // Immediately trigger a native Android notification for the new event
+            // This ensures the notification appears in the phone's notification bar
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const evtDate = new Date(eventDate);
+            evtDate.setHours(0, 0, 0, 0);
+            const diffDays = Math.floor((evtDate - today) / (1000 * 60 * 60 * 24));
+
+            let urgencyLabel = '';
+            if (diffDays === 0) {
+                urgencyLabel = 'היום!';
+            } else if (diffDays === 1) {
+                urgencyLabel = 'מחר';
+            } else if (diffDays === 2) {
+                urgencyLabel = 'בעוד יומיים';
+            } else if (diffDays === 3) {
+                urgencyLabel = 'בעוד 3 ימים';
+            }
+
+            // Send push notification to phone's notification bar
+            if (urgencyLabel) {
+                sendPushNotification(
+                    'אירוע חדש: ' + eventName,
+                    urgencyLabel,
+                    'new-event-' + eventDate
+                );
+            }
         }
 
         function selectCourse(courseId) {
