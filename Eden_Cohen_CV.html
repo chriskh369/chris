@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eden Cohen - CV</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .cv-container {
+            max-width: 210mm;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header {
+            background: #1a5f8a;
+            color: white;
+            padding: 40px 50px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 18px;
+            font-style: italic;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        .contact-info {
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .contact-info span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 25px 50px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a5f8a;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px 50px;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a5f8a;
+            border-left: 4px solid #f0c040;
+            padding-left: 12px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        /* Professional Summary */
+        .summary-text {
+            font-size: 13px;
+            color: #555;
+            text-align: justify;
+        }
+
+        /* Skills Grid */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .skill-item i {
+            color: #1a5f8a;
+            width: 20px;
+        }
+
+        /* Experience */
+        .experience-item {
+            margin-bottom: 20px;
+        }
+
+        .experience-header {
+            margin-bottom: 5px;
+        }
+
+        .experience-date {
+            font-size: 13px;
+            color: #1a5f8a;
+            font-weight: 600;
+            text-align: left;
+            margin-bottom: 3px;
+        }
+
+        .experience-title-section {
+            text-align: left;
+        }
+
+        /* Page break */
+        .page-break {
+            page-break-before: always;
+            margin-top: 40px;
+        }
+
+        .experience-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a5f8a;
+            text-align: left;
+        }
+
+        .experience-company {
+            font-size: 13px;
+            color: #666;
+            text-align: left;
+        }
+
+        .experience-bullets {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .experience-bullets li {
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .experience-bullets li i {
+            margin-top: 3px;
+            font-size: 12px;
+        }
+
+        /* Education */
+        .education-item {
+            margin-bottom: 15px;
+        }
+
+        .education-header {
+            margin-bottom: 3px;
+        }
+
+        .education-date {
+            font-size: 13px;
+            color: #1a5f8a;
+            font-weight: 600;
+            text-align: left;
+            margin-bottom: 3px;
+        }
+
+        .education-title-section {
+            text-align: left;
+        }
+
+        .education-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a5f8a;
+            text-align: left;
+        }
+
+        .education-school {
+            font-size: 13px;
+            color: #666;
+            text-align: left;
+        }
+
+        .education-courses {
+            font-size: 12px;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .education-courses i {
+            color: #e74c3c;
+            margin-left: 5px;
+        }
+
+        /* Technical Expertise */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .tech-item {
+            font-size: 13px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .tech-item i {
+            color: #1a5f8a;
+            width: 20px;
+            margin-top: 2px;
+        }
+
+        .tech-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Languages */
+        .languages-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .languages-group {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .languages-group i {
+            width: 16px;
+        }
+
+        .lang-label {
+            font-weight: 600;
+            color: #1a5f8a;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            .cv-container {
+                box-shadow: none;
+                margin: 0;
+                max-width: 100%;
+            }
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="cv-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>EDEN COHEN</h1>
+            <div class="subtitle">Information Systems & IT Professional</div>
+            <div class="contact-info">
+                <span><i class="fas fa-envelope"></i> edenscohen02@gmail.com</span>
+                <span><i class="fas fa-phone"></i> 053-243-2233</span>
+                <span><i class="fas fa-home"></i> Rishon Lezion, Israel</span>
+            </div>
+        </div>
+
+        <!-- Stats Bar - Key Achievements -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number">3+</div>
+                <div class="stat-label">Years in<br>IT & Cyber</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">End Users<br>Migrated</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">99%</div>
+                <div class="stat-label">System<br>Uptime</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">80%</div>
+                <div class="stat-label">Security<br>Enhancement</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Professional Summary -->
+            <div class="section">
+                <div class="section-title">PROFESSIONAL SUMMARY</div>
+                <p class="summary-text">
+                    Results-driven IT professional with 3+ years of hands-on experience in system administration, network management, and cybersecurity. Successfully led enterprise-scale projects supporting 10,000+ users at Tel Aviv University. Proven track record in implementing security protocols, automating workflows with PowerShell, and optimizing IT operations. Currently pursuing B.A. in Management Information Systems to strengthen business-technology integration expertise. Passionate about leveraging technology to drive organizational success.
+                </p>
+            </div>
+
+            <!-- Core Skills -->
+            <div class="section">
+                <div class="section-title">CORE SKILLS</div>
+                <div class="skills-grid">
+                    <div class="skill-item"><i class="fas fa-wrench"></i> System Administration</div>
+                    <div class="skill-item"><i class="fas fa-globe"></i> Network Management</div>
+                    <div class="skill-item"><i class="fas fa-lock"></i> Cybersecurity</div>
+                    <div class="skill-item"><i class="fas fa-database"></i> SQL & Databases</div>
+                    <div class="skill-item"><i class="fas fa-bolt"></i> PowerShell & Python</div>
+                    <div class="skill-item"><i class="fas fa-cloud"></i> Active Directory</div>
+                    <div class="skill-item"><i class="fas fa-chart-line"></i> Project Management</div>
+                    <div class="skill-item"><i class="fas fa-laptop-code"></i> C# Development</div>
+                </div>
+            </div>
+
+            <!-- Professional Experience -->
+            <div class="section">
+                <div class="section-title">PROFESSIONAL EXPERIENCE</div>
+
+                <div class="experience-item">
+                    <div class="experience-header">
+                        <div class="experience-date">Jan 2024 – Oct 2024</div>
+                        <div class="experience-title-section">
+                            <div class="experience-title">IT Support Specialist</div>
+                            <div class="experience-company">AMAN Technology @ Tel Aviv University</div>
+                        </div>
+                    </div>
+                    <ul class="experience-bullets">
+                        <li><i class="fas fa-rocket" style="color: #e74c3c;"></i> Led critical IT integration project for 10,000+ end-users, ensuring seamless system migration</li>
+                        <li><i class="fas fa-shield-alt" style="color: #f39c12;"></i> Implemented two-factor authentication across network, enhancing security posture by 80%</li>
+                        <li><i class="fas fa-chart-line" style="color: #3498db;"></i> Reduced migration downtime by 40% through optimized strategies and cross-functional collaboration</li>
+                        <li><i class="fas fa-users" style="color: #9b59b6;"></i> Provided technical leadership ensuring smooth domain operations and high user satisfaction</li>
+                    </ul>
+                </div>
+
+                <div class="experience-item">
+                    <div class="experience-header">
+                        <div class="experience-date">Aug 2021 – Aug 2023</div>
+                        <div class="experience-title-section">
+                            <div class="experience-title">IT Support Specialist</div>
+                            <div class="experience-company">Israel C4I and Cyber Defense Directorate (IDF)</div>
+                        </div>
+                    </div>
+                    <ul class="experience-bullets">
+                        <li><i class="fas fa-bolt" style="color: #f1c40f;"></i> Delivered rapid IT solutions in high-pressure military environment, maintaining 99% uptime</li>
+                        <li><i class="fas fa-network-wired" style="color: #1abc9c;"></i> Configured enterprise network infrastructure: switches, VLANs, multi-platform connectivity</li>
+                        <li><i class="fas fa-robot" style="color: #e67e22;"></i> Developed PowerShell & Batch automation scripts, reducing manual tasks by 60%</li>
+                        <li><i class="fas fa-trophy" style="color: #f1c40f;"></i> Earned recognition for consistently exceeding IT project goals and KPIs</li>
+                        <li><i class="fas fa-cogs" style="color: #7f8c8d;"></i> Managed Active Directory, SCCM, and CRM systems ensuring optimal functionality</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Education - Page 2 -->
+            <div class="section page-break">
+                <div class="section-title">EDUCATION</div>
+
+                <div class="education-item">
+                    <div class="education-header">
+                        <div class="education-date">Oct 2024 – Present</div>
+                        <div class="education-title-section">
+                            <div class="education-title">B.A. in Management Information Systems</div>
+                            <div class="education-school">Peres Academic Center, Israel</div>
+                        </div>
+                    </div>
+                    <div class="education-courses">
+                        <i class="fas fa-book"></i> <strong>Key Courses:</strong> Databases & SQL, Data Science, Web Development, Cybersecurity, Python & Java, HCI, IS Design, Digital Marketing
+                    </div>
+                </div>
+
+                <div class="education-item">
+                    <div class="education-header">
+                        <div class="education-date">Aug – Nov 2021</div>
+                        <div class="education-title-section">
+                            <div class="education-title">IT Manager Certification</div>
+                            <div class="education-school">C4I Corps, Israel Defense Forces</div>
+                        </div>
+                    </div>
+                    <div class="education-courses">
+                        <i class="fas fa-book"></i> <strong>Topics:</strong> Windows Administration, TCP/IP Networking, VMware, Domain Management, Script Writing
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Expertise -->
+            <div class="section">
+                <div class="section-title">TECHNICAL EXPERTISE</div>
+                <div class="tech-grid">
+                    <div class="tech-item"><i class="fas fa-desktop"></i> <span><span class="tech-label">Systems:</span> Windows Server, Active Directory, SCCM, VMware, Domain Management</span></div>
+                    <div class="tech-item"><i class="fas fa-network-wired"></i> <span><span class="tech-label">Networking:</span> TCP/IP, DNS, VLANs, Network Switches, Firewalls, Routing</span></div>
+                    <div class="tech-item"><i class="fas fa-code"></i> <span><span class="tech-label">Programming:</span> Python, SQL, C#, PowerShell, Batch Scripting, Java</span></div>
+                    <div class="tech-item"><i class="fas fa-tools"></i> <span><span class="tech-label">Tools:</span> Ticketing Systems, CRM, Data Visualization, Web Applications, Git</span></div>
+                </div>
+            </div>
+
+            <!-- Languages & Personal Attributes -->
+            <div class="section">
+                <div class="section-title">LANGUAGES & PERSONAL ATTRIBUTES</div>
+                <div class="languages-section">
+                    <div class="languages-group">
+                        <i class="fas fa-globe" style="color: #3498db;"></i>
+                        <span class="lang-label">Languages:</span> Hebrew (Native) • English (Fluent) • French
+                    </div>
+                    <div class="languages-group">
+                        <i class="fas fa-star" style="color: #f1c40f;"></i>
+                        <span class="lang-label">Strengths:</span> Problem Solver • Team Player • Self-Learner
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

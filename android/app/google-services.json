@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "843406915404",
+    "project_id": "studyhub-push",
+    "storage_bucket": "studyhub-push.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:843406915404:android:d587ed8a1beb4b1bb3c1e9",
+        "android_client_info": {
+          "package_name": "com.chris.studyhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDdLcmfIPf76AJLZtR90L1up8oiWEiuzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
