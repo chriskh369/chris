@@ -44,11 +44,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         // Run in background thread for network operations
         new Thread(() -> {
             try {
-                // First, show a simple test notification to confirm receiver works
-                showNotification(context, "StudyHub Check", "Checking for events at " +
-                    new SimpleDateFormat("HH:mm", Locale.US).format(new Date()));
-
-                // Fetch and process calendar events
+                // Fetch and process calendar events silently
                 String jsonData = fetchCalendarData();
                 if (jsonData != null) {
                     processEvents(context, jsonData);
