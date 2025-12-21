@@ -50,8 +50,13 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip API requests (GitHub, Cloudinary) - always go to network
+  // Skip chrome-extension and other non-http(s) URLs
   const url = new URL(event.request.url);
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
+
+  // Skip API requests (GitHub, Cloudinary) - always go to network
   if (url.hostname.includes('github') ||
       url.hostname.includes('cloudinary') ||
       url.hostname.includes('api.')) {
