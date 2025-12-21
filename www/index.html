@@ -3397,13 +3397,33 @@
             }
 
             try {
-                // Use direct Notification API (more reliable on desktop browsers)
+                // Try service worker first (works better on mobile/PWA)
+                if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
+                    const registration = await navigator.serviceWorker.ready;
+                    if (registration) {
+                        await registration.showNotification('StudyHub', {
+                            body: message,
+                            icon: '/chris/icons/icon-192.png',
+                            badge: '/chris/icons/icon-192.png',
+                            tag: uniqueTag,
+                            requireInteraction: false,
+                            vibrate: [200, 100, 200],
+                            silent: false,
+                            data: { url: '/chris/' }
+                        });
+                        console.log('Notification sent via SW:', title);
+                        return;
+                    }
+                }
+
+                // Fallback to regular notification
                 if ('Notification' in window && Notification.permission === 'granted') {
                     const notification = new Notification('StudyHub', {
                         body: message,
                         icon: 'icons/icon-192.png',
+                        badge: 'icons/icon-192.png',
                         tag: uniqueTag,
-                        requireInteraction: true
+                        requireInteraction: false
                     });
 
                     notification.onclick = function() {
@@ -3411,29 +3431,9 @@
                         notification.close();
                     };
                     console.log('Notification sent directly:', title);
-                    return;
                 }
             } catch (e) {
-                console.log('Direct notification error, trying SW:', e);
-                // Fallback to service worker if direct fails
-                try {
-                    if ('serviceWorker' in navigator) {
-                        const registration = await navigator.serviceWorker.ready;
-                        if (registration) {
-                            await registration.showNotification('StudyHub', {
-                                body: message,
-                                icon: '/chris/icons/icon-192.png',
-                                badge: '/chris/icons/icon-192.png',
-                                tag: uniqueTag,
-                                requireInteraction: true,
-                                vibrate: [200, 100, 200]
-                            });
-                            console.log('Notification sent via SW:', title);
-                        }
-                    }
-                } catch (swError) {
-                    console.log('SW notification error:', swError);
-                }
+                console.log('Notification error:', e);
             }
         }
 
@@ -3598,17 +3598,10 @@
                     toggle.checked = enabled;
                     pushNotificationPermission = enabled;
                 } else {
-                    // If browser permission is granted, always enable notifications
-                    const hasPermission = Notification.permission === 'granted';
-                    if (hasPermission) {
-                        toggle.checked = true;
-                        pushNotificationPermission = true;
-                        localStorage.setItem('studyhub_push_enabled', 'true');
-                    } else {
-                        const enabled = localStorage.getItem('studyhub_push_enabled') === 'true';
-                        toggle.checked = enabled;
-                        pushNotificationPermission = enabled;
-                    }
+                    const enabled = localStorage.getItem('studyhub_push_enabled') === 'true' &&
+                                   Notification.permission === 'granted';
+                    toggle.checked = enabled;
+                    pushNotificationPermission = enabled;
                 }
             }
         }
@@ -5205,67 +5198,19 @@
             renderCalendarEventsList();
             renderCalendar();
 
-            // Calculate days until event
-            const eventDate = new Date(selectedCalendarDate);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            eventDate.setHours(0, 0, 0, 0);
-            const diffDays = Math.floor((eventDate - today) / (1000 * 60 * 60 * 24));
-
             // Refresh notifications if a NEW test/homework/assignment was added
             if (isNewEvent && (type === 'test' || type === 'assignment' || type === 'homework')) {
+                // Check if this event is within notification range (3 days)
+                const eventDate = new Date(selectedCalendarDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                eventDate.setHours(0, 0, 0, 0);
+                const diffDays = Math.floor((eventDate - today) / (1000 * 60 * 60 * 24));
+
                 if (diffDays >= 0 && diffDays <= 3) {
                     // Refresh notifications to include the new event (badge count will increment)
                     await refreshNotificationsAfterNewEvent(selectedCalendarDate, name);
                 }
-            }
-
-            // ALWAYS show browser notification when adding ANY new event
-            if (isNewEvent) {
-                console.log('Showing browser notification for new event:', name, type);
-                showBrowserNotification(name, type, diffDays);
-            }
-        }
-
-        // Direct browser notification - simple and reliable
-        function showBrowserNotification(eventName, eventType, daysUntil) {
-            console.log('showBrowserNotification called:', eventName, 'Permission:', Notification.permission);
-
-            // Skip if not supported or no permission
-            if (!('Notification' in window)) {
-                console.log('Notification API not supported');
-                return;
-            }
-            if (Notification.permission !== 'granted') {
-                console.log('Notification permission not granted:', Notification.permission);
-                return;
-            }
-
-            let urgency = '';
-            if (daysUntil === 0) urgency = 'היום!';
-            else if (daysUntil === 1) urgency = 'מחר';
-            else if (daysUntil === 2) urgency = 'בעוד יומיים';
-            else if (daysUntil === 3) urgency = 'בעוד 3 ימים';
-            else urgency = 'בעוד ' + daysUntil + ' ימים';
-
-            const typeHebrew = eventType === 'test' ? 'מבחן' : (eventType === 'assignment' ? 'עבודה' : 'שיעורי בית');
-
-            try {
-                const notification = new Notification('StudyHub - אירוע חדש', {
-                    body: eventName + ' (' + typeHebrew + ') - ' + urgency,
-                    icon: 'icons/icon-192.png',
-                    tag: 'new-event-' + Date.now(),
-                    requireInteraction: true
-                });
-
-                notification.onclick = function() {
-                    window.focus();
-                    notification.close();
-                };
-
-                console.log('Browser notification shown for:', eventName);
-            } catch (e) {
-                console.log('Browser notification error:', e);
             }
         }
 
