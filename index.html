@@ -1279,6 +1279,37 @@
             background: rgba(239, 68, 68, 0.2);
         }
 
+        /* Refresh Button */
+        .refresh-btn {
+            position: fixed;
+            top: 35px;
+            left: 85px;
+            width: 55px;
+            height: 55px;
+            background: rgba(15, 12, 41, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9998;
+            transition: all 0.15s ease-out;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .refresh-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.5);
+            transform: scale(1.05);
+        }
+        .refresh-btn:active {
+            transform: scale(0.95) rotate(180deg);
+        }
+        .refresh-btn i {
+            color: #a78bfa;
+            font-size: 1.3rem;
+        }
+
         /* Notification Bell Styles */
         .notification-bell {
             position: fixed;
@@ -2104,6 +2135,17 @@
             }
             .logout-btn span { display: none !important; }
 
+            /* Refresh button mobile */
+            .refresh-btn {
+                top: 25px;
+                left: 70px;
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+            }
+            .refresh-btn i {
+                font-size: 1.2rem;
+            }
 
             /* Notification bell mobile */
             .notification-bell {
@@ -2595,6 +2637,11 @@
             <span>התנתק</span>
         </button>
     </nav>
+
+    <!-- Refresh Button -->
+    <div class="refresh-btn" onclick="location.reload(true)">
+        <i class="fas fa-sync-alt"></i>
+    </div>
 
     <!-- Notification Bell -->
     <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
