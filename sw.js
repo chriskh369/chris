@@ -1,5 +1,5 @@
-// StudyHub Service Worker v1.0
-const CACHE_NAME = 'studyhub-v1';
+// StudyHub Service Worker v2.0
+const CACHE_NAME = 'studyhub-v2';
 const OFFLINE_URL = '/chris/';
 
 // Files to cache for offline use
@@ -7,6 +7,10 @@ const CACHE_FILES = [
   '/chris/',
   '/chris/index.html',
   '/chris/manifest.json',
+  '/chris/icons/icon-192.png',
+  '/chris/icons/icon-512.png',
+  '/chris/icons/icon-192-maskable.png',
+  '/chris/icons/icon-512-maskable.png',
   'https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
