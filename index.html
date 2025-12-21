@@ -3488,14 +3488,30 @@
         }
 
         // Toggle push notifications on/off
+        // Check if running in Android app (Capacitor WebView)
+        function isAndroidApp() {
+            return window.Capacitor !== undefined ||
+                   navigator.userAgent.includes('Android') && !navigator.userAgent.includes('Chrome/');
+        }
+
         async function togglePushNotifications() {
             const toggle = document.getElementById('notificationToggle');
 
             if (toggle.checked) {
-                // User wants to enable notifications
+                // Check if in Android app - always allow (Firebase handles it)
+                if (isAndroidApp() || navigator.userAgent.includes('wv')) {
+                    pushNotificationPermission = true;
+                    localStorage.setItem('studyhub_push_enabled', 'true');
+                    showToast('התראות הופעלו באפליקציה!');
+                    return;
+                }
+
+                // User wants to enable notifications (web browser)
                 if (!('Notification' in window)) {
-                    showToast('התראות לא נתמכות בדפדפן זה');
-                    toggle.checked = false;
+                    // Still enable for in-app notifications even without browser support
+                    pushNotificationPermission = true;
+                    localStorage.setItem('studyhub_push_enabled', 'true');
+                    showToast('התראות הופעלו!');
                     return;
                 }
 
@@ -3534,10 +3550,17 @@
         function updateNotificationToggle() {
             const toggle = document.getElementById('notificationToggle');
             if (toggle) {
-                const enabled = localStorage.getItem('studyhub_push_enabled') === 'true' &&
-                               Notification.permission === 'granted';
-                toggle.checked = enabled;
-                pushNotificationPermission = enabled;
+                // In Android app or if Notification API not available, just check localStorage
+                if (isAndroidApp() || navigator.userAgent.includes('wv') || !('Notification' in window)) {
+                    const enabled = localStorage.getItem('studyhub_push_enabled') === 'true';
+                    toggle.checked = enabled;
+                    pushNotificationPermission = enabled;
+                } else {
+                    const enabled = localStorage.getItem('studyhub_push_enabled') === 'true' &&
+                                   Notification.permission === 'granted';
+                    toggle.checked = enabled;
+                    pushNotificationPermission = enabled;
+                }
             }
         }
 
