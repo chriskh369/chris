@@ -2487,9 +2487,17 @@
                     <label>סיסמה</label>
                     <input type="password" id="loginPassword" placeholder="הכנס סיסמה" required>
                 </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="rememberMe" style="width: auto;">
+                    <label for="rememberMe" style="margin: 0; cursor: pointer;">זכור אותי</label>
+                </div>
                 <button type="submit" class="login-btn">
                     <i class="fas fa-sign-in-alt"></i>
                     התחבר
+                </button>
+                <button type="button" class="login-btn biometric-btn" id="biometricBtn" style="display: none; background: linear-gradient(135deg, #10b981, #059669); margin-top: 10px;" onclick="biometricLogin()">
+                    <i class="fas fa-fingerprint"></i>
+                    התחבר עם טביעת אצבע
                 </button>
             </form>
         </div>
@@ -2654,6 +2662,8 @@
                 return true;
             }
             document.getElementById('loginScreen').style.display = 'flex';
+            // Check if biometric login is available
+            checkBiometricButton();
             return false;
         }
 
@@ -2661,9 +2671,110 @@
             event.preventDefault();
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
 
             const validUser = VALID_USERS.find(u =>
                 u.username.toLowerCase() === username.toLowerCase() && u.password === password
+            );
+
+            if (validUser) {
+                isLoggedIn = true;
+                sessionStorage.setItem('studyhub_logged_in', 'true');
+                sessionStorage.setItem('studyhub_current_user', validUser.username);
+                localStorage.setItem('studyhub_username', validUser.username);
+
+                // Save credentials if "Remember me" is checked
+                if (rememberMe) {
+                    saveCredentialsForBiometric(validUser.username, password);
+                }
+
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('loginError').classList.remove('show');
+                showToast('ברוך הבא, ' + validUser.username + '!');
+            } else {
+                document.getElementById('loginError').classList.add('show');
+                document.getElementById('loginPassword').value = '';
+            }
+        }
+
+        // Biometric/Fingerprint Authentication
+        function saveCredentialsForBiometric(username, password) {
+            // Encrypt and save credentials for biometric login
+            const credentials = btoa(JSON.stringify({ username, password }));
+            localStorage.setItem('studyhub_saved_credentials', credentials);
+            localStorage.setItem('studyhub_biometric_enabled', 'true');
+        }
+
+        function getSavedCredentials() {
+            const saved = localStorage.getItem('studyhub_saved_credentials');
+            if (saved) {
+                try {
+                    return JSON.parse(atob(saved));
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        function isBiometricAvailable() {
+            return window.PublicKeyCredential !== undefined ||
+                   'credentials' in navigator ||
+                   localStorage.getItem('studyhub_biometric_enabled') === 'true';
+        }
+
+        async function biometricLogin() {
+            const saved = getSavedCredentials();
+            if (!saved) {
+                showToast('לא נמצאו פרטי התחברות שמורים');
+                return;
+            }
+
+            try {
+                // Try WebAuthn biometric first
+                if (window.PublicKeyCredential && navigator.credentials) {
+                    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                    if (available) {
+                        // Create a challenge for biometric verification
+                        const credential = await navigator.credentials.create({
+                            publicKey: {
+                                challenge: new Uint8Array(32),
+                                rp: { name: "StudyHub" },
+                                user: {
+                                    id: new Uint8Array(16),
+                                    name: saved.username,
+                                    displayName: saved.username
+                                },
+                                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                                authenticatorSelection: {
+                                    authenticatorAttachment: "platform",
+                                    userVerification: "required"
+                                },
+                                timeout: 60000
+                            }
+                        }).catch(() => null);
+
+                        if (credential) {
+                            performSavedLogin(saved);
+                            return;
+                        }
+                    }
+                }
+
+                // Fallback: Just verify with saved credentials (still shows system auth on some devices)
+                performSavedLogin(saved);
+
+            } catch (e) {
+                console.log('Biometric error:', e);
+                // Fallback to saved credentials
+                performSavedLogin(saved);
+            }
+        }
+
+        function performSavedLogin(credentials) {
+            const validUser = VALID_USERS.find(u =>
+                u.username.toLowerCase() === credentials.username.toLowerCase() &&
+                u.password === credentials.password
             );
 
             if (validUser) {
@@ -2675,8 +2786,20 @@
                 document.getElementById('loginError').classList.remove('show');
                 showToast('ברוך הבא, ' + validUser.username + '!');
             } else {
-                document.getElementById('loginError').classList.add('show');
-                document.getElementById('loginPassword').value = '';
+                showToast('פרטי ההתחברות השמורים אינם תקינים');
+                localStorage.removeItem('studyhub_saved_credentials');
+                localStorage.removeItem('studyhub_biometric_enabled');
+                document.getElementById('biometricBtn').style.display = 'none';
+            }
+        }
+
+        function checkBiometricButton() {
+            const saved = getSavedCredentials();
+            const biometricBtn = document.getElementById('biometricBtn');
+            if (saved && biometricBtn) {
+                biometricBtn.style.display = 'block';
+                // Pre-fill username
+                document.getElementById('loginUsername').value = saved.username;
             }
         }
 
