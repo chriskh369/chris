@@ -5177,7 +5177,7 @@
                 const diffDays = Math.floor((eventDate - today) / (1000 * 60 * 60 * 24));
 
                 if (diffDays >= 0 && diffDays <= 3) {
-                    // Mark all existing notifications as seen, except the new one
+                    // Refresh notifications to include the new event (badge count will increment)
                     await refreshNotificationsAfterNewEvent(selectedCalendarDate, name);
                 }
             }
@@ -5185,33 +5185,11 @@
 
         // Separate function to handle notification refresh after adding event
         async function refreshNotificationsAfterNewEvent(eventDate, eventName) {
-            const username = localStorage.getItem('studyhub_username') || 'guest';
-
-            // Load latest from cloud
+            // Load latest from cloud (which now includes the new event)
             await loadNotificationsFromCloud();
 
-            // Get all current notifications (including the new one)
-            const { urgent, important, reminder } = getAllNotifications();
-            const allNotifications = [...urgent, ...important, ...reminder];
-
-            // Mark ALL notifications EXCEPT the new one as seen for this user
-            if (!cloudNotifications[username]) cloudNotifications[username] = { seenNotifications: [], dismissed: {} };
-            if (!cloudNotifications[username].seenNotifications) cloudNotifications[username].seenNotifications = [];
-
-            const newNotificationId = `${eventDate}_${eventName}`;
-
-            allNotifications.forEach(item => {
-                const notificationId = `${item.date}_${item.name}`;
-                // Mark as seen UNLESS it's the notification we just added
-                if (notificationId !== newNotificationId && !cloudNotifications[username].seenNotifications.includes(notificationId)) {
-                    cloudNotifications[username].seenNotifications.push(notificationId);
-                }
-            });
-
-            // Save to cloud
-            await saveNotificationsToCloud();
-
-            // Re-render to show only the new notification
+            // Re-render notifications - this will update the badge to include ALL unseen notifications
+            // (existing unseen + the new one we just added)
             renderNotifications();
         }
 
