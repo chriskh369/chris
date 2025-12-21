@@ -3401,41 +3401,41 @@
             }
 
             try {
-                // Try service worker first (works better on mobile/PWA)
-                if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.ready;
-                    if (registration) {
-                        await registration.showNotification('StudyHub', {
-                            body: message,
-                            icon: '/chris/icons/icon-192.png',
-                            badge: '/chris/icons/icon-192.png',
-                            tag: uniqueTag,
-                            requireInteraction: false,
-                            vibrate: [200, 100, 200],
-                            silent: false,
-                            data: { url: '/chris/' }
-                        });
-                        console.log('Notification sent via SW:', title);
-                        return;
-                    }
-                }
-
-                // Fallback to regular notification
+                // Use direct Notification API (more reliable on desktop)
                 const notification = new Notification('StudyHub', {
                     body: message,
                     icon: 'icons/icon-192.png',
                     badge: 'icons/icon-192.png',
                     tag: uniqueTag,
-                    requireInteraction: false
+                    requireInteraction: true  // Keep notification visible until user interacts
                 });
 
                 notification.onclick = function() {
                     window.focus();
                     notification.close();
                 };
-                console.log('Notification sent directly:', title);
+                console.log('Notification sent directly:', title, '- message:', message);
             } catch (e) {
                 console.log('Notification error:', e);
+                // Fallback to service worker if direct fails
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const registration = await navigator.serviceWorker.ready;
+                        if (registration) {
+                            await registration.showNotification('StudyHub', {
+                                body: message,
+                                icon: '/chris/icons/icon-192.png',
+                                badge: '/chris/icons/icon-192.png',
+                                tag: uniqueTag,
+                                requireInteraction: true,
+                                vibrate: [200, 100, 200]
+                            });
+                            console.log('Notification sent via SW fallback:', title);
+                        }
+                    }
+                } catch (e2) {
+                    console.log('SW fallback also failed:', e2);
+                }
             }
         }
 
