@@ -50,10 +50,17 @@ public class NotificationWorker extends Worker {
         Log.d(TAG, "NotificationWorker running...");
 
         try {
+            // DEBUG: Show a test notification to confirm worker is running
+            showNotification("DEBUG: Worker Running", "Background check at " + new java.text.SimpleDateFormat("HH:mm:ss", Locale.US).format(new java.util.Date()));
+
             // Fetch calendar events from GitHub Gist
             String jsonData = fetchCalendarData();
+            Log.d(TAG, "Fetched data: " + (jsonData != null ? "success" : "null"));
+
             if (jsonData != null) {
                 processEvents(jsonData);
+            } else {
+                Log.e(TAG, "Failed to fetch calendar data");
             }
             return Result.success();
         } catch (Exception e) {

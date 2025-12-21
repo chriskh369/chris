@@ -13,10 +13,12 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import com.getcapacitor.BridgeActivity;
 import java.util.concurrent.TimeUnit;
+import android.util.Log;
 
 public class MainActivity extends BridgeActivity {
     private static final String CHANNEL_ID = "studyhub_notifications";
@@ -45,6 +47,13 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void scheduleNotificationWorker() {
+        Log.d("StudyHub", "Scheduling notification worker...");
+
+        // Run once immediately for testing
+        OneTimeWorkRequest immediateWork = new OneTimeWorkRequest.Builder(NotificationWorker.class).build();
+        WorkManager.getInstance(this).enqueue(immediateWork);
+        Log.d("StudyHub", "Immediate worker enqueued");
+
         // Schedule periodic work to check for notifications every 15 minutes (minimum allowed)
         PeriodicWorkRequest notificationWork = new PeriodicWorkRequest.Builder(
                 NotificationWorker.class,
@@ -56,6 +65,7 @@ public class MainActivity extends BridgeActivity {
                 ExistingPeriodicWorkPolicy.KEEP,
                 notificationWork
         );
+        Log.d("StudyHub", "Periodic worker scheduled");
     }
 
     private void createNotificationChannel() {
