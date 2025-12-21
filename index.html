@@ -3598,10 +3598,20 @@
                     toggle.checked = enabled;
                     pushNotificationPermission = enabled;
                 } else {
-                    const enabled = localStorage.getItem('studyhub_push_enabled') === 'true' &&
-                                   Notification.permission === 'granted';
+                    // If browser has permission granted, enable notifications
+                    // (either from localStorage or if permission was previously granted)
+                    const hasPermission = Notification.permission === 'granted';
+                    const savedEnabled = localStorage.getItem('studyhub_push_enabled');
+
+                    // If permission is granted and user never explicitly disabled, enable by default
+                    const enabled = hasPermission && savedEnabled !== 'false';
                     toggle.checked = enabled;
                     pushNotificationPermission = enabled;
+
+                    // Save the state if permission is granted
+                    if (hasPermission && savedEnabled === null) {
+                        localStorage.setItem('studyhub_push_enabled', 'true');
+                    }
                 }
             }
         }
