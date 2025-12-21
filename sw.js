@@ -1,5 +1,5 @@
-// StudyHub Service Worker v4.0
-const CACHE_NAME = 'studyhub-v4';
+// StudyHub Service Worker v5.0
+const CACHE_NAME = 'studyhub-v5';
 const OFFLINE_URL = '/chris/';
 
 // Files to cache for offline use
@@ -104,13 +104,14 @@ self.addEventListener('message', (event) => {
 
   // Handle notification request from app
   if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
-    self.registration.showNotification(event.data.title, {
-      body: event.data.body,
+    self.registration.showNotification('StudyHub', {
+      body: event.data.title + (event.data.body ? ' - ' + event.data.body : ''),
       icon: '/chris/icons/icon-192.png',
       badge: '/chris/icons/icon-192.png',
       tag: event.data.tag || 'studyhub',
-      requireInteraction: true,
+      requireInteraction: false,
       vibrate: [200, 100, 200],
+      silent: false,
       data: { url: '/chris/' }
     });
   }
@@ -141,13 +142,14 @@ self.addEventListener('push', (event) => {
 
   const data = event.data.json();
   event.waitUntil(
-    self.registration.showNotification(data.title || 'StudyHub', {
-      body: data.body || 'יש לך התראה חדשה',
+    self.registration.showNotification('StudyHub', {
+      body: data.title + (data.body ? ' - ' + data.body : '') || 'יש לך התראה חדשה',
       icon: '/chris/icons/icon-192.png',
       badge: '/chris/icons/icon-192.png',
       tag: data.tag || 'studyhub-push',
-      requireInteraction: true,
+      requireInteraction: false,
       vibrate: [200, 100, 200],
+      silent: false,
       data: { url: '/chris/' }
     })
   );

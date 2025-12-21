@@ -3232,13 +3232,14 @@
                 if ('serviceWorker' in navigator) {
                     const registration = await navigator.serviceWorker.ready;
                     if (registration) {
-                        await registration.showNotification(title, {
-                            body: body,
+                        await registration.showNotification('StudyHub', {
+                            body: title + (body ? ' - ' + body : ''),
                             icon: '/chris/icons/icon-192.png',
                             badge: '/chris/icons/icon-192.png',
                             tag: tag || 'studyhub-notification',
-                            requireInteraction: true,
+                            requireInteraction: false,
                             vibrate: [200, 100, 200],
+                            silent: false,
                             data: { url: '/chris/' }
                         });
                         console.log('Notification sent via SW:', title);
@@ -3247,12 +3248,12 @@
                 }
 
                 // Fallback to regular notification
-                const notification = new Notification(title, {
-                    body: body,
+                const notification = new Notification('StudyHub', {
+                    body: title + (body ? ' - ' + body : ''),
                     icon: 'icons/icon-192.png',
                     badge: 'icons/icon-192.png',
                     tag: tag || 'studyhub-notification',
-                    requireInteraction: true
+                    requireInteraction: false
                 });
 
                 notification.onclick = function() {
