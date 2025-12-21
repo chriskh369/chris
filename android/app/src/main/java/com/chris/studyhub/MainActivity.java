@@ -12,11 +12,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import com.getcapacitor.BridgeActivity;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends BridgeActivity {
     private static final String CHANNEL_ID = "studyhub_notifications";
     private static final int NOTIFICATION_PERMISSION_CODE = 1001;
+    private static final String NOTIFICATION_WORK_TAG = "studyhub_notification_check";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +33,29 @@ public class MainActivity extends BridgeActivity {
         // Request notification permission for Android 13+
         requestNotificationPermission();
 
+        // Schedule background notification checks
+        scheduleNotificationWorker();
+
         // Disable cache to always get fresh content
         WebView webView = getBridge().getWebView();
         webView.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);
 
         // Add JavaScript interface for notifications
         webView.addJavascriptInterface(new NotificationInterface(), "AndroidNotification");
+    }
+
+    private void scheduleNotificationWorker() {
+        // Schedule periodic work to check for notifications every 15 minutes (minimum allowed)
+        PeriodicWorkRequest notificationWork = new PeriodicWorkRequest.Builder(
+                NotificationWorker.class,
+                15, TimeUnit.MINUTES
+        ).build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                NOTIFICATION_WORK_TAG,
+                ExistingPeriodicWorkPolicy.KEEP,
+                notificationWork
+        );
     }
 
     private void createNotificationChannel() {
