@@ -1412,6 +1412,58 @@
             padding: 5px;
         }
 
+        .notification-toggle-container {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            margin-right: 15px;
+        }
+
+        .notification-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .notification-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .notification-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(100, 100, 100, 0.5);
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .notification-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .notification-switch input:checked + .notification-slider {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        }
+
+        .notification-switch input:checked + .notification-slider:before {
+            transform: translateX(24px);
+        }
+
         .notification-content {
             padding: 15px;
             overflow-y: auto;
@@ -2527,11 +2579,6 @@
             <span>לוח שנה</span>
         </button>
 
-        <button type="button" class="menu-item" id="menuNotifications" onclick="askForNotificationPermission()">
-            <i class="fas fa-bell"></i>
-            <span>הפעל התראות</span>
-        </button>
-
         <button class="logout-btn" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i>
             <span>התנתק</span>
@@ -2548,6 +2595,12 @@
     <div class="notification-dropdown" id="notificationDropdown">
         <div class="notification-header">
             <h3>התראות</h3>
+            <div class="notification-toggle-container">
+                <label class="notification-switch">
+                    <input type="checkbox" id="notificationToggle" onchange="togglePushNotifications()">
+                    <span class="notification-slider"></span>
+                </label>
+            </div>
             <button onclick="toggleNotifications()"><i class="fas fa-times"></i></button>
         </div>
         <div class="notification-content" id="notificationContent">
@@ -3254,11 +3307,11 @@
             const initialUnseen = getUnseenNotifications();
             lastNotificationCount = initialUnseen.urgent.length + initialUnseen.important.length + initialUnseen.reminder.length;
 
-            // Request push notification permission (will show prompt)
-            const hasPermission = await requestPushPermission();
+            // Update toggle state based on saved preference
+            updateNotificationToggle();
 
-            // If permission granted and there are unseen notifications, send one now
-            if (hasPermission && lastNotificationCount > 0) {
+            // If permission granted and enabled, check for notifications
+            if (pushNotificationPermission && lastNotificationCount > 0) {
                 checkAndSendPushNotifications(initialUnseen);
             }
 
@@ -3272,8 +3325,10 @@
                     const unseen = getUnseenNotifications();
                     const unseenCount = unseen.urgent.length + unseen.important.length + unseen.reminder.length;
 
-                    // Check and send push notifications for new items
-                    checkAndSendPushNotifications(unseen);
+                    // Check and send push notifications for new items (only if enabled)
+                    if (pushNotificationPermission) {
+                        checkAndSendPushNotifications(unseen);
+                    }
 
                     if (unseen.urgent.length > 0) {
                         updateNotificationBadge(unseenCount, 'urgent');
@@ -3288,33 +3343,57 @@
             }, 30000); // Check every 30 seconds
         }
 
-        // Show notification permission prompt to user
-        async function askForNotificationPermission() {
-            if (!('Notification' in window)) {
-                showToast('התראות לא נתמכות בדפדפן זה');
-                return;
-            }
+        // Toggle push notifications on/off
+        async function togglePushNotifications() {
+            const toggle = document.getElementById('notificationToggle');
 
-            if (Notification.permission === 'granted') {
-                showToast('התראות כבר מופעלות!');
-                return;
-            }
+            if (toggle.checked) {
+                // User wants to enable notifications
+                if (!('Notification' in window)) {
+                    showToast('התראות לא נתמכות בדפדפן זה');
+                    toggle.checked = false;
+                    return;
+                }
 
-            if (Notification.permission === 'denied') {
-                showToast('התראות חסומות. הפעל אותן בהגדרות הדפדפן');
-                return;
-            }
+                if (Notification.permission === 'denied') {
+                    showToast('התראות חסומות. הפעל אותן בהגדרות הדפדפן');
+                    toggle.checked = false;
+                    return;
+                }
 
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
+                if (Notification.permission !== 'granted') {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        showToast('לא ניתן להפעיל התראות');
+                        toggle.checked = false;
+                        return;
+                    }
+                }
+
                 pushNotificationPermission = true;
-                showToast('התראות הופעלו בהצלחה!');
-                // Send a test notification after a short delay
+                localStorage.setItem('studyhub_push_enabled', 'true');
+                showToast('התראות הופעלו!');
+
+                // Send test notification
                 setTimeout(async () => {
                     await sendPushNotification('StudyHub', 'התראות הופעלו! תקבל התראות על מטלות ומבחנים', 'welcome');
-                }, 1000);
+                }, 500);
             } else {
-                showToast('לא ניתן להפעיל התראות');
+                // User wants to disable notifications
+                pushNotificationPermission = false;
+                localStorage.setItem('studyhub_push_enabled', 'false');
+                showToast('התראות כובו');
+            }
+        }
+
+        // Update toggle state on load
+        function updateNotificationToggle() {
+            const toggle = document.getElementById('notificationToggle');
+            if (toggle) {
+                const enabled = localStorage.getItem('studyhub_push_enabled') === 'true' &&
+                               Notification.permission === 'granted';
+                toggle.checked = enabled;
+                pushNotificationPermission = enabled;
             }
         }
 
