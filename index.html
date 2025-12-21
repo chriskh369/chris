@@ -1464,6 +1464,21 @@
             transform: translateX(24px);
         }
 
+        .test-notification-btn {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 6px 10px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .test-notification-btn:active {
+            transform: scale(0.95);
+        }
+
         .notification-content {
             padding: 15px;
             overflow-y: auto;
@@ -2592,6 +2607,9 @@
                     <input type="checkbox" id="notificationToggle" onchange="togglePushNotifications()">
                     <span class="notification-slider"></span>
                 </label>
+                <button class="test-notification-btn" onclick="testNotification()" title="בדוק התראה">
+                    <i class="fas fa-bell"></i>
+                </button>
             </div>
             <button onclick="toggleNotifications()"><i class="fas fa-times"></i></button>
         </div>
@@ -3469,6 +3487,42 @@
                                Notification.permission === 'granted';
                 toggle.checked = enabled;
                 pushNotificationPermission = enabled;
+            }
+        }
+
+        // Test notification button
+        async function testNotification() {
+            if (Notification.permission !== 'granted') {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    showToast('יש לאשר התראות קודם');
+                    return;
+                }
+            }
+
+            // Send test notification immediately
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    await registration.showNotification('StudyHub', {
+                        body: 'זוהי התראת בדיקה! ההתראות עובדות! 🎉',
+                        icon: '/chris/icons/icon-192.png',
+                        badge: '/chris/icons/icon-192.png',
+                        tag: 'test-' + Date.now(),
+                        vibrate: [200, 100, 200],
+                        requireInteraction: true
+                    });
+                    showToast('התראה נשלחה!');
+                } else {
+                    new Notification('StudyHub', {
+                        body: 'זוהי התראת בדיקה! ההתראות עובדות! 🎉',
+                        icon: '/chris/icons/icon-192.png'
+                    });
+                    showToast('התראה נשלחה!');
+                }
+            } catch (e) {
+                console.error('Test notification error:', e);
+                showToast('שגיאה בשליחת התראה: ' + e.message);
             }
         }
 
