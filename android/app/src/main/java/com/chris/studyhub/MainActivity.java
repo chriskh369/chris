@@ -12,6 +12,5 @@ public class MainActivity extends BridgeActivity {
         // Disable cache to always get fresh content
         WebView webView = getBridge().getWebView();
         webView.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);
-        webView.getSettings().setAppCacheEnabled(false);
     }
 }
