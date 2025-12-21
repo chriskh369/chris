@@ -3592,6 +3592,12 @@
 
         // Test notification button
         async function testNotification() {
+            // DEBUG: Show what's available
+            const hasAndroid = !!window.AndroidNotification;
+            const hasMethod = hasAndroid && typeof window.AndroidNotification.showNotification === 'function';
+
+            alert('Debug:\nAndroidNotification exists: ' + hasAndroid + '\nshowNotification method: ' + hasMethod + '\nUser Agent: ' + navigator.userAgent.substring(0, 50));
+
             // Check if running in Android app - use native notification
             if (window.AndroidNotification && typeof window.AndroidNotification.showNotification === 'function') {
                 try {
