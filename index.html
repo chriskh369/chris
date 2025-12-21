@@ -3082,19 +3082,30 @@
             if (!pushNotificationPermission || Notification.permission !== 'granted') return;
 
             try {
-                const notification = new Notification(title, {
-                    body: body,
-                    icon: 'icons/icon-192.png',
-                    badge: 'icons/icon-192.png',
-                    tag: tag || 'studyhub-notification',
-                    requireInteraction: true,
-                    vibrate: [200, 100, 200]
-                });
+                // Use service worker for notifications (works better on mobile)
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'SHOW_NOTIFICATION',
+                        title: title,
+                        body: body,
+                        tag: tag || 'studyhub-notification'
+                    });
+                } else {
+                    // Fallback to regular notification
+                    const notification = new Notification(title, {
+                        body: body,
+                        icon: 'icons/icon-192.png',
+                        badge: 'icons/icon-192.png',
+                        tag: tag || 'studyhub-notification',
+                        requireInteraction: true,
+                        vibrate: [200, 100, 200]
+                    });
 
-                notification.onclick = function() {
-                    window.focus();
-                    notification.close();
-                };
+                    notification.onclick = function() {
+                        window.focus();
+                        notification.close();
+                    };
+                }
             } catch (e) {
                 console.log('Notification error:', e);
             }

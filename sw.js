@@ -1,5 +1,5 @@
-// StudyHub Service Worker v2.0
-const CACHE_NAME = 'studyhub-v2';
+// StudyHub Service Worker v3.0
+const CACHE_NAME = 'studyhub-v3';
 const OFFLINE_URL = '/chris/';
 
 // Files to cache for offline use
@@ -101,4 +101,54 @@ self.addEventListener('message', (event) => {
   if (event.data === 'skipWaiting') {
     self.skipWaiting();
   }
+
+  // Handle notification request from app
+  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    self.registration.showNotification(event.data.title, {
+      body: event.data.body,
+      icon: '/chris/icons/icon-192.png',
+      badge: '/chris/icons/icon-192.png',
+      tag: event.data.tag || 'studyhub',
+      requireInteraction: true,
+      vibrate: [200, 100, 200],
+      data: { url: '/chris/' }
+    });
+  }
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If app is already open, focus it
+      for (const client of clientList) {
+        if (client.url.includes('/chris/') && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Otherwise open new window
+      if (clients.openWindow) {
+        return clients.openWindow('/chris/');
+      }
+    })
+  );
+});
+
+// Push notification event (for future push server support)
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  const data = event.data.json();
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'StudyHub', {
+      body: data.body || 'יש לך התראה חדשה',
+      icon: '/chris/icons/icon-192.png',
+      badge: '/chris/icons/icon-192.png',
+      tag: data.tag || 'studyhub-push',
+      requireInteraction: true,
+      vibrate: [200, 100, 200],
+      data: { url: '/chris/' }
+    })
+  );
 });
