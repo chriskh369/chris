@@ -2527,6 +2527,11 @@
             <span>לוח שנה</span>
         </button>
 
+        <button type="button" class="menu-item" id="menuNotifications" onclick="askForNotificationPermission()">
+            <i class="fas fa-bell"></i>
+            <span>הפעל התראות</span>
+        </button>
+
         <button class="logout-btn" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i>
             <span>התנתק</span>
@@ -3230,9 +3235,6 @@
 
         // Update notifications periodically
         async function initNotifications() {
-            // Request push notification permission
-            await requestPushPermission();
-
             // Load notification data from cloud first
             await loadNotificationsFromCloud();
             renderNotifications();
@@ -3241,7 +3243,15 @@
             const initialUnseen = getUnseenNotifications();
             lastNotificationCount = initialUnseen.urgent.length + initialUnseen.important.length + initialUnseen.reminder.length;
 
-            // Update every minute
+            // Request push notification permission (will show prompt)
+            const hasPermission = await requestPushPermission();
+
+            // If permission granted and there are unseen notifications, send one now
+            if (hasPermission && lastNotificationCount > 0) {
+                checkAndSendPushNotifications(initialUnseen);
+            }
+
+            // Update every 30 seconds for faster notifications
             setInterval(async () => {
                 const dropdown = document.getElementById('notificationDropdown');
                 if (!dropdown.classList.contains('show')) {
@@ -3264,7 +3274,35 @@
                         updateNotificationBadge(0, null);
                     }
                 }
-            }, 60000);
+            }, 30000); // Check every 30 seconds
+        }
+
+        // Show notification permission prompt to user
+        async function askForNotificationPermission() {
+            if (!('Notification' in window)) {
+                showToast('התראות לא נתמכות בדפדפן זה');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                showToast('התראות כבר מופעלות!');
+                return;
+            }
+
+            if (Notification.permission === 'denied') {
+                showToast('התראות חסומות. הפעל אותן בהגדרות הדפדפן');
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                pushNotificationPermission = true;
+                showToast('התראות הופעלו בהצלחה!');
+                // Send a test notification
+                sendPushNotification('StudyHub', 'התראות הופעלו! תקבל התראות על מטלות ומבחנים', 'welcome');
+            } else {
+                showToast('לא ניתן להפעיל התראות');
+            }
         }
 
         // Close dropdown when clicking outside
