@@ -3054,11 +3054,97 @@
             }
         }
 
+        // Push notification support
+        let lastNotificationCount = 0;
+        let pushNotificationPermission = false;
+
+        async function requestPushPermission() {
+            if (!('Notification' in window)) {
+                console.log('Push notifications not supported');
+                return false;
+            }
+
+            if (Notification.permission === 'granted') {
+                pushNotificationPermission = true;
+                return true;
+            }
+
+            if (Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                pushNotificationPermission = permission === 'granted';
+                return pushNotificationPermission;
+            }
+
+            return false;
+        }
+
+        function sendPushNotification(title, body, tag) {
+            if (!pushNotificationPermission || Notification.permission !== 'granted') return;
+
+            try {
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: 'icons/icon-192.png',
+                    badge: 'icons/icon-192.png',
+                    tag: tag || 'studyhub-notification',
+                    requireInteraction: true,
+                    vibrate: [200, 100, 200]
+                });
+
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            } catch (e) {
+                console.log('Notification error:', e);
+            }
+        }
+
+        function checkAndSendPushNotifications(unseen) {
+            const totalUnseen = unseen.urgent.length + unseen.important.length + unseen.reminder.length;
+
+            // Only send push if there are NEW unseen notifications
+            if (totalUnseen > lastNotificationCount && totalUnseen > 0) {
+                if (unseen.urgent.length > 0) {
+                    const item = unseen.urgent[0];
+                    sendPushNotification(
+                        'דחוף! ' + item.name,
+                        item.label + ' - ' + (item.course || 'StudyHub'),
+                        'urgent-' + item.date
+                    );
+                } else if (unseen.important.length > 0) {
+                    const item = unseen.important[0];
+                    sendPushNotification(
+                        'חשוב: ' + item.name,
+                        item.label + ' - ' + (item.course || 'StudyHub'),
+                        'important-' + item.date
+                    );
+                } else if (unseen.reminder.length > 0) {
+                    const item = unseen.reminder[0];
+                    sendPushNotification(
+                        'תזכורת: ' + item.name,
+                        item.label + ' - ' + (item.course || 'StudyHub'),
+                        'reminder-' + item.date
+                    );
+                }
+            }
+
+            lastNotificationCount = totalUnseen;
+        }
+
         // Update notifications periodically
         async function initNotifications() {
+            // Request push notification permission
+            await requestPushPermission();
+
             // Load notification data from cloud first
             await loadNotificationsFromCloud();
             renderNotifications();
+
+            // Get initial count
+            const initialUnseen = getUnseenNotifications();
+            lastNotificationCount = initialUnseen.urgent.length + initialUnseen.important.length + initialUnseen.reminder.length;
+
             // Update every minute
             setInterval(async () => {
                 const dropdown = document.getElementById('notificationDropdown');
@@ -3068,6 +3154,10 @@
                     // Just update the badge based on UNSEEN notifications
                     const unseen = getUnseenNotifications();
                     const unseenCount = unseen.urgent.length + unseen.important.length + unseen.reminder.length;
+
+                    // Check and send push notifications for new items
+                    checkAndSendPushNotifications(unseen);
+
                     if (unseen.urgent.length > 0) {
                         updateNotificationBadge(unseenCount, 'urgent');
                     } else if (unseen.important.length > 0) {
