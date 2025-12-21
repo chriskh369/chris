@@ -47,24 +47,30 @@ public class NotificationWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.d(TAG, "NotificationWorker running...");
+        Log.d(TAG, "=== NotificationWorker STARTING ===");
+
+        // DEBUG: Show a test notification FIRST to confirm worker is running
+        String timeStr = new java.text.SimpleDateFormat("HH:mm:ss", Locale.US).format(new java.util.Date());
+        showNotification("StudyHub Background Check", "Worker started at " + timeStr);
 
         try {
-            // DEBUG: Show a test notification to confirm worker is running
-            showNotification("DEBUG: Worker Running", "Background check at " + new java.text.SimpleDateFormat("HH:mm:ss", Locale.US).format(new java.util.Date()));
-
             // Fetch calendar events from GitHub Gist
+            Log.d(TAG, "Fetching calendar data...");
             String jsonData = fetchCalendarData();
-            Log.d(TAG, "Fetched data: " + (jsonData != null ? "success" : "null"));
 
             if (jsonData != null) {
+                Log.d(TAG, "Data fetched successfully, processing events...");
                 processEvents(jsonData);
             } else {
-                Log.e(TAG, "Failed to fetch calendar data");
+                Log.e(TAG, "Failed to fetch calendar data - null response");
+                showNotification("StudyHub Error", "Could not fetch calendar data");
             }
+
+            Log.d(TAG, "=== NotificationWorker COMPLETED ===");
             return Result.success();
         } catch (Exception e) {
-            Log.e(TAG, "Error in NotificationWorker", e);
+            Log.e(TAG, "Error in NotificationWorker: " + e.getMessage(), e);
+            showNotification("StudyHub Error", "Worker error: " + e.getMessage());
             return Result.retry();
         }
     }
@@ -213,45 +219,52 @@ public class NotificationWorker extends Worker {
     }
 
     private void showNotification(String title, String message) {
-        Context context = getApplicationContext();
+        try {
+            Context context = getApplicationContext();
+            Log.d(TAG, "showNotification called: " + title);
 
-        // Check permission for Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                Log.w(TAG, "Notification permission not granted");
-                return;
+            // Create notification channel if needed (must be done before showing notification)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(
+                        CHANNEL_ID,
+                        "StudyHub Notifications",
+                        NotificationManager.IMPORTANCE_HIGH
+                );
+                channel.setDescription("Notifications for assignments and tests");
+                channel.enableVibration(true);
+                channel.setVibrationPattern(new long[]{200, 100, 200});
+
+                NotificationManager nm = context.getSystemService(NotificationManager.class);
+                if (nm != null) {
+                    nm.createNotificationChannel(channel);
+                    Log.d(TAG, "Notification channel created");
+                }
             }
-        }
 
-        // Create notification channel if needed
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "StudyHub Notifications",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            channel.setDescription("Notifications for assignments and tests");
-            channel.enableVibration(true);
-            channel.setVibrationPattern(new long[]{200, 100, 200});
-
-            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
+            // Check permission for Android 13+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Log.w(TAG, "Notification permission not granted - skipping");
+                    return;
+                }
             }
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(title)
+                    .setContentText(message)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setAutoCancel(true)
+                    .setDefaults(NotificationCompat.DEFAULT_ALL);
+
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+            int notificationId = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+            notificationManager.notify(notificationId, builder.build());
+
+            Log.d(TAG, "Notification sent with ID: " + notificationId);
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing notification: " + e.getMessage(), e);
         }
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .setVibrate(new long[]{200, 100, 200});
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify((int) System.currentTimeMillis(), builder.build());
-
-        Log.d(TAG, "Notification shown: " + title);
     }
 }
