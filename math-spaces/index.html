@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מרחב וקטורי - המדריך הכיפי!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 50px 0;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            margin-top: 15px;
+            color: #a0a0a0;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        nav button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        nav button.active {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+        }
+
+        /* Sections */
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease-out;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-bottom: 25px;
+            color: #48dbfb;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2 .emoji {
+            font-size: 1.2em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h3 {
+            font-size: 1.4em;
+            margin: 25px 0 15px;
+            color: #feca57;
+        }
+
+        p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        /* Visual boxes */
+        .visual-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        /* Coordinate system animation */
+        .coord-system {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .coord-system svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .axis {
+            stroke: #48dbfb;
+            stroke-width: 2;
+        }
+
+        .vector {
+            stroke-width: 3;
+            fill: none;
+            animation: drawVector 2s ease-out infinite;
+        }
+
+        .vector1 { stroke: #ff6b6b; }
+        .vector2 { stroke: #feca57; }
+        .vector3 { stroke: #48dbfb; }
+
+        @keyframes drawVector {
+            0% { stroke-dasharray: 0, 200; }
+            50% { stroke-dasharray: 200, 0; }
+            100% { stroke-dasharray: 200, 0; }
+        }
+
+        .arrow {
+            fill: currentColor;
+        }
+
+        /* Rules list */
+        .rules-container {
+            display: grid;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .rule-card {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(254, 202, 87, 0.1));
+            border-radius: 15px;
+            padding: 20px;
+            border-right: 4px solid #ff6b6b;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .rule-card:hover {
+            transform: translateX(-10px);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(254, 202, 87, 0.2));
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .rule-card .number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+
+        .rule-card .title {
+            font-weight: bold;
+            color: #feca57;
+            font-size: 1.1em;
+        }
+
+        .rule-card .formula {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            color: #48dbfb;
+            direction: ltr;
+            text-align: center;
+        }
+
+        /* Example box */
+        .example-box {
+            background: linear-gradient(135deg, rgba(72, 219, 251, 0.1), rgba(102, 126, 234, 0.1));
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-right: 4px solid #48dbfb;
+        }
+
+        .example-box h4 {
+            color: #48dbfb;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        /* Interactive demo */
+        .interactive-demo {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 10px;
+            color: #feca57;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #feca57;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(254, 202, 87, 0.5);
+        }
+
+        /* Canvas for animations */
+        #vectorCanvas {
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        /* Dimension visualization */
+        .dimension-visual {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .dim-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            width: 200px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .dim-card:hover {
+            transform: scale(1.05);
+            border-color: #48dbfb;
+            box-shadow: 0 0 30px rgba(72, 219, 251, 0.3);
+        }
+
+        .dim-card .dim-number {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dim-card .dim-name {
+            font-size: 1.2em;
+            color: #48dbfb;
+            margin: 10px 0;
+        }
+
+        .dim-card .dim-visual {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Line animation for 1D */
+        .line-1d {
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            animation: pulse1d 2s infinite;
+        }
+
+        @keyframes pulse1d {
+            0%, 100% { width: 50px; }
+            50% { width: 120px; }
+        }
+
+        /* Plane animation for 2D */
+        .plane-2d {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.5), rgba(254, 202, 87, 0.5));
+            animation: pulse2d 2s infinite;
+            border-radius: 5px;
+        }
+
+        @keyframes pulse2d {
+            0%, 100% { transform: scale(0.8); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Cube animation for 3D */
+        .cube-3d {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate3d 4s infinite linear;
+        }
+
+        @keyframes rotate3d {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 2px solid #48dbfb;
+            background: rgba(72, 219, 251, 0.2);
+        }
+
+        .cube-face:nth-child(1) { transform: translateZ(30px); }
+        .cube-face:nth-child(2) { transform: translateZ(-30px); }
+        .cube-face:nth-child(3) { transform: rotateY(90deg) translateZ(30px); }
+        .cube-face:nth-child(4) { transform: rotateY(-90deg) translateZ(30px); }
+        .cube-face:nth-child(5) { transform: rotateX(90deg) translateZ(30px); }
+        .cube-face:nth-child(6) { transform: rotateX(-90deg) translateZ(30px); }
+
+        /* Summary cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .summary-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        /* Subspace check animation */
+        .check-list {
+            margin: 20px 0;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .check-item:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .check-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            background: linear-gradient(45deg, #00c853, #69f0ae);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 2em; }
+            .section { padding: 20px; }
+            nav button { padding: 10px 15px; font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles background -->
+    <div class="particles">
+        <script>
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                document.querySelector('.particles').appendChild(particle);
+            }
+        </script>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>מרחב וקטורי ותת-מרחב</h1>
+            <p class="subtitle">המדריך האינטראקטיבי והכיפי ללינארית!</p>
+        </header>
+
+        <nav>
+            <button class="active" onclick="showSection('intro')">מה זה מרחב?</button>
+            <button onclick="showSection('rules')">8 החוקים</button>
+            <button onclick="showSection('dimension')">מימד</button>
+            <button onclick="showSection('subspace')">תת-מרחב</button>
+            <button onclick="showSection('examples')">דוגמאות</button>
+        </nav>
+
+        <!-- Section 1: Introduction -->
+        <section id="intro" class="section active">
+            <h2><span class="emoji">🚀</span> מה זה מרחב וקטורי?</h2>
+
+            <p>דמיינו שיש לכם קופסה קסומה. בקופסה הזו יש חוקים מיוחדים - אתם יכולים לקחת דברים מתוכה, לחבר אותם, לכפול אותם במספרים, והתוצאה תמיד תישאר בתוך הקופסה!</p>
+
+            <div class="visual-box">
+                <h3>מרחב וקטורי = קבוצה + פעולות + חוקים</h3>
+                <div class="coord-system">
+                    <svg viewBox="0 0 300 300">
+                        <!-- Axes -->
+                        <line x1="150" y1="280" x2="150" y2="20" class="axis"/>
+                        <line x1="20" y1="150" x2="280" y2="150" class="axis"/>
+                        <!-- Arrows on axes -->
+                        <polygon points="150,20 145,35 155,35" fill="#48dbfb"/>
+                        <polygon points="280,150 265,145 265,155" fill="#48dbfb"/>
+                        <!-- Vectors -->
+                        <line x1="150" y1="150" x2="220" y2="80" class="vector vector1"/>
+                        <line x1="150" y1="150" x2="100" y2="90" class="vector vector2"/>
+                        <line x1="150" y1="150" x2="230" y2="180" class="vector vector3"/>
+                        <!-- Labels -->
+                        <text x="285" y="155" fill="#48dbfb" font-size="14">x</text>
+                        <text x="155" y="15" fill="#48dbfb" font-size="14">y</text>
+                    </svg>
+                </div>
+                <p>כל החצים האלה הם וקטורים - אפשר לחבר אותם ולכפול בסקלרים!</p>
+            </div>
+
+            <h3>בפשטות:</h3>
+            <p><strong>מרחב וקטורי</strong> הוא קבוצה של "דברים" (וקטורים) שאפשר:</p>
+            <ul style="margin: 15px 30px; line-height: 2;">
+                <li>לחבר שני וקטורים ולקבל וקטור חדש (שגם הוא במרחב)</li>
+                <li>לכפול וקטור במספר (סקלר) ולקבל וקטור חדש (שגם הוא במרחב)</li>
+            </ul>
+
+            <div class="example-box">
+                <h4>דוגמה קלאסית: R²</h4>
+                <p>המישור! כל נקודה (x, y) היא וקטור.</p>
+                <p>נחבר: (1, 2) + (3, 4) = (4, 6) ✓ עדיין במישור!</p>
+                <p>נכפול: 3 × (1, 2) = (3, 6) ✓ עדיין במישור!</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Rules -->
+        <section id="rules" class="section">
+            <h2><span class="emoji">📜</span> 8 החוקים של מרחב וקטורי</h2>
+
+            <p>כדי שקבוצה תהיה מרחב וקטורי, היא חייבת לקיים 8 חוקים (אקסיומות). בלי אפילו אחד מהם - זה לא מרחב וקטורי!</p>
+
+            <div class="rules-container">
+                <div class="rule-card">
+                    <span class="number">1</span>
+                    <span class="title">סגירות לחיבור</span>
+                    <p>חיבור שני וקטורים נותן וקטור שגם הוא במרחב</p>
+                    <div class="formula">u + v ∈ V</div>
+                </div>
+
+                <div class="rule-card">
+                    <span class="number">2</span>
+                    <span class="title">קומוטטיביות (חילוף)</span>
+                    <p>סדר החיבור לא משנה</p>
+                    <div class="formula">u + v = v + u</div>
+                </div>
+
+                <div class="rule-card">
+                    <span class="number">3</span>
+                    <span class="title">אסוציאטיביות (קיבוץ)</span>
+                    <p>אפשר לקבץ איך שרוצים</p>
+                    <div class="formula">(u + v) + w = u + (v + w)</div>
+                </div>
+
+                <div class="rule-card">
+                    <span class="number">4</span>
+                    <span class="title">איבר אפס (נייטרלי)</span>
+                    <p>יש וקטור אפס שלא משנה כלום</p>
+                    <div class="formula">v + 0 = v</div>
+                </div>
+
+                <div class="rule-card">
+                    <span class="number">5</span>
+                    <span class="title">איבר נגדי</span>
+                    <p>לכל וקטור יש "מינוס" שמבטל אותו</p>
+                    <div class="formula">v + (-v) = 0</div>
+                </div>
+
+                <div class="rule-card">
+                    <span class="number">6</span>
+                    <span class="title">סגירות לכפל בסקלר</span>
+                    <p>כפל בסקלר נותן וקטור שגם הוא במרחב</p>
+                    <div class="formula">α · v ∈ V</div>
+                </div>
+
+                <div class="rule-card">
+                    <span class="number">7</span>
+                    <span class="title">פילוג על וקטורים</span>
+                    <p>סקלר כפול סכום = סכום הכפולות</p>
+                    <div class="formula">α(u + v) = αu + αv</div>
+                </div>
+
+                <div class="rule-card">
+                    <span class="number">8</span>
+                    <span class="title">פילוג על סקלרים + יחידה</span>
+                    <p>סכום סקלרים כפול וקטור, ו-1 לא משנה</p>
+                    <div class="formula">(α + β)v = αv + βv, 1·v = v</div>
+                </div>
+            </div>
+
+            <div class="visual-box">
+                <h3>טיפ לזכירה!</h3>
+                <p>4 חוקים על חיבור, 4 חוקים על כפל בסקלר</p>
+                <p style="font-size: 2em; margin-top: 15px;">4️⃣ ➕ 4️⃣ = 8️⃣</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Dimension -->
+        <section id="dimension" class="section">
+            <h2><span class="emoji">📐</span> מימד של מרחב וקטורי</h2>
+
+            <p><strong>מימד</strong> הוא מספר הוקטורים הבלתי תלויים שצריך כדי "לכסות" את כל המרחב. במילים אחרות - גודל הבסיס!</p>
+
+            <div class="dimension-visual">
+                <div class="dim-card">
+                    <div class="dim-number">1D</div>
+                    <div class="dim-name">קו (ישר)</div>
+                    <div class="dim-visual">
+                        <div class="line-1d"></div>
+                    </div>
+                    <p>וקטור אחד מספיק</p>
+                    <p style="color: #48dbfb;">dim = 1</p>
+                </div>
+
+                <div class="dim-card">
+                    <div class="dim-number">2D</div>
+                    <div class="dim-name">מישור</div>
+                    <div class="dim-visual">
+                        <div class="plane-2d"></div>
+                    </div>
+                    <p>צריך 2 וקטורים</p>
+                    <p style="color: #48dbfb;">dim = 2</p>
+                </div>
+
+                <div class="dim-card">
+                    <div class="dim-number">3D</div>
+                    <div class="dim-name">מרחב</div>
+                    <div class="dim-visual">
+                        <div class="cube-3d">
+                            <div class="cube-face"></div>
+                            <div class="cube-face"></div>
+                            <div class="cube-face"></div>
+                            <div class="cube-face"></div>
+                            <div class="cube-face"></div>
+                            <div class="cube-face"></div>
+                        </div>
+                    </div>
+                    <p>צריך 3 וקטורים</p>
+                    <p style="color: #48dbfb;">dim = 3</p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>איך מחשבים מימד?</h4>
+                <p>1. מוצאים בסיס למרחב (קבוצה פורשת ובלתי תלויה)</p>
+                <p>2. סופרים כמה וקטורים יש בבסיס</p>
+                <p>3. זה המימד!</p>
+            </div>
+
+            <div class="visual-box">
+                <h3>נוסחה חשובה</h3>
+                <div style="font-size: 1.5em; direction: ltr; margin: 20px;">
+                    dim(V) = |Basis of V|
+                </div>
+                <p>המימד = מספר הוקטורים בבסיס</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Subspace -->
+        <section id="subspace" class="section">
+            <h2><span class="emoji">🎯</span> תת-מרחב וקטורי</h2>
+
+            <p><strong>תת-מרחב</strong> הוא מרחב וקטורי שנמצא בתוך מרחב וקטורי אחר. כמו חדר בתוך בית!</p>
+
+            <div class="visual-box">
+                <h3>3 התנאים לתת-מרחב</h3>
+                <p style="margin-bottom: 20px;">קבוצה W היא תת-מרחב של V אם:</p>
+
+                <div class="check-list">
+                    <div class="check-item">
+                        <div class="check-icon">✓</div>
+                        <div>
+                            <strong>1. וקטור האפס שייך</strong><br>
+                            <span style="color: #a0a0a0;">0 ∈ W (חייב להכיל את האפס!)</span>
+                        </div>
+                    </div>
+
+                    <div class="check-item">
+                        <div class="check-icon">✓</div>
+                        <div>
+                            <strong>2. סגור לחיבור</strong><br>
+                            <span style="color: #a0a0a0;">אם u, v ∈ W אז גם u + v ∈ W</span>
+                        </div>
+                    </div>
+
+                    <div class="check-item">
+                        <div class="check-icon">✓</div>
+                        <div>
+                            <strong>3. סגור לכפל בסקלר</strong><br>
+                            <span style="color: #a0a0a0;">אם v ∈ W וα סקלר, אז גם αv ∈ W</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>למה רק 3 תנאים ולא 8?</h3>
+            <p>כי תת-מרחב יורש את שאר החוקים מהמרחב הגדול! אם V הוא מרחב וקטורי, מספיק לבדוק את 3 התנאים האלה.</p>
+
+            <div class="example-box">
+                <h4>דוגמה: ישר דרך הראשית</h4>
+                <p>הישר y = 2x במישור R² הוא תת-מרחב!</p>
+                <p>✓ האפס (0,0) על הישר</p>
+                <p>✓ חיבור שני וקטורים על הישר נותן וקטור על הישר</p>
+                <p>✓ כפל בסקלר משאיר על הישר</p>
+            </div>
+
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>דוגמה: מה שזה לא תת-מרחב</h4>
+                <p>הישר y = 2x + 1 במישור R² הוא <strong>לא</strong> תת-מרחב!</p>
+                <p>✗ האפס (0,0) לא על הישר! (כי 0 ≠ 2·0 + 1)</p>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="icon">🎯</div>
+                    <h3>טריוויאלי</h3>
+                    <p>{0} תמיד תת-מרחב</p>
+                </div>
+                <div class="summary-card">
+                    <div class="icon">🌐</div>
+                    <h3>כל המרחב</h3>
+                    <p>V הוא תת-מרחב של עצמו</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Examples -->
+        <section id="examples" class="section">
+            <h2><span class="emoji">💡</span> דוגמאות נוספות</h2>
+
+            <h3>מרחבים וקטוריים נפוצים:</h3>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="icon">📊</div>
+                    <h3>Rⁿ</h3>
+                    <p>n-יות סדורות של מספרים ממשיים</p>
+                    <p style="color: #48dbfb;">dim = n</p>
+                </div>
+                <div class="summary-card">
+                    <div class="icon">📐</div>
+                    <h3>Mₘₓₙ</h3>
+                    <p>מטריצות בגודל m×n</p>
+                    <p style="color: #48dbfb;">dim = m·n</p>
+                </div>
+                <div class="summary-card">
+                    <div class="icon">📈</div>
+                    <h3>Pₙ</h3>
+                    <p>פולינומים עד דרגה n</p>
+                    <p style="color: #48dbfb;">dim = n+1</p>
+                </div>
+            </div>
+
+            <h3>בדיקת תת-מרחב - צעד אחר צעד:</h3>
+
+            <div class="example-box">
+                <h4>שאלה: האם W = {(x, y, z) : x + y + z = 0} תת-מרחב של R³?</h4>
+                <p><strong>בדיקה:</strong></p>
+                <p>1️⃣ וקטור אפס: (0,0,0) → 0+0+0=0 ✓</p>
+                <p>2️⃣ סגירות לחיבור: (a,b,c) + (x,y,z) = (a+x, b+y, c+z)</p>
+                <p style="margin-right: 30px;">(a+x)+(b+y)+(c+z) = (a+b+c)+(x+y+z) = 0+0 = 0 ✓</p>
+                <p>3️⃣ סגירות לכפל: α(x,y,z) = (αx, αy, αz)</p>
+                <p style="margin-right: 30px;">αx+αy+αz = α(x+y+z) = α·0 = 0 ✓</p>
+                <p style="color: #00c853; font-size: 1.2em; margin-top: 15px;"><strong>כן! W הוא תת-מרחב של R³</strong></p>
+            </div>
+        </section>
+
+        <footer>
+            <p>בהצלחה בלינארית! 🎓</p>
+        </footer>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            // Remove active from all buttons
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            // Mark button as active
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
