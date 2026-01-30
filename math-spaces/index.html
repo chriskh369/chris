@@ -782,7 +782,7 @@
 
         <!-- Section 5: Examples -->
         <section id="examples" class="section">
-            <h2><span class="emoji">💡</span> דוגמאות נוספות</h2>
+            <h2><span class="emoji">💡</span> דוגמאות מגוונות</h2>
 
             <h3>מרחבים וקטוריים נפוצים:</h3>
 
@@ -805,20 +805,255 @@
                     <p>פולינומים עד דרגה n</p>
                     <p style="color: #48dbfb;">dim = n+1</p>
                 </div>
+                <div class="summary-card">
+                    <div class="icon">🔢</div>
+                    <h3>Cⁿ</h3>
+                    <p>n-יות של מספרים מרוכבים</p>
+                    <p style="color: #48dbfb;">dim = n (מעל C)</p>
+                </div>
             </div>
 
-            <h3>בדיקת תת-מרחב - צעד אחר צעד:</h3>
+            <!-- תת-מרחבים: כן -->
+            <h3 style="color: #00c853;">✅ דוגמאות לתת-מרחבים (כן!):</h3>
 
             <div class="example-box">
-                <h4>שאלה: האם W = {(x, y, z) : x + y + z = 0} תת-מרחב של R³?</h4>
-                <p><strong>בדיקה:</strong></p>
+                <h4>דוגמה 1: מישור ב-R³</h4>
+                <p><strong>W = {(x, y, z) : x + y + z = 0}</strong></p>
                 <p>1️⃣ וקטור אפס: (0,0,0) → 0+0+0=0 ✓</p>
                 <p>2️⃣ סגירות לחיבור: (a,b,c) + (x,y,z) = (a+x, b+y, c+z)</p>
-                <p style="margin-right: 30px;">(a+x)+(b+y)+(c+z) = (a+b+c)+(x+y+z) = 0+0 = 0 ✓</p>
-                <p>3️⃣ סגירות לכפל: α(x,y,z) = (αx, αy, αz)</p>
-                <p style="margin-right: 30px;">αx+αy+αz = α(x+y+z) = α·0 = 0 ✓</p>
-                <p style="color: #00c853; font-size: 1.2em; margin-top: 15px;"><strong>כן! W הוא תת-מרחב של R³</strong></p>
+                <p style="margin-right: 30px;">(a+x)+(b+y)+(c+z) = 0+0 = 0 ✓</p>
+                <p>3️⃣ סגירות לכפל: α(x,y,z) = (αx, αy, αz) → α·0 = 0 ✓</p>
+                <p style="color: #00c853; font-size: 1.1em; margin-top: 10px;"><strong>כן! תת-מרחב ✓</strong></p>
             </div>
+
+            <div class="example-box">
+                <h4>דוגמה 2: ישר דרך הראשית</h4>
+                <p><strong>W = {(t, 2t) : t ∈ R} ⊂ R²</strong></p>
+                <p>זה הישר y = 2x</p>
+                <p>1️⃣ וקטור אפס: t=0 → (0,0) ✓</p>
+                <p>2️⃣ סגירות לחיבור: (t,2t) + (s,2s) = (t+s, 2(t+s)) ✓</p>
+                <p>3️⃣ סגירות לכפל: α(t,2t) = (αt, 2αt) ✓</p>
+                <p style="color: #00c853; font-size: 1.1em; margin-top: 10px;"><strong>כן! תת-מרחב ✓</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h4>דוגמה 3: מטריצות סימטריות</h4>
+                <p><strong>W = {A ∈ M₂ₓ₂ : Aᵀ = A}</strong></p>
+                <p>מטריצות שמקיימות a₁₂ = a₂₁</p>
+                <p>1️⃣ מטריצת האפס סימטרית ✓</p>
+                <p>2️⃣ סכום שתי מטריצות סימטריות = סימטרית ✓</p>
+                <p>3️⃣ כפל סקלר במטריצה סימטרית = סימטרית ✓</p>
+                <p style="color: #00c853; font-size: 1.1em; margin-top: 10px;"><strong>כן! תת-מרחב, dim = 3 ✓</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h4>דוגמה 4: פולינומים ללא מקדם חופשי</h4>
+                <p><strong>W = {p(x) ∈ P₃ : p(0) = 0}</strong></p>
+                <p>פולינומים מהצורה ax³ + bx² + cx (בלי מספר חופשי)</p>
+                <p>1️⃣ פולינום האפס: p(x)=0, p(0)=0 ✓</p>
+                <p>2️⃣ סגירות לחיבור: (p+q)(0) = p(0)+q(0) = 0+0 = 0 ✓</p>
+                <p>3️⃣ סגירות לכפל: (αp)(0) = α·p(0) = α·0 = 0 ✓</p>
+                <p style="color: #00c853; font-size: 1.1em; margin-top: 10px;"><strong>כן! תת-מרחב, dim = 3 ✓</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h4>דוגמה 5: מטריצות אלכסוניות</h4>
+                <p><strong>W = {A ∈ M₃ₓ₃ : aᵢⱼ = 0 כאשר i ≠ j}</strong></p>
+                <p>רק האלכסון הראשי יכול להיות שונה מאפס</p>
+                <p>1️⃣ מטריצת האפס אלכסונית ✓</p>
+                <p>2️⃣ סכום מטריצות אלכסוניות = אלכסונית ✓</p>
+                <p>3️⃣ כפל בסקלר שומר אלכסוניות ✓</p>
+                <p style="color: #00c853; font-size: 1.1em; margin-top: 10px;"><strong>כן! תת-מרחב, dim = 3 ✓</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h4>דוגמה 6: פתרונות מערכת הומוגנית</h4>
+                <p><strong>W = {x ∈ Rⁿ : Ax = 0}</strong></p>
+                <p>קבוצת כל הפתרונות של מערכת הומוגנית (מרחב האפס של A)</p>
+                <p>1️⃣ A·0 = 0 ✓</p>
+                <p>2️⃣ A(u+v) = Au + Av = 0+0 = 0 ✓</p>
+                <p>3️⃣ A(αu) = αAu = α·0 = 0 ✓</p>
+                <p style="color: #00c853; font-size: 1.1em; margin-top: 10px;"><strong>כן! תמיד תת-מרחב ✓</strong></p>
+            </div>
+
+            <!-- תת-מרחבים: לא -->
+            <h3 style="color: #ff6b6b; margin-top: 40px;">❌ דוגמאות למה שזה לא תת-מרחב:</h3>
+
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>דוגמה 1: ישר שלא עובר בראשית</h4>
+                <p><strong>W = {(x, y) : y = 2x + 1}</strong></p>
+                <p>1️⃣ וקטור אפס: (0,0) → 0 ≠ 2·0 + 1 = 1 ✗</p>
+                <p style="color: #ff6b6b; font-size: 1.1em; margin-top: 10px;"><strong>לא! האפס לא בקבוצה ✗</strong></p>
+            </div>
+
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>דוגמה 2: הרבע הראשון</h4>
+                <p><strong>W = {(x, y) ∈ R² : x ≥ 0, y ≥ 0}</strong></p>
+                <p>1️⃣ וקטור אפס: (0,0) ∈ W ✓</p>
+                <p>2️⃣ סגירות לחיבור: (1,1) + (2,3) = (3,4) ∈ W ✓</p>
+                <p>3️⃣ סגירות לכפל: (-1)·(1,1) = (-1,-1) ∉ W ✗</p>
+                <p style="color: #ff6b6b; font-size: 1.1em; margin-top: 10px;"><strong>לא! לא סגור לכפל בסקלר שלילי ✗</strong></p>
+            </div>
+
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>דוגמה 3: וקטורים עם אורך 1</h4>
+                <p><strong>W = {v ∈ R² : ||v|| = 1}</strong></p>
+                <p>מעגל היחידה</p>
+                <p>1️⃣ וקטור אפס: ||(0,0)|| = 0 ≠ 1 ✗</p>
+                <p style="color: #ff6b6b; font-size: 1.1em; margin-top: 10px;"><strong>לא! האפס לא בקבוצה ✗</strong></p>
+            </div>
+
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>דוגמה 4: פתרונות מערכת לא הומוגנית</h4>
+                <p><strong>W = {x ∈ Rⁿ : Ax = b} כאשר b ≠ 0</strong></p>
+                <p>1️⃣ וקטור אפס: A·0 = 0 ≠ b ✗</p>
+                <p style="color: #ff6b6b; font-size: 1.1em; margin-top: 10px;"><strong>לא! האפס לא פתרון ✗</strong></p>
+            </div>
+
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>דוגמה 5: מטריצות הפיכות</h4>
+                <p><strong>W = {A ∈ Mₙₓₙ : det(A) ≠ 0}</strong></p>
+                <p>1️⃣ מטריצת האפס: det(0) = 0, לא הפיכה ✗</p>
+                <p style="color: #ff6b6b; font-size: 1.1em; margin-top: 10px;"><strong>לא! מטריצת האפס לא בקבוצה ✗</strong></p>
+            </div>
+
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>דוגמה 6: פולינומים עם מקדם חופשי 1</h4>
+                <p><strong>W = {p(x) ∈ P₂ : p(0) = 1}</strong></p>
+                <p>פולינומים מהצורה ax² + bx + 1</p>
+                <p>1️⃣ פולינום האפס: 0(0) = 0 ≠ 1 ✗</p>
+                <p style="color: #ff6b6b; font-size: 1.1em; margin-top: 10px;"><strong>לא! פולינום האפס לא בקבוצה ✗</strong></p>
+            </div>
+
+            <div class="example-box" style="border-color: #ff6b6b;">
+                <h4>דוגמה 7: מספרים שלמים</h4>
+                <p><strong>W = Z (המספרים השלמים)</strong></p>
+                <p>1️⃣ וקטור אפס: 0 ∈ Z ✓</p>
+                <p>2️⃣ סגירות לחיבור: 2 + 3 = 5 ∈ Z ✓</p>
+                <p>3️⃣ סגירות לכפל: 0.5 · 2 = 1 ∈ Z ✓, אבל 0.5 · 3 = 1.5 ∉ Z ✗</p>
+                <p style="color: #ff6b6b; font-size: 1.1em; margin-top: 10px;"><strong>לא! לא סגור לכפל בכל סקלר ✗</strong></p>
+            </div>
+
+            <!-- חישוב מימד -->
+            <h3 style="color: #feca57; margin-top: 40px;">📐 דוגמאות לחישוב מימד:</h3>
+
+            <div class="example-box">
+                <h4>דוגמה 1: מימד של R³</h4>
+                <p><strong>בסיס סטנדרטי:</strong> {(1,0,0), (0,1,0), (0,0,1)}</p>
+                <p>3 וקטורים בבסיס → <strong style="color: #48dbfb;">dim(R³) = 3</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h4>דוגמה 2: מימד של מטריצות 2×2</h4>
+                <p><strong>בסיס:</strong></p>
+                <p style="direction: ltr; text-align: center; font-family: monospace;">
+                    [1 0]  [0 1]  [0 0]  [0 0]<br>
+                    [0 0], [0 0], [1 0], [0 1]
+                </p>
+                <p>4 מטריצות בבסיס → <strong style="color: #48dbfb;">dim(M₂ₓ₂) = 4</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h4>דוגמה 3: מימד של P₂ (פולינומים עד דרגה 2)</h4>
+                <p><strong>בסיס:</strong> {1, x, x²}</p>
+                <p>3 פולינומים בבסיס → <strong style="color: #48dbfb;">dim(P₂) = 3</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h4>דוגמה 4: מימד של תת-מרחב</h4>
+                <p><strong>W = {(x,y,z) : x + y + z = 0} ⊂ R³</strong></p>
+                <p>מציאת בסיס: z = -x-y, אז (x, y, -x-y) = x(1,0,-1) + y(0,1,-1)</p>
+                <p><strong>בסיס:</strong> {(1,0,-1), (0,1,-1)}</p>
+                <p>2 וקטורים בבסיס → <strong style="color: #48dbfb;">dim(W) = 2</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h4>דוגמה 5: מימד של מטריצות סימטריות 2×2</h4>
+                <p><strong>צורה כללית:</strong></p>
+                <p style="direction: ltr; text-align: center; font-family: monospace;">
+                    [a b]<br>
+                    [b c]
+                </p>
+                <p><strong>בסיס:</strong></p>
+                <p style="direction: ltr; text-align: center; font-family: monospace;">
+                    [1 0]  [0 1]  [0 0]<br>
+                    [0 0], [1 0], [0 1]
+                </p>
+                <p>3 מטריצות בבסיס → <strong style="color: #48dbfb;">dim = 3</strong></p>
+            </div>
+
+            <!-- טבלת סיכום -->
+            <h3 style="color: #ff9ff3; margin-top: 40px;">📋 טבלת סיכום מהירה:</h3>
+
+            <div class="visual-box">
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <tr style="background: rgba(255,255,255,0.1);">
+                        <th style="padding: 15px; border: 1px solid rgba(255,255,255,0.2);">מרחב</th>
+                        <th style="padding: 15px; border: 1px solid rgba(255,255,255,0.2);">מימד</th>
+                        <th style="padding: 15px; border: 1px solid rgba(255,255,255,0.2);">בסיס סטנדרטי</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">Rⁿ</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2); color: #48dbfb;">n</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">e₁, e₂, ..., eₙ</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">Mₘₓₙ</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2); color: #48dbfb;">m·n</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">Eᵢⱼ (1 במקום i,j)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">Pₙ</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2); color: #48dbfb;">n+1</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">1, x, x², ..., xⁿ</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">מטריצות סימטריות nxn</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2); color: #48dbfb;">n(n+1)/2</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">Eᵢᵢ, Eᵢⱼ+Eⱼᵢ</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">מטריצות אלכסוניות nxn</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2); color: #48dbfb;">n</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">E₁₁, E₂₂, ..., Eₙₙ</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">{0}</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2); color: #48dbfb;">0</td>
+                        <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.2);">∅ (קבוצה ריקה)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- טיפים -->
+            <h3 style="color: #69f0ae; margin-top: 40px;">💡 טיפים חשובים:</h3>
+
+            <div class="rules-container">
+                <div class="rule-card" style="border-color: #69f0ae;">
+                    <span class="number" style="background: linear-gradient(45deg, #00c853, #69f0ae);">!</span>
+                    <span class="title">בדיקה מהירה לתת-מרחב</span>
+                    <p>אם האפס לא בקבוצה - זה בטוח לא תת-מרחב! תמיד תבדקו את זה קודם.</p>
+                </div>
+
+                <div class="rule-card" style="border-color: #69f0ae;">
+                    <span class="number" style="background: linear-gradient(45deg, #00c853, #69f0ae);">!</span>
+                    <span class="title">משוואה הומוגנית = תת-מרחב</span>
+                    <p>אם הקבוצה מוגדרת על ידי משוואה שהאפס מקיים (כמו x+y+z=0) - סיכוי טוב שזה תת-מרחב.</p>
+                </div>
+
+                <div class="rule-card" style="border-color: #69f0ae;">
+                    <span class="number" style="background: linear-gradient(45deg, #00c853, #69f0ae);">!</span>
+                    <span class="title">אי-שוויונות = בעיה</span>
+                    <p>אם יש אי-שוויון בהגדרה (כמו x ≥ 0) - כנראה לא תת-מרחב בגלל כפל בסקלר שלילי.</p>
+                </div>
+
+                <div class="rule-card" style="border-color: #69f0ae;">
+                    <span class="number" style="background: linear-gradient(45deg, #00c853, #69f0ae);">!</span>
+                    <span class="title">קבוע ≠ 0 = בעיה</span>
+                    <p>אם יש קבוע שונה מאפס בהגדרה (כמו x+y=1) - האפס לא יקיים את זה.</p>
+                </div>
+            </div>
+
         </section>
 
         <footer>
