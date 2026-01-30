@@ -93,30 +93,120 @@
         nav {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 25px;
             margin: 30px 0;
             flex-wrap: wrap;
         }
 
-        nav button {
-            padding: 12px 25px;
+        .nav-group {
+            position: relative;
+        }
+
+        .nav-main-btn {
+            padding: 18px 40px;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
-            font-size: 1em;
+            font-size: 1.3em;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        nav button:hover {
+        .nav-main-btn::after {
+            content: '▼';
+            font-size: 0.7em;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-main-btn.open::after {
+            transform: rotate(180deg);
+        }
+
+        .nav-main-btn:hover {
             transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 10px 35px rgba(102, 126, 234, 0.7);
         }
 
-        nav button.active {
-            background: linear-gradient(45deg, #ff6b6b, #feca57);
+        .nav-main-btn.matrices-btn {
+            background: linear-gradient(45deg, #e17055, #d63031);
+        }
+
+        .nav-main-btn.matrices-btn:hover {
+            box-shadow: 0 10px 35px rgba(225, 112, 85, 0.7);
+        }
+
+        .nav-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            background: rgba(20, 20, 50, 0.98);
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 15px;
+            min-width: 220px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            animation: dropdownFade 0.3s ease;
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateX(50%) translateY(-10px); }
+            to { opacity: 1; transform: translateX(50%) translateY(0); }
+        }
+
+        .nav-dropdown.show {
+            display: block;
+        }
+
+        .nav-dropdown button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: 1.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+        }
+
+        .nav-dropdown button:hover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-dropdown button.active {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+        }
+
+        .nav-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            right: 50%;
+            transform: translateX(50%);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 12px solid rgba(20, 20, 50, 0.98);
+        }
+
+        .dropdown-icon {
+            font-size: 1.2em;
         }
 
         /* Sections */
@@ -530,12 +620,47 @@
         </header>
 
         <nav>
-            <button class="active" onclick="showSection('intro')">מה זה מרחב?</button>
-            <button onclick="showSection('rules')">8 החוקים</button>
-            <button onclick="showSection('dimension')">מימד</button>
-            <button onclick="showSection('subspace')">תת-מרחב</button>
-            <button onclick="showSection('examples')">דוגמאות</button>
-            <button onclick="showSection('matrices')" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">מטריצות</button>
+            <!-- מרחב וקטורי -->
+            <div class="nav-group">
+                <button class="nav-main-btn" onclick="toggleDropdown('vectorDropdown', this)">
+                    מרחב וקטורי
+                </button>
+                <div id="vectorDropdown" class="nav-dropdown">
+                    <button onclick="showSection('intro', this)">
+                        <span class="dropdown-icon">🚀</span> מה זה מרחב?
+                    </button>
+                    <button onclick="showSection('rules', this)">
+                        <span class="dropdown-icon">📜</span> 8 החוקים
+                    </button>
+                    <button onclick="showSection('dimension', this)">
+                        <span class="dropdown-icon">📐</span> מימד
+                    </button>
+                    <button onclick="showSection('subspace', this)">
+                        <span class="dropdown-icon">🎯</span> תת-מרחב
+                    </button>
+                    <button onclick="showSection('examples', this)">
+                        <span class="dropdown-icon">💡</span> דוגמאות
+                    </button>
+                </div>
+            </div>
+
+            <!-- מטריצות -->
+            <div class="nav-group">
+                <button class="nav-main-btn matrices-btn" onclick="toggleDropdown('matricesDropdown', this)">
+                    מטריצות
+                </button>
+                <div id="matricesDropdown" class="nav-dropdown">
+                    <button onclick="showSection('matrices-intro', this)">
+                        <span class="dropdown-icon">📖</span> הסברים
+                    </button>
+                    <button onclick="showSection('matrices-examples', this)">
+                        <span class="dropdown-icon">💡</span> דוגמאות
+                    </button>
+                    <button onclick="showSection('matrices-exercises', this)">
+                        <span class="dropdown-icon">✏️</span> תרגילים
+                    </button>
+                </div>
+            </div>
         </nav>
 
         <!-- Section 1: Introduction -->
@@ -1057,9 +1182,9 @@
 
         </section>
 
-        <!-- Section 6: Matrices -->
-        <section id="matrices" class="section">
-            <h2><span class="emoji">🔢</span> מטריצות - המדריך המלא</h2>
+        <!-- Section 6: Matrices - Intro -->
+        <section id="matrices-intro" class="section">
+            <h2><span class="emoji">📖</span> מטריצות - הסברים</h2>
 
             <p><strong>מטריצה</strong> היא טבלה מסודרת של מספרים עם שורות ועמודות. זה כמו אקסל מתמטי!</p>
 
@@ -1327,8 +1452,14 @@
                 </div>
             </div>
 
+        </section>
+
+        <!-- Section 7: Matrices - Examples -->
+        <section id="matrices-examples" class="section">
+            <h2><span class="emoji">💡</span> מטריצות - דוגמאות</h2>
+
             <!-- Matrix Multiplication -->
-            <h3 style="color: #e17055; margin-top: 40px;">✖️ כפל מטריצות - הנושא החשוב!</h3>
+            <h3 style="color: #e17055; margin-top: 20px;">✖️ כפל מטריצות - הנושא החשוב!</h3>
 
             <div class="visual-box" style="background: linear-gradient(135deg, rgba(225,112,85,0.2), rgba(253,121,168,0.2));">
                 <h4>⚠️ מתי אפשר לכפול?</h4>
@@ -1555,22 +1686,223 @@
 
         </section>
 
+        <!-- Section 8: Matrices - Exercises -->
+        <section id="matrices-exercises" class="section">
+            <h2><span class="emoji">✏️</span> מטריצות - תרגילים</h2>
+
+            <p>תרגלו את הנושאים! לחצו על "הצג פתרון" לאחר שניסיתם לפתור.</p>
+
+            <!-- Exercise 1: Addition -->
+            <div class="example-box" style="border-color: #9c88ff;">
+                <h4>תרגיל 1: חיבור מטריצות</h4>
+                <p>חשבו את A + B:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [3 -1 4]&nbsp;&nbsp;&nbsp; B = [2 5 -1]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[2 0 5]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[-3 1 2]
+                </div>
+                <button onclick="toggleSolution('sol1')" style="background: linear-gradient(45deg, #9c88ff, #a29bfe); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol1" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        A + B = [3+2 &nbsp; -1+5 &nbsp; 4+(-1)]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[2+(-3) &nbsp; 0+1 &nbsp; 5+2]<br><br>
+                        = [<span style="color: #00c853;">5 &nbsp; 4 &nbsp; 3</span>]<br>
+                        &nbsp;&nbsp;[<span style="color: #00c853;">-1 &nbsp; 1 &nbsp; 7</span>]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise 2: Scalar Multiplication -->
+            <div class="example-box" style="border-color: #fd79a8;">
+                <h4>תרגיל 2: כפל בסקלר</h4>
+                <p>חשבו את 4A:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [2 -3]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[1 5]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[-2 0]
+                </div>
+                <button onclick="toggleSolution('sol2')" style="background: linear-gradient(45deg, #fd79a8, #ff6b6b); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol2" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        4A = [4×2 &nbsp; 4×(-3)]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[4×1 &nbsp; 4×5]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[4×(-2) &nbsp; 4×0]<br><br>
+                        = [<span style="color: #00c853;">8 &nbsp; -12</span>]<br>
+                        &nbsp;&nbsp;[<span style="color: #00c853;">4 &nbsp; 20</span>]<br>
+                        &nbsp;&nbsp;[<span style="color: #00c853;">-8 &nbsp; 0</span>]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise 3: Matrix Multiplication -->
+            <div class="example-box" style="border-color: #e17055;">
+                <h4>תרגיל 3: כפל מטריצות</h4>
+                <p>חשבו את A·B:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [1 2]&nbsp;&nbsp;&nbsp; B = [5 -1 3]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[3 4]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[2 0 -2]
+                </div>
+                <button onclick="toggleSolution('sol3')" style="background: linear-gradient(45deg, #e17055, #d63031); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol3" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <p>בדיקת תאימות: A הוא 2×<strong>2</strong>, B הוא <strong>2</strong>×3 ✓</p>
+                    <p>התוצאה תהיה מסדר 2×3</p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace; margin: 10px;">
+                        c₁₁ = 1×5 + 2×2 = 5 + 4 = <span style="color: #feca57;">9</span><br>
+                        c₁₂ = 1×(-1) + 2×0 = -1 + 0 = <span style="color: #feca57;">-1</span><br>
+                        c₁₃ = 1×3 + 2×(-2) = 3 - 4 = <span style="color: #feca57;">-1</span><br>
+                        c₂₁ = 3×5 + 4×2 = 15 + 8 = <span style="color: #feca57;">23</span><br>
+                        c₂₂ = 3×(-1) + 4×0 = -3 + 0 = <span style="color: #feca57;">-3</span><br>
+                        c₂₃ = 3×3 + 4×(-2) = 9 - 8 = <span style="color: #feca57;">1</span>
+                    </div>
+                    <div style="direction: ltr; text-align: center; font-family: monospace; margin-top: 15px;">
+                        A·B = [<span style="color: #00c853;">9 &nbsp; -1 &nbsp; -1</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #00c853;">23 &nbsp; -3 &nbsp; 1</span>]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise 4: Transpose -->
+            <div class="example-box" style="border-color: #00b894;">
+                <h4>תרגיל 4: מטריצה משוחלפת</h4>
+                <p>מצאו את A<sup>t</sup>:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [1 2 3]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[4 5 6]
+                </div>
+                <button onclick="toggleSolution('sol4')" style="background: linear-gradient(45deg, #00b894, #00cec9); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol4" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <p>A הוא מסדר 2×3, אז A<sup>t</sup> יהיה מסדר 3×2</p>
+                    <p>שורות הופכות לעמודות:</p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace; margin-top: 10px;">
+                        A<sup>t</sup> = [<span style="color: #00c853;">1 &nbsp; 4</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #00c853;">2 &nbsp; 5</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #00c853;">3 &nbsp; 6</span>]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise 5: Find Variables -->
+            <div class="example-box" style="border-color: #feca57;">
+                <h4>תרגיל 5: מציאת משתנים</h4>
+                <p>מצאו את x ו-y כך שהמטריצות שוות:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    [2x+1 &nbsp; 5]&nbsp;&nbsp;=&nbsp;&nbsp;[7 &nbsp; 5]<br>
+                    [3 &nbsp; y-4]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[3 &nbsp; 2]
+                </div>
+                <button onclick="toggleSolution('sol5')" style="background: linear-gradient(45deg, #feca57, #ff9f43); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol5" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <p>משוואת האיברים:</p>
+                    <p>• 2x + 1 = 7 → 2x = 6 → <strong style="color: #00c853;">x = 3</strong></p>
+                    <p>• y - 4 = 2 → <strong style="color: #00c853;">y = 6</strong></p>
+                </div>
+            </div>
+
+            <!-- Exercise 6: Check Multiplication -->
+            <div class="example-box" style="border-color: #74b9ff;">
+                <h4>תרגיל 6: בדיקת תאימות כפל</h4>
+                <p>עבור כל זוג מטריצות, קבעו האם ניתן לחשב A·B ו/או B·A:</p>
+                <p>א. A<sub>3×2</sub>, B<sub>2×4</sub></p>
+                <p>ב. A<sub>2×3</sub>, B<sub>2×3</sub></p>
+                <p>ג. A<sub>4×4</sub>, B<sub>4×4</sub></p>
+                <button onclick="toggleSolution('sol6')" style="background: linear-gradient(45deg, #74b9ff, #0984e3); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol6" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <p><strong>א.</strong> A<sub>3×<span style="color:#feca57;">2</span></sub> · B<sub><span style="color:#feca57;">2</span>×4</sub> = C<sub>3×4</sub> <span style="color: #00c853;">✓ אפשרי</span></p>
+                    <p>&nbsp;&nbsp;&nbsp;B<sub>2×<span style="color:#ff6b6b;">4</span></sub> · A<sub><span style="color:#ff6b6b;">3</span>×2</sub> <span style="color: #ff6b6b;">✗ לא אפשרי (4≠3)</span></p>
+                    <br>
+                    <p><strong>ב.</strong> A<sub>2×<span style="color:#ff6b6b;">3</span></sub> · B<sub><span style="color:#ff6b6b;">2</span>×3</sub> <span style="color: #ff6b6b;">✗ לא אפשרי (3≠2)</span></p>
+                    <p>&nbsp;&nbsp;&nbsp;B<sub>2×<span style="color:#ff6b6b;">3</span></sub> · A<sub><span style="color:#ff6b6b;">2</span>×3</sub> <span style="color: #ff6b6b;">✗ לא אפשרי (3≠2)</span></p>
+                    <br>
+                    <p><strong>ג.</strong> A<sub>4×<span style="color:#feca57;">4</span></sub> · B<sub><span style="color:#feca57;">4</span>×4</sub> = C<sub>4×4</sub> <span style="color: #00c853;">✓ אפשרי</span></p>
+                    <p>&nbsp;&nbsp;&nbsp;B<sub>4×<span style="color:#feca57;">4</span></sub> · A<sub><span style="color:#feca57;">4</span>×4</sub> = C<sub>4×4</sub> <span style="color: #00c853;">✓ אפשרי</span></p>
+                    <p style="color: #a0a0a0; margin-top: 10px;">(מטריצות ריבועיות מאותו סדר תמיד ניתן לכפול בשני הכיוונים!)</p>
+                </div>
+            </div>
+
+        </section>
+
         <footer>
             <p>בהצלחה בלינארית! 🎓</p>
         </footer>
     </div>
 
     <script>
-        function showSection(sectionId) {
+        function toggleDropdown(dropdownId, btn) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('.nav-dropdown');
+            const allMainBtns = document.querySelectorAll('.nav-main-btn');
+
+            // Close all other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.remove('show');
+                }
+            });
+            allMainBtns.forEach(b => {
+                if (b !== btn) {
+                    b.classList.remove('open');
+                }
+            });
+
+            // Toggle current dropdown
+            dropdown.classList.toggle('show');
+            btn.classList.toggle('open');
+        }
+
+        function showSection(sectionId, btn) {
             // Hide all sections
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            // Remove active from all buttons
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            // Remove active from all dropdown buttons
+            document.querySelectorAll('.nav-dropdown button').forEach(b => b.classList.remove('active'));
 
             // Show selected section
-            document.getElementById(sectionId).classList.add('active');
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+            }
+
             // Mark button as active
-            event.target.classList.add('active');
+            if (btn) {
+                btn.classList.add('active');
+            }
+
+            // Scroll to section
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.nav-group')) {
+                document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('show'));
+                document.querySelectorAll('.nav-main-btn').forEach(b => b.classList.remove('open'));
+            }
+        });
+
+        // Toggle solution visibility
+        function toggleSolution(solutionId) {
+            const solution = document.getElementById(solutionId);
+            if (solution.style.display === 'none') {
+                solution.style.display = 'block';
+                solution.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                solution.style.display = 'none';
+            }
         }
     </script>
 </body>
