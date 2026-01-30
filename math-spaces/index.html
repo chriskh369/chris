@@ -622,23 +622,23 @@
         <nav>
             <!-- מרחב וקטורי -->
             <div class="nav-group">
-                <button class="nav-main-btn" onclick="toggleDropdown('vectorDropdown', this)">
+                <button class="nav-main-btn" onclick="toggleDropdown('vectorDropdown', this, event)">
                     מרחב וקטורי
                 </button>
                 <div id="vectorDropdown" class="nav-dropdown">
-                    <button onclick="showSection('intro', this)">
+                    <button onclick="showSection('intro', this, event)">
                         <span class="dropdown-icon">🚀</span> מה זה מרחב?
                     </button>
-                    <button onclick="showSection('rules', this)">
+                    <button onclick="showSection('rules', this, event)">
                         <span class="dropdown-icon">📜</span> 8 החוקים
                     </button>
-                    <button onclick="showSection('dimension', this)">
+                    <button onclick="showSection('dimension', this, event)">
                         <span class="dropdown-icon">📐</span> מימד
                     </button>
-                    <button onclick="showSection('subspace', this)">
+                    <button onclick="showSection('subspace', this, event)">
                         <span class="dropdown-icon">🎯</span> תת-מרחב
                     </button>
-                    <button onclick="showSection('examples', this)">
+                    <button onclick="showSection('examples', this, event)">
                         <span class="dropdown-icon">💡</span> דוגמאות
                     </button>
                 </div>
@@ -646,17 +646,17 @@
 
             <!-- מטריצות -->
             <div class="nav-group">
-                <button class="nav-main-btn matrices-btn" onclick="toggleDropdown('matricesDropdown', this)">
+                <button class="nav-main-btn matrices-btn" onclick="toggleDropdown('matricesDropdown', this, event)">
                     מטריצות
                 </button>
                 <div id="matricesDropdown" class="nav-dropdown">
-                    <button onclick="showSection('matrices-intro', this)">
+                    <button onclick="showSection('matrices-intro', this, event)">
                         <span class="dropdown-icon">📖</span> הסברים
                     </button>
-                    <button onclick="showSection('matrices-examples', this)">
+                    <button onclick="showSection('matrices-examples', this, event)">
                         <span class="dropdown-icon">💡</span> דוגמאות
                     </button>
-                    <button onclick="showSection('matrices-exercises', this)">
+                    <button onclick="showSection('matrices-exercises', this, event)">
                         <span class="dropdown-icon">✏️</span> תרגילים
                     </button>
                 </div>
@@ -1843,7 +1843,9 @@
     </div>
 
     <script>
-        function toggleDropdown(dropdownId, btn) {
+        function toggleDropdown(dropdownId, btn, event) {
+            event.stopPropagation();
+
             const dropdown = document.getElementById(dropdownId);
             const allDropdowns = document.querySelectorAll('.nav-dropdown');
             const allMainBtns = document.querySelectorAll('.nav-main-btn');
@@ -1865,7 +1867,9 @@
             btn.classList.toggle('open');
         }
 
-        function showSection(sectionId, btn) {
+        function showSection(sectionId, btn, event) {
+            if (event) event.stopPropagation();
+
             // Hide all sections
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             // Remove active from all dropdown buttons
@@ -1881,6 +1885,10 @@
             if (btn) {
                 btn.classList.add('active');
             }
+
+            // Close all dropdowns after selection
+            document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('show'));
+            document.querySelectorAll('.nav-main-btn').forEach(b => b.classList.remove('open'));
 
             // Scroll to section
             window.scrollTo({ top: 300, behavior: 'smooth' });
