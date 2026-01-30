@@ -1692,6 +1692,10 @@
 
             <p>תרגלו את הנושאים! לחצו על "הצג פתרון" לאחר שניסיתם לפתור.</p>
 
+            <!-- ==================== EASY EXERCISES ==================== -->
+            <div style="background: linear-gradient(135deg, rgba(0,200,83,0.1), rgba(0,206,201,0.1)); border-radius: 20px; padding: 25px; margin: 30px 0; border: 2px solid rgba(0,200,83,0.3);">
+                <h3 style="color: #00c853; margin-bottom: 20px;">🌱 תרגילים קלים</h3>
+
             <!-- Exercise 1: Addition -->
             <div class="example-box" style="border-color: #9c88ff;">
                 <h4>תרגיל 1: חיבור מטריצות</h4>
@@ -1738,6 +1742,52 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Easy Exercise 3: Transpose Simple -->
+            <div class="example-box" style="border-color: #00b894;">
+                <h4>תרגיל 3: שחלוף פשוט</h4>
+                <p>מצאו את A<sup>t</sup>:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [1 2]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[3 4]
+                </div>
+                <button onclick="toggleSolution('sol_e3')" style="background: linear-gradient(45deg, #00b894, #00cec9); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol_e3" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong> מחליפים שורות בעמודות</p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        A<sup>t</sup> = [<span style="color: #00c853;">1 &nbsp; 3</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #00c853;">2 &nbsp; 4</span>]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Easy Exercise 4: Matrix Order -->
+            <div class="example-box" style="border-color: #74b9ff;">
+                <h4>תרגיל 4: סדר מטריצה</h4>
+                <p>מהו סדר המטריצה הבאה?</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [5 2 -1 0]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[3 7 4 2]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[1 0 8 -3]
+                </div>
+                <button onclick="toggleSolution('sol_e4')" style="background: linear-gradient(45deg, #74b9ff, #0984e3); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol_e4" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <p>מספר שורות: <span style="color: #ff6b6b;">3</span></p>
+                    <p>מספר עמודות: <span style="color: #48dbfb;">4</span></p>
+                    <p>סדר המטריצה: <strong style="color: #00c853;">3×4</strong></p>
+                </div>
+            </div>
+
+            </div> <!-- End Easy Section -->
+
+            <!-- ==================== MEDIUM EXERCISES ==================== -->
+            <div style="background: linear-gradient(135deg, rgba(254,202,87,0.1), rgba(255,159,67,0.1)); border-radius: 20px; padding: 25px; margin: 30px 0; border: 2px solid rgba(254,202,87,0.3);">
+                <h3 style="color: #feca57; margin-bottom: 20px;">🌿 תרגילים בינוניים</h3>
 
             <!-- Exercise 3: Matrix Multiplication -->
             <div class="example-box" style="border-color: #e17055;">
@@ -1792,18 +1842,18 @@
                 </div>
             </div>
 
-            <!-- Exercise 5: Find Variables -->
+            <!-- Medium Exercise: Find Variables -->
             <div class="example-box" style="border-color: #feca57;">
-                <h4>תרגיל 5: מציאת משתנים</h4>
+                <h4>תרגיל 6: מציאת משתנים</h4>
                 <p>מצאו את x ו-y כך שהמטריצות שוות:</p>
                 <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
                     [2x+1 &nbsp; 5]&nbsp;&nbsp;=&nbsp;&nbsp;[7 &nbsp; 5]<br>
                     [3 &nbsp; y-4]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[3 &nbsp; 2]
                 </div>
-                <button onclick="toggleSolution('sol5')" style="background: linear-gradient(45deg, #feca57, #ff9f43); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                <button onclick="toggleSolution('sol_m1')" style="background: linear-gradient(45deg, #feca57, #ff9f43); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
                     הצג פתרון
                 </button>
-                <div id="sol5" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                <div id="sol_m1" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
                     <p><strong>פתרון:</strong></p>
                     <p>משוואת האיברים:</p>
                     <p>• 2x + 1 = 7 → 2x = 6 → <strong style="color: #00c853;">x = 3</strong></p>
@@ -1811,17 +1861,17 @@
                 </div>
             </div>
 
-            <!-- Exercise 6: Check Multiplication -->
+            <!-- Medium Exercise: Check Multiplication -->
             <div class="example-box" style="border-color: #74b9ff;">
-                <h4>תרגיל 6: בדיקת תאימות כפל</h4>
+                <h4>תרגיל 7: בדיקת תאימות כפל</h4>
                 <p>עבור כל זוג מטריצות, קבעו האם ניתן לחשב A·B ו/או B·A:</p>
                 <p>א. A<sub>3×2</sub>, B<sub>2×4</sub></p>
                 <p>ב. A<sub>2×3</sub>, B<sub>2×3</sub></p>
                 <p>ג. A<sub>4×4</sub>, B<sub>4×4</sub></p>
-                <button onclick="toggleSolution('sol6')" style="background: linear-gradient(45deg, #74b9ff, #0984e3); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                <button onclick="toggleSolution('sol_m2')" style="background: linear-gradient(45deg, #74b9ff, #0984e3); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
                     הצג פתרון
                 </button>
-                <div id="sol6" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                <div id="sol_m2" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
                     <p><strong>פתרון:</strong></p>
                     <p><strong>א.</strong> A<sub>3×<span style="color:#feca57;">2</span></sub> · B<sub><span style="color:#feca57;">2</span>×4</sub> = C<sub>3×4</sub> <span style="color: #00c853;">✓ אפשרי</span></p>
                     <p>&nbsp;&nbsp;&nbsp;B<sub>2×<span style="color:#ff6b6b;">4</span></sub> · A<sub><span style="color:#ff6b6b;">3</span>×2</sub> <span style="color: #ff6b6b;">✗ לא אפשרי (4≠3)</span></p>
@@ -1831,9 +1881,160 @@
                     <br>
                     <p><strong>ג.</strong> A<sub>4×<span style="color:#feca57;">4</span></sub> · B<sub><span style="color:#feca57;">4</span>×4</sub> = C<sub>4×4</sub> <span style="color: #00c853;">✓ אפשרי</span></p>
                     <p>&nbsp;&nbsp;&nbsp;B<sub>4×<span style="color:#feca57;">4</span></sub> · A<sub><span style="color:#feca57;">4</span>×4</sub> = C<sub>4×4</sub> <span style="color: #00c853;">✓ אפשרי</span></p>
-                    <p style="color: #a0a0a0; margin-top: 10px;">(מטריצות ריבועיות מאותו סדר תמיד ניתן לכפול בשני הכיוונים!)</p>
                 </div>
             </div>
+
+            <!-- Medium Exercise: Combined Operations -->
+            <div class="example-box" style="border-color: #a29bfe;">
+                <h4>תרגיל 8: פעולות משולבות</h4>
+                <p>חשבו את 2A - 3B:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [4 -1]&nbsp;&nbsp;&nbsp; B = [2 1]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[2 3]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 -2]
+                </div>
+                <button onclick="toggleSolution('sol_m3')" style="background: linear-gradient(45deg, #a29bfe, #6c5ce7); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol_m3" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        2A = [8 -2]&nbsp;&nbsp;&nbsp; 3B = [6 3]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[4 6]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 -6]<br><br>
+                        2A - 3B = [8-6 &nbsp; -2-3]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[4-0 &nbsp; 6-(-6)]<br><br>
+                        = [<span style="color: #00c853;">2 &nbsp; -5</span>]<br>
+                        &nbsp;&nbsp;[<span style="color: #00c853;">4 &nbsp; 12</span>]
+                    </div>
+                </div>
+            </div>
+
+            </div> <!-- End Medium Section -->
+
+            <!-- ==================== HARD EXERCISES ==================== -->
+            <div style="background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(214,48,49,0.1)); border-radius: 20px; padding: 25px; margin: 30px 0; border: 2px solid rgba(255,107,107,0.3);">
+                <h3 style="color: #ff6b6b; margin-bottom: 20px;">🔥 תרגילים מאתגרים</h3>
+
+            <!-- Hard Exercise 1: Matrix Multiplication 3x3 -->
+            <div class="example-box" style="border-color: #d63031;">
+                <h4>תרגיל 9: כפל מטריצות 3×3</h4>
+                <p>חשבו את A·B:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [1 0 2]&nbsp;&nbsp;&nbsp; B = [3 1]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[0 1 1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[2 0]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[2 1 0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1 2]
+                </div>
+                <button onclick="toggleSolution('sol_h1')" style="background: linear-gradient(45deg, #d63031, #c0392b); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol_h1" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <p>בדיקת תאימות: A הוא 3×<strong>3</strong>, B הוא <strong>3</strong>×2 ✓</p>
+                    <p>התוצאה: 3×2</p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace; margin: 10px;">
+                        c₁₁ = 1×3 + 0×2 + 2×1 = 3 + 0 + 2 = <span style="color: #feca57;">5</span><br>
+                        c₁₂ = 1×1 + 0×0 + 2×2 = 1 + 0 + 4 = <span style="color: #feca57;">5</span><br>
+                        c₂₁ = 0×3 + 1×2 + 1×1 = 0 + 2 + 1 = <span style="color: #feca57;">3</span><br>
+                        c₂₂ = 0×1 + 1×0 + 1×2 = 0 + 0 + 2 = <span style="color: #feca57;">2</span><br>
+                        c₃₁ = 2×3 + 1×2 + 0×1 = 6 + 2 + 0 = <span style="color: #feca57;">8</span><br>
+                        c₃₂ = 2×1 + 1×0 + 0×2 = 2 + 0 + 0 = <span style="color: #feca57;">2</span>
+                    </div>
+                    <div style="direction: ltr; text-align: center; font-family: monospace; margin-top: 15px;">
+                        A·B = [<span style="color: #00c853;">5 &nbsp; 5</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #00c853;">3 &nbsp; 2</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #00c853;">8 &nbsp; 2</span>]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hard Exercise 2: Find Variables with Quadratic -->
+            <div class="example-box" style="border-color: #e84393;">
+                <h4>תרגיל 10: שוויון מטריצות עם משוואה ריבועית</h4>
+                <p>מצאו את k ו-t כך שהמטריצות שוות:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    [8 &nbsp; 1 &nbsp; -1]&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;[t²-1 &nbsp; 1 &nbsp; -1]<br>
+                    [5 &nbsp; k-2 &nbsp; 6]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[5 &nbsp; 3 &nbsp; 6]
+                </div>
+                <button onclick="toggleSolution('sol_h2')" style="background: linear-gradient(45deg, #e84393, #fd79a8); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol_h2" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <p>משוואת האיברים:</p>
+                    <p>• t² - 1 = 8 → t² = 9 → <strong style="color: #00c853;">t = ±3</strong></p>
+                    <p>• k - 2 = 3 → <strong style="color: #00c853;">k = 5</strong></p>
+                </div>
+            </div>
+
+            <!-- Hard Exercise 3: Verify Property -->
+            <div class="example-box" style="border-color: #00cec9;">
+                <h4>תרגיל 11: הוכחת תכונה</h4>
+                <p>נתונות המטריצות:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [1 2]&nbsp;&nbsp;&nbsp; B = [0 1]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[3 4]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[2 3]
+                </div>
+                <p>הראו ש: (A·B)<sup>t</sup> = B<sup>t</sup>·A<sup>t</sup></p>
+                <button onclick="toggleSolution('sol_h3')" style="background: linear-gradient(45deg, #00cec9, #81ecec); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol_h3" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <p><strong>שלב 1:</strong> חישוב A·B</p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        A·B = [1×0+2×2 &nbsp; 1×1+2×3] = [4 &nbsp; 7]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[3×0+4×2 &nbsp; 3×1+4×3]&nbsp;&nbsp;&nbsp;[8 &nbsp; 15]
+                    </div>
+                    <p><strong>שלב 2:</strong> חישוב (A·B)<sup>t</sup></p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        (A·B)<sup>t</sup> = [4 &nbsp; 8]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[7 &nbsp; 15]
+                    </div>
+                    <p><strong>שלב 3:</strong> חישוב B<sup>t</sup>·A<sup>t</sup></p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        B<sup>t</sup> = [0 2]&nbsp;&nbsp; A<sup>t</sup> = [1 3]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1 3]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[2 4]<br><br>
+                        B<sup>t</sup>·A<sup>t</sup> = [0×1+2×2 &nbsp; 0×3+2×4] = [4 &nbsp; 8]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1×1+3×2 &nbsp; 1×3+3×4]&nbsp;&nbsp;&nbsp;[7 &nbsp; 15]
+                    </div>
+                    <p style="color: #00c853; margin-top: 10px;"><strong>✓ התוצאות זהות! התכונה מתקיימת.</strong></p>
+                </div>
+            </div>
+
+            <!-- Hard Exercise 4: Identity Matrix -->
+            <div class="example-box" style="border-color: #fdcb6e;">
+                <h4>תרגיל 12: מטריצת יחידה</h4>
+                <p>נתונה המטריצה:</p>
+                <div style="direction: ltr; text-align: center; margin: 15px; font-family: monospace;">
+                    A = [3 -1 2]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[0 4 1]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[5 2 -3]
+                </div>
+                <p>חשבו את A·I₃ והראו שמתקבל A.</p>
+                <button onclick="toggleSolution('sol_h4')" style="background: linear-gradient(45deg, #fdcb6e, #f39c12); border: none; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; margin-top: 10px;">
+                    הצג פתרון
+                </button>
+                <div id="sol_h4" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px;">
+                    <p><strong>פתרון:</strong></p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        I₃ = [1 0 0]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 1 0]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 0 1]
+                    </div>
+                    <p>כפל שורה ראשונה:</p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace;">
+                        [3×1+(-1)×0+2×0, 3×0+(-1)×1+2×0, 3×0+(-1)×0+2×1]<br>
+                        = [3, -1, 2] ✓
+                    </div>
+                    <p>באותו אופן לשאר השורות...</p>
+                    <div style="direction: ltr; text-align: center; font-family: monospace; margin-top: 10px;">
+                        A·I₃ = [<span style="color: #00c853;">3 &nbsp; -1 &nbsp; 2</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #00c853;">0 &nbsp; 4 &nbsp; 1</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #00c853;">5 &nbsp; 2 &nbsp; -3</span>] = A ✓
+                    </div>
+                </div>
+            </div>
+
+            </div> <!-- End Hard Section -->
 
         </section>
 
