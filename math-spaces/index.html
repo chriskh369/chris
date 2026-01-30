@@ -1456,90 +1456,295 @@
 
         <!-- Section 7: Matrices - Examples -->
         <section id="matrices-examples" class="section">
-            <h2><span class="emoji">💡</span> מטריצות - דוגמאות</h2>
+            <h2><span class="emoji">💡</span> מטריצות - דוגמאות וכפל מטריצות</h2>
 
-            <!-- Matrix Multiplication -->
-            <h3 style="color: #e17055; margin-top: 20px;">✖️ כפל מטריצות - הנושא החשוב!</h3>
+            <!-- ========== WHEN CAN WE MULTIPLY? ========== -->
+            <h3 style="color: #e17055; margin-top: 20px;">✖️ כפל מטריצות - מתי אפשר?</h3>
 
             <div class="visual-box" style="background: linear-gradient(135deg, rgba(225,112,85,0.2), rgba(253,121,168,0.2));">
-                <h4>⚠️ מתי אפשר לכפול?</h4>
-                <p style="font-size: 1.2em; margin: 15px;">
-                    A<sub><span style="color: #ff6b6b;">m</span>×<span style="color: #feca57;">n</span></sub> × B<sub><span style="color: #feca57;">n</span>×<span style="color: #48dbfb;">k</span></sub> = C<sub><span style="color: #ff6b6b;">m</span>×<span style="color: #48dbfb;">k</span></sub>
-                </p>
-                <p><strong style="color: #feca57;">מספר העמודות של A חייב להיות שווה למספר השורות של B!</strong></p>
+                <h4>🔑 הכלל הזהב לכפל מטריצות</h4>
+                <div style="font-size: 1.4em; margin: 20px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px;">
+                    A<sub><span style="color: #ff6b6b;">m</span>×<span style="color: #feca57; font-weight: bold; text-decoration: underline;">n</span></sub> × B<sub><span style="color: #feca57; font-weight: bold; text-decoration: underline;">n</span>×<span style="color: #48dbfb;">k</span></sub> = C<sub><span style="color: #ff6b6b;">m</span>×<span style="color: #48dbfb;">k</span></sub>
+                </div>
+                <p style="font-size: 1.2em;"><strong style="color: #feca57;">מספר העמודות של A = מספר השורות של B</strong></p>
+                <p style="color: #a0a0a0;">המספרים הפנימיים חייבים להיות שווים!</p>
             </div>
 
-            <div class="example-box">
-                <h4>דוגמאות לתאימות:</h4>
-                <p style="color: #00c853;">✓ A<sub>2×<strong>3</strong></sub> × B<sub><strong>3</strong>×5</sub> = C<sub>2×5</sub> - אפשר! (3=3)</p>
-                <p style="color: #00c853;">✓ A<sub>4×<strong>2</strong></sub> × B<sub><strong>2</strong>×7</sub> = C<sub>4×7</sub> - אפשר! (2=2)</p>
-                <p style="color: #ff6b6b;">✗ A<sub>3×<strong>8</strong></sub> × B<sub><strong>2</strong>×2</sub> - לא אפשר! (8≠2)</p>
-            </div>
-
-            <h4 style="color: #feca57; margin-top: 25px;">איך מחשבים כפל מטריצות?</h4>
-
-            <p>כל איבר c<sub>ij</sub> במטריצה החדשה מתקבל מ<strong>מכפלת שורה i ב-A בעמודה j ב-B</strong>:</p>
-
-            <div class="visual-box">
-                <h4>דוגמה מפורטת</h4>
-                <div style="direction: ltr; text-align: center; margin: 20px;">
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-                        <div style="background: rgba(255,107,107,0.2); padding: 15px; border-radius: 10px;">
-                            A = [<span style="color: #ff6b6b;">1 2 4</span>]<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;[5 -1 3]
+            <!-- Visual Animation of Compatibility Check -->
+            <div class="visual-box" style="margin-top: 20px;">
+                <h4>🎯 איך בודקים תאימות? (בדיקה מהירה)</h4>
+                <div style="display: flex; justify-content: center; align-items: center; gap: 30px; margin: 25px 0; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.3em; margin-bottom: 10px;">A<sub>m×n</sub> · B<sub>p×k</sub></div>
+                        <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                            <span style="padding: 10px 20px; background: rgba(255,107,107,0.3); border-radius: 10px;">m×<span style="color: #feca57; font-weight: bold;">n</span></span>
+                            <span style="font-size: 1.5em;">·</span>
+                            <span style="padding: 10px 20px; background: rgba(72,219,251,0.3); border-radius: 10px;"><span style="color: #feca57; font-weight: bold;">p</span>×k</span>
                         </div>
-                        <span>×</span>
-                        <div style="background: rgba(72,219,251,0.2); padding: 15px; border-radius: 10px;">
-                            B = [<span style="color: #48dbfb;">6</span> 2 1 4]<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #48dbfb;">1</span> -4 3 0]<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;[<span style="color: #48dbfb;">3</span> 0 -1 1]
+                        <div style="margin-top: 15px; font-size: 1.2em;">
+                            אם <span style="color: #feca57; font-weight: bold;">n = p</span> → <span style="color: #00c853;">✓ אפשר!</span>
+                        </div>
+                        <div style="font-size: 1.2em;">
+                            אם <span style="color: #feca57; font-weight: bold;">n ≠ p</span> → <span style="color: #ff6b6b;">✗ אי אפשר!</span>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div style="background: rgba(0,200,83,0.2); padding: 15px; border-radius: 10px; margin-top: 10px;">
-                        <p style="color: #feca57;">חישוב c₁₁ (שורה 1 של A × עמודה 1 של B):</p>
-                        <p style="font-family: monospace;">
-                            c₁₁ = <span style="color: #ff6b6b;">1</span>×<span style="color: #48dbfb;">6</span> + <span style="color: #ff6b6b;">2</span>×<span style="color: #48dbfb;">1</span> + <span style="color: #ff6b6b;">4</span>×<span style="color: #48dbfb;">3</span> = 6 + 2 + 12 = <strong style="color: #00c853;">20</strong>
+            <!-- Compatibility Examples -->
+            <h4 style="color: #00c853; margin-top: 25px;">✅ דוגמאות - מתי אפשר לכפול:</h4>
+            <div class="rules-container">
+                <div class="rule-card" style="border-color: #00c853;">
+                    <span class="title">A<sub>2×<strong style="color:#feca57;">3</strong></sub> · B<sub><strong style="color:#feca57;">3</strong>×5</sub></span>
+                    <p>עמודות A = שורות B → <span style="color:#feca57;">3 = 3</span> ✓</p>
+                    <div class="formula">תוצאה: C<sub>2×5</sub></div>
+                </div>
+                <div class="rule-card" style="border-color: #00c853;">
+                    <span class="title">A<sub>4×<strong style="color:#feca57;">2</strong></sub> · B<sub><strong style="color:#feca57;">2</strong>×7</sub></span>
+                    <p>עמודות A = שורות B → <span style="color:#feca57;">2 = 2</span> ✓</p>
+                    <div class="formula">תוצאה: C<sub>4×7</sub></div>
+                </div>
+                <div class="rule-card" style="border-color: #00c853;">
+                    <span class="title">A<sub>3×<strong style="color:#feca57;">3</strong></sub> · B<sub><strong style="color:#feca57;">3</strong>×3</sub></span>
+                    <p>מטריצות ריבועיות מאותו סדר → <span style="color:#feca57;">3 = 3</span> ✓</p>
+                    <div class="formula">תוצאה: C<sub>3×3</sub></div>
+                </div>
+            </div>
+
+            <h4 style="color: #ff6b6b; margin-top: 25px;">❌ דוגמאות - מתי אי אפשר לכפול:</h4>
+            <div class="rules-container">
+                <div class="rule-card" style="border-color: #ff6b6b;">
+                    <span class="title">A<sub>3×<strong style="color:#ff6b6b;">8</strong></sub> · B<sub><strong style="color:#ff6b6b;">2</strong>×2</sub></span>
+                    <p>עמודות A ≠ שורות B → <span style="color:#ff6b6b;">8 ≠ 2</span> ✗</p>
+                    <div class="formula" style="color: #ff6b6b;">לא ניתן לכפול!</div>
+                </div>
+                <div class="rule-card" style="border-color: #ff6b6b;">
+                    <span class="title">A<sub>2×<strong style="color:#ff6b6b;">3</strong></sub> · B<sub><strong style="color:#ff6b6b;">2</strong>×4</sub></span>
+                    <p>עמודות A ≠ שורות B → <span style="color:#ff6b6b;">3 ≠ 2</span> ✗</p>
+                    <div class="formula" style="color: #ff6b6b;">לא ניתן לכפול!</div>
+                </div>
+            </div>
+
+            <!-- Special Cases -->
+            <div class="visual-box" style="background: linear-gradient(135deg, rgba(162,155,254,0.2), rgba(108,92,231,0.2)); margin-top: 25px;">
+                <h4 style="color: #a29bfe;">📌 מקרים מיוחדים</h4>
+                <div class="summary-grid" style="margin-top: 15px;">
+                    <div class="summary-card" style="background: rgba(0,0,0,0.2);">
+                        <h4>מטריצות ריבועיות</h4>
+                        <p>A<sub>n×n</sub> · B<sub>n×n</sub></p>
+                        <p style="color: #00c853;">תמיד אפשר לכפול בשני הכיוונים!</p>
+                        <p style="color: #a0a0a0; font-size: 0.9em;">(אבל A·B ≠ B·A)</p>
+                    </div>
+                    <div class="summary-card" style="background: rgba(0,0,0,0.2);">
+                        <h4>מטריצה × וקטור עמודה</h4>
+                        <p>A<sub>m×n</sub> · v<sub>n×1</sub></p>
+                        <p style="color: #00c853;">תוצאה: וקטור עמודה m×1</p>
+                    </div>
+                    <div class="summary-card" style="background: rgba(0,0,0,0.2);">
+                        <h4>וקטור שורה × מטריצה</h4>
+                        <p>u<sub>1×m</sub> · A<sub>m×n</sub></p>
+                        <p style="color: #00c853;">תוצאה: וקטור שורה 1×n</p>
+                    </div>
+                    <div class="summary-card" style="background: rgba(0,0,0,0.2);">
+                        <h4>וקטור שורה × וקטור עמודה</h4>
+                        <p>u<sub>1×n</sub> · v<sub>n×1</sub></p>
+                        <p style="color: #00c853;">תוצאה: סקלר (מספר)!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== HOW TO MULTIPLY ========== -->
+            <h3 style="color: #feca57; margin-top: 40px;">🔢 איך מבצעים את הכפל?</h3>
+
+            <p style="font-size: 1.1em;">כל איבר c<sub>ij</sub> במטריצה החדשה מתקבל מ<strong style="color: #48dbfb;">שורה i במטריצה A</strong> כפול <strong style="color: #ff6b6b;">עמודה j במטריצה B</strong>:</p>
+
+            <!-- Visual Step by Step -->
+            <div class="visual-box" style="background: linear-gradient(135deg, rgba(72,219,251,0.1), rgba(255,107,107,0.1));">
+                <h4>📐 הנוסחה</h4>
+                <div style="font-size: 1.3em; direction: ltr; text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; margin: 15px 0;">
+                    c<sub>ij</sub> = a<sub>i1</sub>·b<sub>1j</sub> + a<sub>i2</sub>·b<sub>2j</sub> + ... + a<sub>in</sub>·b<sub>nj</sub>
+                </div>
+                <p style="text-align: center;">סוכמים את המכפלות של איברי <span style="color: #48dbfb;">שורה i</span> עם איברי <span style="color: #ff6b6b;">עמודה j</span></p>
+            </div>
+
+            <!-- Animated Visual Explanation -->
+            <div class="visual-box" style="margin-top: 25px;">
+                <h4>🎬 הדגמה ויזואלית - שורה × עמודה</h4>
+                <div style="direction: ltr; text-align: center; margin: 20px 0;">
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <!-- Matrix A with highlighted row -->
+                        <div style="background: rgba(72,219,251,0.2); padding: 20px; border-radius: 15px;">
+                            <div style="color: #a0a0a0; margin-bottom: 10px;">מטריצה A</div>
+                            <div style="font-family: monospace; font-size: 1.1em;">
+                                [<span style="background: rgba(72,219,251,0.5); padding: 5px 10px; border-radius: 5px; animation: highlightRow 3s infinite;">a₁₁ &nbsp; a₁₂ &nbsp; a₁₃</span>] ← שורה 1<br>
+                                [a₂₁ &nbsp; a₂₂ &nbsp; a₂₃]<br>
+                            </div>
+                        </div>
+                        <div style="font-size: 2em;">×</div>
+                        <!-- Matrix B with highlighted column -->
+                        <div style="background: rgba(255,107,107,0.2); padding: 20px; border-radius: 15px;">
+                            <div style="color: #a0a0a0; margin-bottom: 10px;">מטריצה B</div>
+                            <div style="font-family: monospace; font-size: 1.1em;">
+                                [<span style="background: rgba(255,107,107,0.5); padding: 5px; border-radius: 5px; animation: highlightCol 3s infinite;">b₁₁</span> &nbsp; b₁₂]<br>
+                                [<span style="background: rgba(255,107,107,0.5); padding: 5px; border-radius: 5px; animation: highlightCol 3s infinite;">b₂₁</span> &nbsp; b₂₂]<br>
+                                [<span style="background: rgba(255,107,107,0.5); padding: 5px; border-radius: 5px; animation: highlightCol 3s infinite;">b₃₁</span> &nbsp; b₃₂]
+                            </div>
+                            <div style="color: #a0a0a0; font-size: 0.9em;">↑ עמודה 1</div>
+                        </div>
+                        <div style="font-size: 2em;">=</div>
+                        <!-- Result -->
+                        <div style="background: rgba(0,200,83,0.2); padding: 20px; border-radius: 15px;">
+                            <div style="color: #a0a0a0; margin-bottom: 10px;">תוצאה</div>
+                            <div style="font-family: monospace; font-size: 1.1em;">
+                                [<span style="background: rgba(0,200,83,0.5); padding: 5px 10px; border-radius: 5px; animation: highlightResult 3s infinite;">c₁₁</span> &nbsp; c₁₂]<br>
+                                [c₂₁ &nbsp; c₂₂]
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(254,202,87,0.2); border-radius: 10px;">
+                        <p style="font-size: 1.1em; color: #feca57;">
+                            c₁₁ = a₁₁·b₁₁ + a₁₂·b₂₁ + a₁₃·b₃₁
                         </p>
                     </div>
                 </div>
+                <style>
+                    @keyframes highlightRow {
+                        0%, 100% { background: rgba(72,219,251,0.3); }
+                        50% { background: rgba(72,219,251,0.7); box-shadow: 0 0 15px rgba(72,219,251,0.5); }
+                    }
+                    @keyframes highlightCol {
+                        0%, 100% { background: rgba(255,107,107,0.3); }
+                        50% { background: rgba(255,107,107,0.7); box-shadow: 0 0 15px rgba(255,107,107,0.5); }
+                    }
+                    @keyframes highlightResult {
+                        0%, 100% { background: rgba(0,200,83,0.3); }
+                        50% { background: rgba(0,200,83,0.7); box-shadow: 0 0 15px rgba(0,200,83,0.5); }
+                    }
+                </style>
             </div>
 
-            <div class="example-box">
-                <h4>דוגמה מלאה</h4>
-                <div style="direction: ltr; text-align: center; margin: 15px;">
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <div>
-                            A = [1 3]<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;[-2 5]
+            <!-- Step by Step Example -->
+            <h4 style="color: #48dbfb; margin-top: 30px;">📝 דוגמה מפורטת צעד אחר צעד</h4>
+
+            <div class="example-box" style="border-color: #48dbfb;">
+                <h4>חישוב A·B</h4>
+                <div style="direction: ltr; text-align: center; margin: 20px 0;">
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <div style="background: rgba(72,219,251,0.2); padding: 15px; border-radius: 10px;">
+                            A = [1 &nbsp; 2]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;[3 &nbsp; 4]
                         </div>
-                        <span>×</span>
-                        <div>
-                            B = [0 4]<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;[-1 7]
+                        <span style="font-size: 1.5em;">×</span>
+                        <div style="background: rgba(255,107,107,0.2); padding: 15px; border-radius: 10px;">
+                            B = [5 &nbsp; 6]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;[7 &nbsp; 8]
                         </div>
-                        <span>=</span>
-                        <div style="color: #00c853;">
-                            C = [<strong>-3</strong> <strong>25</strong>]<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;[<strong>-5</strong> <strong>27</strong>]
+                        <span style="font-size: 1.5em;">=</span>
+                        <div style="background: rgba(0,200,83,0.2); padding: 15px; border-radius: 10px;">
+                            C = [? &nbsp; ?]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;[? &nbsp; ?]
                         </div>
                     </div>
                 </div>
-                <p><strong>חישובים:</strong></p>
-                <p>c₁₁ = 1·0 + 3·(-1) = <strong>-3</strong></p>
-                <p>c₁₂ = 1·4 + 3·7 = <strong>25</strong></p>
-                <p>c₂₁ = (-2)·0 + 5·(-1) = <strong>-5</strong></p>
-                <p>c₂₂ = (-2)·4 + 5·7 = <strong>27</strong></p>
+
+                <p><strong>שלב 1:</strong> בדיקת תאימות - A הוא 2×<span style="color:#feca57;">2</span>, B הוא <span style="color:#feca57;">2</span>×2 → <span style="color: #00c853;">✓ אפשר!</span></p>
+                <p><strong>שלב 2:</strong> גודל התוצאה - 2×2</p>
+
+                <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 15px; margin: 20px 0;">
+                    <p><strong>שלב 3:</strong> חישוב כל איבר:</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                        <div style="background: rgba(72,219,251,0.1); padding: 15px; border-radius: 10px;">
+                            <p style="color: #48dbfb;"><strong>c₁₁</strong> (שורה 1 × עמודה 1)</p>
+                            <p style="direction: ltr; font-family: monospace;">
+                                = <span style="color:#48dbfb;">1</span>×<span style="color:#ff6b6b;">5</span> + <span style="color:#48dbfb;">2</span>×<span style="color:#ff6b6b;">7</span><br>
+                                = 5 + 14 = <strong style="color:#00c853;">19</strong>
+                            </p>
+                        </div>
+                        <div style="background: rgba(72,219,251,0.1); padding: 15px; border-radius: 10px;">
+                            <p style="color: #48dbfb;"><strong>c₁₂</strong> (שורה 1 × עמודה 2)</p>
+                            <p style="direction: ltr; font-family: monospace;">
+                                = <span style="color:#48dbfb;">1</span>×<span style="color:#ff6b6b;">6</span> + <span style="color:#48dbfb;">2</span>×<span style="color:#ff6b6b;">8</span><br>
+                                = 6 + 16 = <strong style="color:#00c853;">22</strong>
+                            </p>
+                        </div>
+                        <div style="background: rgba(255,107,107,0.1); padding: 15px; border-radius: 10px;">
+                            <p style="color: #ff6b6b;"><strong>c₂₁</strong> (שורה 2 × עמודה 1)</p>
+                            <p style="direction: ltr; font-family: monospace;">
+                                = <span style="color:#48dbfb;">3</span>×<span style="color:#ff6b6b;">5</span> + <span style="color:#48dbfb;">4</span>×<span style="color:#ff6b6b;">7</span><br>
+                                = 15 + 28 = <strong style="color:#00c853;">43</strong>
+                            </p>
+                        </div>
+                        <div style="background: rgba(255,107,107,0.1); padding: 15px; border-radius: 10px;">
+                            <p style="color: #ff6b6b;"><strong>c₂₂</strong> (שורה 2 × עמודה 2)</p>
+                            <p style="direction: ltr; font-family: monospace;">
+                                = <span style="color:#48dbfb;">3</span>×<span style="color:#ff6b6b;">6</span> + <span style="color:#48dbfb;">4</span>×<span style="color:#ff6b6b;">8</span><br>
+                                = 18 + 32 = <strong style="color:#00c853;">50</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px; padding: 15px; background: rgba(0,200,83,0.2); border-radius: 10px;">
+                    <p style="font-size: 1.2em;"><strong>התוצאה:</strong></p>
+                    <p style="direction: ltr; font-size: 1.3em; font-family: monospace;">
+                        A·B = [<span style="color:#00c853;">19 &nbsp; 22</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color:#00c853;">43 &nbsp; 50</span>]
+                    </p>
+                </div>
             </div>
 
             <!-- Important: AB ≠ BA -->
-            <div class="visual-box" style="background: linear-gradient(135deg, rgba(255,107,107,0.3), rgba(255,159,243,0.2)); border: 2px solid #ff6b6b;">
-                <h4 style="color: #ff6b6b;">⚠️ שים לב! A·B ≠ B·A</h4>
-                <p>בניגוד למספרים רגילים, בכפל מטריצות <strong>הסדר חשוב!</strong></p>
-                <div style="direction: ltr; margin: 15px;">
-                    <p>A·B = [-3, 25; -5, 27]</p>
-                    <p>B·A = [-8, 20; -15, 32]</p>
-                    <p style="color: #ff6b6b; font-weight: bold;">התוצאות שונות!</p>
+            <div class="visual-box" style="background: linear-gradient(135deg, rgba(255,107,107,0.3), rgba(255,159,243,0.2)); border: 2px solid #ff6b6b; margin-top: 30px;">
+                <h4 style="color: #ff6b6b;">⚠️ זהירות! A·B ≠ B·A</h4>
+                <p style="font-size: 1.1em;">בניגוד למספרים רגילים, בכפל מטריצות <strong>הסדר חשוב!</strong></p>
+                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin: 20px 0;">
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; direction: ltr;">
+                        <p style="color: #48dbfb;"><strong>A·B =</strong></p>
+                        <p style="font-family: monospace; font-size: 1.1em;">[19 &nbsp; 22]<br>[43 &nbsp; 50]</p>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; direction: ltr;">
+                        <p style="color: #ff6b6b;"><strong>B·A =</strong></p>
+                        <p style="font-family: monospace; font-size: 1.1em;">[23 &nbsp; 34]<br>[31 &nbsp; 46]</p>
+                    </div>
+                </div>
+                <p style="color: #ff6b6b; font-weight: bold; font-size: 1.2em; text-align: center;">התוצאות שונות לחלוטין!</p>
+            </div>
+
+            <!-- Another Full Example -->
+            <h4 style="color: #00b894; margin-top: 30px;">📊 דוגמה נוספת - מטריצות בגדלים שונים</h4>
+
+            <div class="example-box" style="border-color: #00b894;">
+                <h4>חישוב A<sub>2×3</sub> · B<sub>3×2</sub></h4>
+                <div style="direction: ltr; text-align: center; margin: 20px 0;">
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <div style="background: rgba(72,219,251,0.2); padding: 15px; border-radius: 10px;">
+                            A = [1 &nbsp; 0 &nbsp; 2]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;[2 &nbsp; 1 &nbsp; 0]
+                        </div>
+                        <span style="font-size: 1.5em;">×</span>
+                        <div style="background: rgba(255,107,107,0.2); padding: 15px; border-radius: 10px;">
+                            B = [3 &nbsp; 1]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;[2 &nbsp; 4]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;[1 &nbsp; 0]
+                        </div>
+                    </div>
+                </div>
+
+                <p><strong>בדיקה:</strong> A הוא 2×<span style="color:#feca57;">3</span>, B הוא <span style="color:#feca57;">3</span>×2 → <span style="color: #00c853;">✓</span> (התוצאה: 2×2)</p>
+
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 15px 0; direction: ltr; text-align: center;">
+                    <p>c₁₁ = 1×3 + 0×2 + 2×1 = 3 + 0 + 2 = <strong style="color:#00c853;">5</strong></p>
+                    <p>c₁₂ = 1×1 + 0×4 + 2×0 = 1 + 0 + 0 = <strong style="color:#00c853;">1</strong></p>
+                    <p>c₂₁ = 2×3 + 1×2 + 0×1 = 6 + 2 + 0 = <strong style="color:#00c853;">8</strong></p>
+                    <p>c₂₂ = 2×1 + 1×4 + 0×0 = 2 + 4 + 0 = <strong style="color:#00c853;">6</strong></p>
+                </div>
+
+                <div style="text-align: center; padding: 15px; background: rgba(0,200,83,0.2); border-radius: 10px;">
+                    <p style="direction: ltr; font-size: 1.2em; font-family: monospace;">
+                        A·B = [<span style="color:#00c853;">5 &nbsp; 1</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span style="color:#00c853;">8 &nbsp; 6</span>]
+                    </p>
                 </div>
             </div>
 
