@@ -785,17 +785,33 @@
         }
 
         function selectAnswer(questionId, optionIndex) {
-            if (examSubmitted) return;
+            // Check if already answered
+            if (userAnswers[questionId] !== undefined) return;
 
-            // Remove previous selection for this question
+            const question = questions.find(q => q.id === questionId);
             const card = document.getElementById(`card-${questionId}`);
-            card.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-
-            // Add selection to clicked option
-            document.getElementById(`opt-${questionId}-${optionIndex}`).classList.add('selected');
+            const selectedOption = document.getElementById(`opt-${questionId}-${optionIndex}`);
+            const correctOption = document.getElementById(`opt-${questionId}-${question.correct}`);
+            const explanation = document.getElementById(`exp-${questionId}`);
 
             // Store answer
             userAnswers[questionId] = optionIndex;
+
+            // Disable all options for this question
+            card.querySelectorAll('.option').forEach(opt => opt.classList.add('disabled'));
+
+            // Show result immediately
+            if (optionIndex === question.correct) {
+                selectedOption.classList.add('correct-answer');
+                card.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong-answer');
+                correctOption.classList.add('correct-answer');
+                card.classList.add('wrong');
+            }
+
+            // Show explanation immediately
+            explanation.classList.add('show');
 
             // Update progress
             updateProgress();
