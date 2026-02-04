@@ -1632,6 +1632,107 @@
                     </div>
                 </div>
 
+                <div style="margin: 40px 0; padding: 20px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(103, 58, 183, 0.2)); border-radius: 15px; border-right: 4px solid #9c27b0;">
+                    <h3 style="color: #ce93d8; margin-bottom: 15px;">🎯 שאלות מיוחדות: RBAC vs ABAC</h3>
+                    <p style="color: #b39ddb;">השאלות הבאות בודקות את ההבנה שלך בהבדלים בין שני המודלים</p>
+                </div>
+
+                <div class="quiz-question" id="q9">
+                    <div class="quiz-story">
+                        בחברת הייטק, כל מפתח בצוות Backend מקבל גישה לשרתי הפיתוח. לא משנה אם הוא עובד מהבית או מהמשרד, בשעה 10 בבוקר או 10 בלילה - יש לו תפקיד "מפתח Backend" ולכן יש לו גישה.
+                    </div>
+                    <h4>9. איזה מודל בקרת גישה מיושם כאן?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q9', true)">RBAC - הגישה מבוססת על התפקיד בלבד</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q9', false)">ABAC - הגישה מבוססת על מאפיינים</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q9', false)">Zero Trust - בודקים כל גישה</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q9', false)">PAM - ניהול הרשאות מיוחסות</div>
+                    </div>
+                    <div class="quiz-explanation" id="exp9">
+                        <strong>נכון!</strong> RBAC (Role-Based Access Control) מעניק הרשאות לפי תפקיד בלבד. אם יש לך את התפקיד - יש לך גישה, ללא קשר לנסיבות אחרות כמו שעה, מיקום או סוג המכשיר.
+                    </div>
+                </div>
+
+                <div class="quiz-question" id="q10">
+                    <div class="quiz-story">
+                        רוני, מנהלת כספים, מנסה לגשת לדוחות הכספיים. המערכת בודקת: (1) תפקיד: מנהלת כספים ✓ (2) שעה: 14:00 - שעות עבודה ✓ (3) מיקום: ישראל ✓ (4) מכשיר: מחשב ארגוני ✓ → גישה מאושרת. כעת היא מנסה שוב בשעה 3 בלילה מתאילנד מהטלפון הפרטי → גישה נדחתה + MFA.
+                    </div>
+                    <h4>10. למה הגישה נדחתה בפעם השנייה למרות שהתפקיד לא השתנה?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q10', false)">RBAC - התפקיד שלה הוסר זמנית</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q10', true)">ABAC - המאפיינים (שעה, מיקום, מכשיר) לא עמדו בתנאי המדיניות</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q10', false)">הסיסמה פגה</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q10', false)">SSO לא עבד</div>
+                    </div>
+                    <div class="quiz-explanation" id="exp10">
+                        <strong>נכון!</strong> ABAC בודק מאפיינים (Attributes) רבים מעבר לתפקיד: שעה חריגה, מיקום לא צפוי (תאילנד), מכשיר לא מנוהל. כל אלה מעלים את רמת הסיכון ומשנים את ההחלטה.
+                    </div>
+                </div>
+
+                <div class="quiz-question" id="q11">
+                    <div class="quiz-story">
+                        בחברה יש 500 עובדים ב-50 תפקידים שונים. מנהל ה-IT צריך להחליט איזה מודל בקרת גישה להטמיע. הוא שוקל בין RBAC ל-ABAC.
+                    </div>
+                    <h4>11. מה היתרון המרכזי של RBAC על ABAC בתרחיש הזה?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q11', true)">פשטות - קל יותר לנהל 50 תפקידים מאשר מאות מדיניויות מבוססות מאפיינים</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q11', false)">אבטחה - RBAC מאובטח יותר מ-ABAC</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q11', false)">גמישות - RBAC גמיש יותר להתאמות</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q11', false)">עלות - RBAC חינמי</div>
+                    </div>
+                    <div class="quiz-explanation" id="exp11">
+                        <strong>נכון!</strong> היתרון המרכזי של RBAC הוא הפשטות. קל לנהל תפקידים מוגדרים מראש ("מפתח", "מנהל", "חשב"). ABAC דורש הגדרת מדיניויות מורכבות עם תנאים רבים, וקשה יותר לתחזק.
+                    </div>
+                </div>
+
+                <div class="quiz-question" id="q12">
+                    <div class="quiz-story">
+                        בנק מטמיע מערכת חדשה. הדרישה: "עובד יכול לאשר העברה רק אם: (א) הוא מורשה לסוג העסקה, (ב) הסכום לא חורג מהמגבלה שלו, (ג) הוא בשעות העבודה, (ד) הוא במיקום מאושר, (ה) הלקוח לא מסומן כחשוד."
+                    </div>
+                    <h4>12. איזה מודל מתאים יותר לדרישה הזו?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q12', false)">RBAC - מספיק להגדיר תפקיד "מאשר העברות"</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q12', true)">ABAC - צריך לבדוק מאפיינים רבים של המשתמש, הפעולה, המשאב והסביבה</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q12', false)">SSO - לאפשר כניסה אחת</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q12', false)">MFA - להוסיף אימות כפול</div>
+                    </div>
+                    <div class="quiz-explanation" id="exp12">
+                        <strong>נכון!</strong> ABAC מושלם כשצריך החלטות מורכבות: מאפייני משתמש (מורשה, מגבלת סכום), סביבה (שעה, מיקום), משאב (סכום העברה), ומאפייני לקוח (חשוד). RBAC פשוט מדי לתרחיש כזה.
+                    </div>
+                </div>
+
+                <div class="quiz-question" id="q13">
+                    <div class="quiz-story">
+                        השוואה מהירה: בארגון עם RBAC, עובד חדש מקבל גישה ברגע שמוסיפים לו תפקיד. בארגון עם ABAC, גם אחרי שיש לו תפקיד, הגישה תלויה בנסיבות.
+                    </div>
+                    <h4>13. מה החיסרון העיקרי של RBAC בהשוואה ל-ABAC?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q13', false)">RBAC איטי יותר</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q13', false)">RBAC יקר יותר</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q13', true)">RBAC לא מתחשב בהקשר - אם יש לך תפקיד, יש לך גישה תמיד, גם במצבים מסוכנים</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q13', false)">RBAC לא תומך ב-MFA</div>
+                    </div>
+                    <div class="quiz-explanation" id="exp13">
+                        <strong>נכון!</strong> החיסרון של RBAC: אין התחשבות בהקשר. מנהל עם תפקיד "Admin" יקבל גישה גם בשעה 3 בלילה ממדינה זרה. ABAC יכול לחסום או לדרוש אימות נוסף במצבים חשודים.
+                    </div>
+                </div>
+
+                <div class="quiz-question" id="q14">
+                    <div class="quiz-story">
+                        מנהל מערכות שואל: "אנחנו צריכים RBAC או ABAC?" התשובה: "זה לא בהכרח 'או' - הרבה ארגונים משתמשים בשניהם."
+                    </div>
+                    <h4>14. איך משלבים את שני המודלים ביחד?</h4>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q14', false)">אי אפשר - הם סותרים זה את זה</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q14', false)">משתמשים ב-RBAC ביום וב-ABAC בלילה</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q14', true)">RBAC כבסיס (תפקיד מגדיר הרשאות בסיסיות) + ABAC להחלטות דינמיות (האם לאשר גישה עכשיו לפי הקשר)</div>
+                        <div class="quiz-option" onclick="checkQuizAnswer(this, 'q14', false)">משתמשים רק ב-ABAC כי הוא כולל את RBAC</div>
+                    </div>
+                    <div class="quiz-explanation" id="exp14">
+                        <strong>נכון!</strong> השילוב הנפוץ: RBAC מגדיר "מה מותר לתפקיד" (מנהל יכול לראות דוחות), ו-ABAC מחליט "האם לאשר עכשיו" (האם השעה, המיקום והמכשיר תקינים). זה נקרא Policy-Based Access Control.
+                    </div>
+                </div>
+
                 <div id="quizResult" style="margin-top: 30px; padding: 30px; background: rgba(0,0,0,0.3); border-radius: 20px; display: none; text-align: center;">
                     <h3 style="color: #00d4ff; margin-bottom: 15px;">התוצאות שלך:</h3>
                     <div class="score-display" id="scoreText"></div>
@@ -1720,7 +1821,7 @@
 
         // Quiz
         let quizAnswers = {};
-        const totalQuestions = 8;
+        const totalQuestions = 14;
 
         function checkQuizAnswer(element, questionId, isCorrect) {
             if (quizAnswers[questionId] !== undefined) return;
