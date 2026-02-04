@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבחן אבטחת מידע וסייבר - 25 שאלות</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0d1f3c 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 3px solid #00d4ff;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .exam-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #888;
+        }
+
+        .exam-info span {
+            padding: 8px 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .progress-container {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 22, 40, 0.95);
+            padding: 15px 20px;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.1);
+        }
+
+        .question-card.answered {
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .question-card.correct {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .question-card.wrong {
+            border-color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #0a1628;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .question-scenario {
+            background: rgba(255, 193, 7, 0.1);
+            border-right: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #ddd;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .option:hover:not(.disabled) {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .option.selected {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        .option.correct-answer {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4CAF50;
+        }
+
+        .option.wrong-answer {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            min-width: 28px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .option.correct-answer .option-letter {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .option.wrong-answer .option-letter {
+            background: #f44336;
+            color: white;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            border-right: 4px solid #00d4ff;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .explanation strong {
+            color: #00d4ff;
+        }
+
+        .submit-section {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #0a1628;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            margin-right: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(#00d4ff var(--score), rgba(255,255,255,0.1) 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            width: 150px;
+            height: 150px;
+            background: #0a1628;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .score-text {
+            position: relative;
+            z-index: 1;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .score-message {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-value.correct { color: #4CAF50; }
+        .stat-value.wrong { color: #f44336; }
+        .stat-value.unanswered { color: #ffc107; }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .topic-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            background: rgba(156, 39, 176, 0.2);
+            color: #ce93d8;
+            border-radius: 10px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .question-card { padding: 15px; }
+            .option { padding: 12px 15px; }
+            .exam-info { gap: 10px; }
+            .stats { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>מבחן אבטחת מידע וסייבר</h1>
+        <p style="color: #888; margin-top: 10px;">בחינה מסכמת - 25 שאלות</p>
+        <div class="exam-info">
+            <span>חומר סגור</span>
+            <span>תשובה אחת לכל שאלה</span>
+            <span>רמת אוניברסיטה</span>
+        </div>
+    </header>
+
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text">
+            <span id="answeredCount">0</span> / 25 שאלות נענו
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="questionsContainer"></div>
+
+        <div class="submit-section">
+            <button class="btn btn-secondary" onclick="resetExam()">התחל מחדש</button>
+            <button class="btn btn-primary" onclick="submitExam()">הגש מבחן</button>
+        </div>
+
+        <div class="results" id="results">
+            <h2 style="margin-bottom: 20px; color: #00d4ff;">תוצאות המבחן</h2>
+            <div class="score-circle" id="scoreCircle">
+                <span class="score-text" id="scoreText">0%</span>
+            </div>
+            <div class="score-message" id="scoreMessage"></div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value correct" id="correctCount">0</div>
+                    <div class="stat-label">תשובות נכונות</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value wrong" id="wrongCount">0</div>
+                    <div class="stat-label">תשובות שגויות</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value unanswered" id="unansweredCount">0</div>
+                    <div class="stat-label">לא נענו</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" onclick="reviewAnswers()">סקור תשובות</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                topic: "CIA ומודל סיכונים",
+                question: "ארגון פיננסי מבצע הערכת סיכונים ומגלה שסבירות להתממשות איום מסוים היא 2 (בינונית) ועוצמת הנזק היא 4 (קטסטרופלית). לפי מטריצת הסיכון הסטנדרטית, מה צריכה להיות ההמלצה?",
+                options: [
+                    "לקבל את הסיכון מאחר שהסבירות נמוכה יחסית",
+                    "להעביר את הסיכון לצד שלישי באמצעות ביטוח סייבר",
+                    "להפחית את הסיכון באופן מיידי עקב עוצמת הנזק הפוטנציאלית",
+                    "להימנע מהסיכון על ידי סגירת קו העסקים"
+                ],
+                correct: 2,
+                explanation: "כאשר עוצמת הנזק היא קטסטרופלית (4), גם אם הסבירות בינונית, ההמלצה היא להפחית את הסיכון מיידית. עוצמת הנזק מהווה גורם מכריע במקרים כאלה."
+            },
+            {
+                id: 2,
+                topic: "Target Breach",
+                scenario: "בנובמבר 2013, רשת הקמעונאות Target נפרצה. התוקפים הצליחו לגנוב 40 מיליון פרטי כרטיסי אשראי. מערכת ה-FireEye שהותקנה בארגון זיהתה את הנוזקה ושלחה התראות לצוות האבטחה בבנגלור. הצוות העביר את ההתראות להנהלה במינסוטה, אך לא ננקטה כל פעולה.",
+                question: "מהו הכשל המרכזי שאיפשר את הצלחת המתקפה?",
+                options: [
+                    "מערכת FireEye לא הייתה מעודכנת לזיהוי נוזקות מסוג RAM Scraper",
+                    "היעדר סגמנטציה בין רשת ספקי ה-HVAC לרשת ה-POS",
+                    "כשל תפעולי-ארגוני בטיפול בהתראות למרות זיהוי מוצלח של האיום",
+                    "שימוש בהצפנה חלשה בתקשורת בין הקופות לשרת המרכזי"
+                ],
+                correct: 2,
+                explanation: "הלקח המרכזי מפריצת Target הוא שאיכות התפעול והמענה לבקרות חשובים יותר מעצם קיום הטכנולוגיה. המערכת זיהתה את האיום, אך הכשל האנושי-ארגוני באי-טיפול בהתראות הוא שאיפשר את המתקפה."
+            },
+            {
+                id: 3,
+                topic: "הצפנה",
+                question: "בפרוטוקול TLS 1.3, מדוע נזנחה האפשרות להשתמש ב-RSA Key Exchange לטובת Diffie-Hellman בלבד?",
+                options: [
+                    "RSA איטי יותר ב-50% מ-DH במעבדים מודרניים",
+                    "RSA אינו תומך במפתחות מעל 2048 ביט",
+                    "DH מספק Forward Secrecy - גם אם המפתח הפרטי נגנב בעתיד, תעבורה שהוקלטה בעבר לא תיפגע",
+                    "RSA דורש תעודה דיגיטלית בעוד DH אינו דורש"
+                ],
+                correct: 2,
+                explanation: "Forward Secrecy (סודיות קדימה) מבטיח שגניבת המפתח הפרטי של השרת בעתיד לא תאפשר פענוח תעבורה שהוקלטה בעבר. ב-RSA Key Exchange, אותו מפתח פרטי משמש לפענוח כל החיבורים."
+            },
+            {
+                id: 4,
+                topic: "שכבת הנתונים",
+                scenario: "בודק חדירות מבצע תקיפה ברשת מקומית. הוא שולח מסגרות Ethernet עם כתובות MAC אקראיות בקצב גבוה אל המתג.",
+                question: "מהי מטרת התקיפה ומה התוצאה הצפויה?",
+                options: [
+                    "לגרום למתג לעבור למצב Fail-Open ולהפוך לרכזת, מה שיאפשר האזנה לכל התעבורה",
+                    "להשבית את פרוטוקול STP ולגרום ללולאות ברשת",
+                    "למלא את טבלת ה-ARP של המתג כדי לחסום תקשורת IP",
+                    "לגרום לשרת ה-DHCP למצות את מאגר הכתובות"
+                ],
+                correct: 0,
+                explanation: "תקיפת MAC Flooding ממלאת את טבלת ה-CAM של המתג. כשהטבלה מלאה, המתג עובר למצב Fail-Open ושולח תעבורה לכל הפורטים כמו רכזת (Hub), מה שמאפשר לתוקף להאזין לכל התעבורה ברשת."
+            },
+            {
+                id: 5,
+                topic: "IAM",
+                question: "מהו ההבדל המהותי בין Authentication ל-Authorization במודל AAA?",
+                options: [
+                    "Authentication בודק מה מותר למשתמש, Authorization מוודא את זהותו",
+                    "Authentication מוודא זהות באמצעות הוכחות, Authorization קובע מה מותר לזהות המאומתת לבצע",
+                    "שניהם זהים אך Authentication משמש ברשת פנימית ו-Authorization ברשת חיצונית",
+                    "Authorization חל רק על משתמשי על בעוד Authentication חל על כל המשתמשים"
+                ],
+                correct: 1,
+                explanation: "Authentication עונה על השאלה 'מי אתה?' ומוודא זהות באמצעות הוכחות (סיסמה, ביומטריה וכו'). Authorization עונה על השאלה 'מה מותר לך לעשות?' וקובע את ההרשאות לזהות שכבר אומתה."
+            },
+            {
+                id: 6,
+                topic: "Target Breach",
+                scenario: "בחקירת פריצת Target התגלה שהתוקפים השיגו גישה ראשונית לרשת דרך ספק מיזוג אוויר (Fazio Mechanical). הם השתמשו בגישה זו כדי להתקדם לרשת ה-POS.",
+                question: "איזה עיקרון אבטחה נכשל באופן הבולט ביותר?",
+                options: [
+                    "עקרון ה-MFA - הספק לא השתמש באימות רב-גורמי",
+                    "עקרון ה-Least Privilege וסגמנטציה - לספק HVAC לא הייתה צריכה להיות גישה לרשת POS",
+                    "עקרון ה-SSO - מערכות ההזדהות לא היו מאוחדות",
+                    "עקרון ה-Accounting - לא נוהל לוג מרכזי של פעולות הספקים"
+                ],
+                correct: 1,
+                explanation: "לספק מיזוג אוויר לא הייתה שום סיבה עסקית לגשת לרשת ה-POS. היעדר סגמנטציה ברשת ואי-יישום עקרון ה-Least Privilege אפשרו לתוקפים לבצע Lateral Movement מהגישה הראשונית ועד למערכות הקופות."
+            },
+            {
+                id: 7,
+                topic: "הגנה בשכבות",
+                question: "ארגון מטמיע מערכת Sandbox לבדיקת קבצים נכנסים. מה היתרון המרכזי של טכנולוגיה זו על פני אנטי-וירוס מסורתי?",
+                options: [
+                    "Sandbox צורך פחות משאבי מחשוב מאנטי-וירוס",
+                    "Sandbox יכול לזהות נוזקות Zero-Day על סמך התנהגות ולא על סמך חתימות ידועות",
+                    "Sandbox מבצע סריקה מהירה יותר של קבצים",
+                    "Sandbox אינו דורש עדכונים שוטפים בניגוד לאנטי-וירוס"
+                ],
+                correct: 1,
+                explanation: "Sandbox מריץ קבצים בסביבה מבודדת ומנתח את התנהגותם בפועל. זה מאפשר זיהוי נוזקות חדשות (Zero-Day) שאין להן חתימה ידועה, בניגוד לאנטי-וירוס שמסתמך על מאגר חתימות."
+            },
+            {
+                id: 8,
+                topic: "ענן",
+                scenario: "חברת סטארט-אפ מעבירה את התשתית שלה ל-AWS. מנהל ה-IT שואל: 'אם AWS אחראית על האבטחה, למה אנחנו צריכים להגדיר Security Groups?'",
+                question: "מה התשובה הנכונה בהקשר של Shared Responsibility Model?",
+                options: [
+                    "Security Groups הם אופציונליים - AWS מספקת הגנה מלאה כברירת מחדל",
+                    "AWS אחראית על אבטחת התשתית הפיזית והווירטואליזציה, אך הלקוח אחראי על הגדרת גישה, הצפנה ואבטחת הנתונים שלו",
+                    "Security Groups נדרשים רק לשירותי IaaS, לא ל-PaaS או SaaS",
+                    "AWS אחראית רק על זמינות, הלקוח אחראי על סודיות ושלמות"
+                ],
+                correct: 1,
+                explanation: "במודל האחריות המשותפת, AWS אחראית על אבטחת הענן (תשתית, וירטואליזציה, מרכזי נתונים) והלקוח אחראי על אבטחה בענן (הגדרות גישה, הצפנת נתונים, ניהול זהויות, Security Groups)."
+            },
+            {
+                id: 9,
+                topic: "שכבת הרשת",
+                question: "תוקף שולח חבילות TCP SYN רבות עם כתובות מקור מזויפות לשרת. מדוע תקיפה זו יעילה יותר מאשר שליחת בקשות HTTP רגילות?",
+                options: [
+                    "חבילות SYN עוקפות את חומת האש בעוד HTTP נחסם",
+                    "השרת מקצה משאבים לכל חיבור חצי-פתוח ואינו יכול לסגור אותם כי התשובות נשלחות לכתובות שאינן קיימות",
+                    "TCP SYN צורך יותר רוחב פס מ-HTTP",
+                    "פרוטוקול TCP אינו תומך ב-Rate Limiting בניגוד ל-HTTP"
+                ],
+                correct: 1,
+                explanation: "בתקיפת SYN Flood, השרת מקצה משאבי זיכרון לכל בקשת SYN ומחכה ל-ACK שלא יגיע (כי כתובת המקור מזויפת). החיבורים החצי-פתוחים ממלאים את ה-Backlog Queue עד שהשרת אינו יכול לקבל חיבורים לגיטימיים."
+            },
+            {
+                id: 10,
+                topic: "הצפנה",
+                question: "מהי המשמעות של עקרון Kerckhoffs באבטחת מערכות הצפנה מודרניות?",
+                options: [
+                    "יש להשתמש במפתחות באורך מינימלי של 256 ביט",
+                    "אלגוריתם ההצפנה חייב להיות סודי כדי להבטיח אבטחה מקסימלית",
+                    "האבטחה צריכה להתבסס אך ורק על סודיות המפתח, לא על הסתרת האלגוריתם",
+                    "יש להחליף מפתחות הצפנה כל 90 יום לכל היותר"
+                ],
+                correct: 2,
+                explanation: "עקרון Kerckhoffs קובע שמערכת הצפנה צריכה להישאר מאובטחת גם אם הכל חשוף מלבד המפתח. אלגוריתמים פומביים (כמו AES) עוברים בחינה קפדנית של קהילת הקריפטוגרפיה, מה שמגביר את האמון בהם."
+            },
+            {
+                id: 11,
+                topic: "IAM",
+                scenario: "יעל, מנהלת כספים בחברה, מנסה לגשת לדוחות הכספיים השנתיים בשעה 23:00 מהטלפון הפרטי שלה בזמן חופשה בתאילנד. המערכת חוסמת את הגישה למרות שיש לה הרשאות מלאות לדוחות אלו.",
+                question: "איזה מודל בקרת גישה מיושם כאן?",
+                options: [
+                    "RBAC - התפקיד שלה אינו כולל גישה מרחוק",
+                    "DAC - בעל הקובץ לא אישר לה גישה מתאילנד",
+                    "ABAC - המדיניות בודקת מאפייני הקשר כמו מיקום, שעה וסוג המכשיר",
+                    "MAC - רמת הסיווג של הקובץ גבוהה מרמת האישור שלה"
+                ],
+                correct: 2,
+                explanation: "ABAC מאפשר קבלת החלטות גישה דינמיות על בסיס מאפיינים (Attributes) מרובים: מאפייני משתמש, סביבה (שעה, מיקום), משאב ופעולה. שילוב של מיקום חריג, שעה לא רגילה ומכשיר לא מנוהל מעלה את רמת הסיכון."
+            },
+            {
+                id: 12,
+                topic: "פיזית",
+                question: "מדוע סיבים אופטיים נחשבים מאובטחים יותר מכבלי נחושת מבחינת האזנה?",
+                options: [
+                    "סיבים אופטיים מצפינים את הנתונים אוטומטית",
+                    "האזנה לסיבים דורשת כיפוף או חיתוך פיזי שגורם לירידה מדידה בעוצמת האות",
+                    "סיבים אופטיים משדרים בתדרים שאינם ניתנים ליירוט",
+                    "פרוטוקולי התקשורת בסיבים כוללים זיהוי האזנה מובנה"
+                ],
+                correct: 1,
+                explanation: "בכבלי נחושת ניתן להאזין על ידי לכידת קרינה אלקטרומגנטית מבלי לגעת בכבל. בסיבים אופטיים, האזנה דורשת גישה פיזית לסיב (כיפוף או חיתוך) שגורמת לירידה מדידה בעוצמת האות, מה שמאפשר לזהות את ניסיון ההאזנה."
+            },
+            {
+                id: 13,
+                topic: "תורת הגנה",
+                question: "לפי תורת ההגנה 2.0 של מערך הסייבר הלאומי, מהו השינוי המרכזי בתפיסת תפקיד ה-CISO?",
+                options: [
+                    "מעבר מאחריות על תשתיות לאחריות על קוד אפליקטיבי",
+                    "מעבר מטכנולוג המתמקד בכלים לאסטרטג המשתלב בקבלת החלטות עסקיות",
+                    "מעבר מניהול צוות פנימי לניהול ספקי אבטחה חיצוניים",
+                    "מעבר מאחריות ארגונית לאחריות אישית על אירועי סייבר"
+                ],
+                correct: 1,
+                explanation: "תורת ההגנה 2.0 רואה בסייבר נושא של ניהול סיכונים באחריות ההנהלה הבכירה, לא 'פרויקט מחשוב'. ה-CISO צריך להפוך מטכנולוג לאסטרטג שמבין את העסק ומשתלב בקבלת החלטות."
+            },
+            {
+                id: 14,
+                topic: "שכבת הנתונים",
+                scenario: "מנהל רשת מזהה שמחשבים ברשת המקומית מדווחים על כתובת MAC שגויה עבור שער ברירת המחדל.",
+                question: "מהי התקיפה הסבירה ומהי ההגנה המומלצת?",
+                options: [
+                    "MAC Flooding - להפעיל Port Security על המתגים",
+                    "ARP Poisoning - להפעיל Dynamic ARP Inspection",
+                    "DHCP Starvation - להפעיל DHCP Snooping",
+                    "VLAN Hopping - להגדיר Native VLAN ייעודי"
+                ],
+                correct: 1,
+                explanation: "כתובת MAC שגויה לשער ברירת המחדל מעידה על ARP Poisoning - התוקף שולח תשובות ARP מזויפות. Dynamic ARP Inspection (DAI) בודק את תקינות הודעות ARP מול טבלת DHCP Snooping ומסנן הודעות מזויפות."
+            },
+            {
+                id: 15,
+                topic: "הצפנה",
+                scenario: "בנק שומר סיסמאות של לקוחות במסד נתונים. צוות האבטחה מציע לעבור מ-MD5 ל-bcrypt.",
+                question: "מדוע bcrypt מתאים יותר לאחסון סיסמאות?",
+                options: [
+                    "bcrypt יוצר Hash קצר יותר שחוסך מקום באחסון",
+                    "bcrypt כולל Work Factor מכוון שמאט בכוונה את החישוב ומקשה על תקיפות Brute Force",
+                    "bcrypt הוא אלגוריתם הפיך שמאפשר שחזור סיסמה במקרה ששכחו",
+                    "bcrypt משתמש בהצפנה אסימטרית בניגוד ל-MD5 הסימטרי"
+                ],
+                correct: 1,
+                explanation: "bcrypt תוכנן במיוחד לאחסון סיסמאות. הוא כולל Work Factor (cost) שניתן להגדיל עם הזמן, Salt אוטומטי, והוא איטי בכוונה. MD5 מהיר מדי (מיליארדי ניסיונות בשנייה) ואין לו Salt מובנה."
+            },
+            {
+                id: 16,
+                topic: "NIST CSF",
+                question: "ארגון מגלה פריצה פעילה. לפי מודל NIST CSF, מהו הסדר הנכון של הפעולות?",
+                options: [
+                    "Identify → Protect → Detect → Respond → Recover",
+                    "Detect → Respond → Recover → Identify → Protect",
+                    "Respond → Recover → Detect → Protect → Identify",
+                    "Detect → Identify → Respond → Recover → Protect"
+                ],
+                correct: 0,
+                explanation: "חמש הפונקציות של NIST CSF מהוות מעגל רציף: Identify (זיהוי נכסים וסיכונים) → Protect (הגנה) → Detect (איתור) → Respond (תגובה) → Recover (התאוששות). בעת פריצה, כבר עברנו את Detect ופועלים ב-Respond."
+            },
+            {
+                id: 17,
+                topic: "IAM",
+                question: "מהי הסכנה העיקרית ב-Privilege Creep ומהו הפתרון?",
+                options: [
+                    "משתמשים מקבלים הרשאות גבוהות מדי בעת ההצטרפות - הפתרון הוא Automated Provisioning",
+                    "עובדים שעוברים תפקידים צוברים הרשאות ישנות בנוסף לחדשות - הפתרון הוא Access Certification תקופתי",
+                    "סיסמאות Admin משותפות בין עובדים - הפתרון הוא PAM",
+                    "משתמשים משתפים חשבונות - הפתרון הוא MFA"
+                ],
+                correct: 1,
+                explanation: "Privilege Creep קורה כשעובדים (Movers) עוברים תפקידים ומקבלים הרשאות חדשות מבלי שהישנות מוסרות. Access Certification (בדיקה תקופתית של הרשאות) מזהה ומסיר הרשאות עודפות."
+            },
+            {
+                id: 18,
+                topic: "רשת",
+                question: "מהי מטרת מתקפות UDP Amplification כמו DNS Amplification?",
+                options: [
+                    "לגנוב מידע DNS רגיש מהשרת",
+                    "לנצל שרתי צד שלישי ליצירת תעבורה עצומה לקורבן עם מאמץ מינימלי מהתוקף",
+                    "להאזין לתעבורת DNS בין לקוחות לשרתים",
+                    "לשנות רשומות DNS כדי להפנות משתמשים לאתרים זדוניים"
+                ],
+                correct: 1,
+                explanation: "ב-DNS Amplification, התוקף שולח בקשות DNS קטנות עם כתובת מקור מזויפת (של הקורבן) לשרתי DNS פתוחים. התשובות הגדולות (עד פי 70) נשלחות לקורבן. התוקף משתמש בשרתים לגיטימיים כ'מגברים' למתקפת DDoS."
+            },
+            {
+                id: 19,
+                topic: "ענן",
+                question: "בהשוואה בין ענן פרטי לענן ציבורי, מהו היתרון העיקרי של ענן ציבורי לארגון צומח?",
+                options: [
+                    "שליטה מלאה על מיקום פיזי של הנתונים",
+                    "אלסטיות - יכולת להגדיל ולהקטין משאבים לפי דרישה ולשלם רק על מה שנצרך",
+                    "עמידה אוטומטית בכל תקני הרגולציה",
+                    "ביצועים גבוהים יותר עקב חומרה ייעודית"
+                ],
+                correct: 1,
+                explanation: "היתרון המרכזי של ענן ציבורי הוא האלסטיות (Elasticity) ומודל Pay-as-you-go. ארגון צומח יכול להגדיל משאבים ברגע ולהקטין כשאין צורך, בניגוד לענן פרטי שדורש השקעה מראש בתשתית."
+            },
+            {
+                id: 20,
+                topic: "הגנה בשכבות",
+                scenario: "ארגון מטמיע מערכת Honeypot ברשת הפנימית.",
+                question: "מהי המטרה העיקרית של Honeypot ומתי הוא שימושי?",
+                options: [
+                    "לחסום תקיפות באופן אוטומטי לפני שמגיעות למערכות אמיתיות",
+                    "לזהות תוקפים שכבר נמצאים בתוך הרשת על ידי מעקב אחר גישה למשאבים פיקטיביים שאין סיבה לגיטימית לגשת אליהם",
+                    "להאיץ את ביצועי הרשת על ידי הפניית תעבורה זדונית",
+                    "לבצע גיבוי אוטומטי של מערכות קריטיות במקרה של מתקפה"
+                ],
+                correct: 1,
+                explanation: "Honeypot הוא משאב פיקטיבי שנראה אמיתי אך אין סיבה לגיטימית לגשת אליו. כל גישה אליו מעידה על פעילות זדונית או חקירה לא מורשית, מה שמאפשר זיהוי תוקפים שעברו את שכבות ההגנה ההיקפיות."
+            },
+            {
+                id: 21,
+                topic: "הצפנה",
+                question: "בהקשר של חתימה דיגיטלית, מה מבטיח את Non-Repudiation?",
+                options: [
+                    "הצפנת ההודעה עצמה באמצעות המפתח הציבורי של הנמען",
+                    "חתימה על Hash של ההודעה באמצעות המפתח הפרטי של השולח",
+                    "שימוש בתעודה דיגיטלית חתומה על ידי CA",
+                    "הצפנה סימטרית עם מפתח משותף בין הצדדים"
+                ],
+                correct: 1,
+                explanation: "Non-Repudiation (אי-הכחשה) מושג על ידי חתימה באמצעות המפתח הפרטי של השולח. רק לשולח יש גישה למפתח הפרטי, ולכן אינו יכול להכחיש שהוא חתם. האימות נעשה עם המפתח הציבורי."
+            },
+            {
+                id: 22,
+                topic: "גופי סייבר",
+                question: "מהו תחום האחריות של הרשות להגנת הפרטיות בהשוואה למערך הסייבר הלאומי?",
+                options: [
+                    "הרשות מטפלת באיומי מדינה, מערך הסייבר מטפל באיומי פשיעה",
+                    "הרשות אחראית על תוכן המידע, פרטיות ומאגרי מידע רשומים, מערך הסייבר על הגנת התשתית הטכנית",
+                    "הרשות מפקחת על ארגונים ממשלתיים, מערך הסייבר על המגזר הפרטי",
+                    "שניהם בעלי סמכויות זהות אך פועלים באזורים גיאוגרפיים שונים"
+                ],
+                correct: 1,
+                explanation: "הרשות להגנת הפרטיות היא הרגולטור האחראי על תוכן המידע - אכיפת חוק הגנת הפרטיות, פיקוח על מאגרי מידע, וטיפול בהפרות פרטיות. מערך הסייבר הלאומי אחראי על ההגנה הטכנית של המרחב הדיגיטלי ותשתיות."
+            },
+            {
+                id: 23,
+                topic: "IAM",
+                scenario: "ארגון מטמיע פתרון PAM. מנהלת השרתים מתלוננת שעכשיו היא צריכה לבקש גישה בכל פעם שרוצה להיכנס לשרת במקום להשתמש בסיסמה שהיא יודעת.",
+                question: "מה היתרון האבטחתי של השינוי הזה?",
+                options: [
+                    "הסיסמאות מאוחסנות בצורה מוצפנת יותר מאשר בראש של המנהלת",
+                    "PAM מאפשר JIT Access - גישה מוגבלת בזמן, עם הקלטת פעולות וללא סיסמאות קבועות שיכולות להיגנב או להישאר אחרי עזיבה",
+                    "PAM מהיר יותר מהקלדת סיסמה ידנית",
+                    "PAM מבטל את הצורך באימות לחלוטין"
+                ],
+                correct: 1,
+                explanation: "PAM עם JIT Access מספק: גישה רק כשצריך ולזמן מוגבל, הקלטת כל הפעולות, סיסמאות שמתחלפות אוטומטית, וביטול הצורך ב'סיסמאות בראש' שנשארות גם אחרי עזיבה או נגנבות."
+            },
+            {
+                id: 24,
+                topic: "BCP/DRP",
+                question: "מהו ההבדל בין RPO ל-RTO בתכנון המשכיות עסקית?",
+                options: [
+                    "RPO מתייחס לשרתים, RTO מתייחס לנתונים",
+                    "RPO מגדיר כמה נתונים הארגון מוכן לאבד (זמן אחורה), RTO מגדיר תוך כמה זמן צריך לחזור לפעילות",
+                    "RPO נמדד בג'יגה-בייט, RTO נמדד בשעות",
+                    "RPO רלוונטי רק לענן, RTO רלוונטי רק לתשתית On-Premise"
+                ],
+                correct: 1,
+                explanation: "RPO (Recovery Point Objective) מגדיר את נקודת השחזור - כמה נתונים מותר לאבד (למשל, RPO של שעה אומר שגיבויים חייבים להיות כל שעה). RTO (Recovery Time Objective) מגדיר את זמן ההתאוששות - תוך כמה זמן המערכת חייבת לחזור לפעילות."
+            },
+            {
+                id: 25,
+                topic: "מודל CIA",
+                scenario: "האקר מצליח לשנות ערך בודד בטבלת חישוב ריבית במערכת בנקאית. השינוי קטן מספיק שלא מזוהה בבדיקות שגרתיות.",
+                question: "באיזה רכיב של מודל ה-CIA נפגע הבנק ומהי ההגנה המתאימה?",
+                options: [
+                    "Confidentiality - יש להצפין את טבלאות הריבית",
+                    "Availability - יש להוסיף שרת גיבוי לטבלאות",
+                    "Integrity - יש ליישם בקרות שלמות כמו Hash על נתונים קריטיים וניטור שינויים",
+                    "Authentication - יש לדרוש MFA לגישה לטבלאות"
+                ],
+                correct: 2,
+                explanation: "שינוי לא מורשה של נתונים פוגע ב-Integrity (שלמות). ההגנה כוללת: Hash/Checksum על נתונים קריטיים, ניטור שינויים (File Integrity Monitoring), בקרת גרסאות, והפרדת תפקידים כדי שאדם אחד לא יוכל לשנות נתונים ולהסתיר את השינוי."
+            }
+        ];
+
+        let userAnswers = {};
+        let examSubmitted = false;
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = questions.map((q, index) => `
+                <div class="question-card" id="card-${q.id}">
+                    <span class="topic-tag">${q.topic}</span>
+                    <span class="question-number">שאלה ${index + 1}</span>
+                    ${q.scenario ? `<div class="question-scenario">${q.scenario}</div>` : ''}
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, optIndex) => `
+                            <div class="option" onclick="selectAnswer(${q.id}, ${optIndex})" id="opt-${q.id}-${optIndex}">
+                                <span class="option-letter">${String.fromCharCode(1488 + optIndex)}</span>
+                                <span>${opt}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="explanation" id="exp-${q.id}">
+                        <strong>הסבר:</strong> ${q.explanation}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectAnswer(questionId, optionIndex) {
+            if (examSubmitted) return;
+
+            // Remove previous selection for this question
+            const card = document.getElementById(`card-${questionId}`);
+            card.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+
+            // Add selection to clicked option
+            document.getElementById(`opt-${questionId}-${optionIndex}`).classList.add('selected');
+
+            // Store answer
+            userAnswers[questionId] = optionIndex;
+
+            // Update progress
+            updateProgress();
+
+            // Mark card as answered
+            card.classList.add('answered');
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(userAnswers).length;
+            const percentage = (answered / questions.length) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('answeredCount').textContent = answered;
+        }
+
+        function submitExam() {
+            examSubmitted = true;
+
+            let correct = 0;
+            let wrong = 0;
+            let unanswered = 0;
+
+            questions.forEach(q => {
+                const card = document.getElementById(`card-${q.id}`);
+                const explanation = document.getElementById(`exp-${q.id}`);
+
+                // Disable all options
+                card.querySelectorAll('.option').forEach(opt => opt.classList.add('disabled'));
+
+                if (userAnswers[q.id] === undefined) {
+                    unanswered++;
+                    // Show correct answer
+                    document.getElementById(`opt-${q.id}-${q.correct}`).classList.add('correct-answer');
+                } else if (userAnswers[q.id] === q.correct) {
+                    correct++;
+                    card.classList.add('correct');
+                    document.getElementById(`opt-${q.id}-${q.correct}`).classList.add('correct-answer');
+                } else {
+                    wrong++;
+                    card.classList.add('wrong');
+                    document.getElementById(`opt-${q.id}-${userAnswers[q.id]}`).classList.add('wrong-answer');
+                    document.getElementById(`opt-${q.id}-${q.correct}`).classList.add('correct-answer');
+                }
+
+                // Show explanation
+                explanation.classList.add('show');
+            });
+
+            // Show results
+            const percentage = Math.round((correct / questions.length) * 100);
+            document.getElementById('scoreCircle').style.setProperty('--score', percentage + '%');
+            document.getElementById('scoreText').textContent = percentage + '%';
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('wrongCount').textContent = wrong;
+            document.getElementById('unansweredCount').textContent = unanswered;
+
+            let message = '';
+            if (percentage >= 90) message = 'מצוין! שליטה מלאה בחומר';
+            else if (percentage >= 80) message = 'טוב מאוד! הבנה טובה של החומר';
+            else if (percentage >= 70) message = 'טוב, אך יש מקום לשיפור';
+            else if (percentage >= 60) message = 'עברת, אך מומלץ לחזור על החומר';
+            else message = 'נכשלת - יש לחזור על החומר ולנסות שוב';
+
+            document.getElementById('scoreMessage').textContent = message;
+            document.getElementById('results').classList.add('show');
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function reviewAnswers() {
+            document.getElementById('questionsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetExam() {
+            userAnswers = {};
+            examSubmitted = false;
+
+            questions.forEach(q => {
+                const card = document.getElementById(`card-${q.id}`);
+                card.classList.remove('answered', 'correct', 'wrong');
+                card.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected', 'disabled', 'correct-answer', 'wrong-answer');
+                });
+                document.getElementById(`exp-${q.id}`).classList.remove('show');
+            });
+
+            document.getElementById('results').classList.remove('show');
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        renderQuestions();
+    </script>
+</body>
+</html>
