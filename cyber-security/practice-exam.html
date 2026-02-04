@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבחן תרגול - אבטחת מידע וסייבר</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2d4a 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            color: #4fc3f7;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #90caf9;
+            font-size: 1.1rem;
+        }
+
+        .question-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            color: #0a1628;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .option:hover {
+            background: rgba(79, 195, 247, 0.1);
+            border-color: rgba(79, 195, 247, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .option.selected {
+            background: rgba(79, 195, 247, 0.15);
+            border-color: #4fc3f7;
+        }
+
+        .option.correct {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4caf50;
+        }
+
+        .option.wrong {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+        }
+
+        .option-letter {
+            background: rgba(255,255,255,0.1);
+            color: #4fc3f7;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .option.correct .option-letter {
+            background: #4caf50;
+            color: white;
+        }
+
+        .option.wrong .option-letter {
+            background: #f44336;
+            color: white;
+        }
+
+        .option-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 10px;
+            border-right: 4px solid #4caf50;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .explanation-title {
+            color: #4caf50;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            color: #0a1628;
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(79, 195, 247, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+
+        .score-text {
+            font-size: 1.2rem;
+            color: #90caf9;
+        }
+
+        .reset-btn {
+            background: transparent;
+            border: 2px solid #4fc3f7;
+            color: #4fc3f7;
+            padding: 12px 40px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #4fc3f7;
+            color: #0a1628;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #90caf9;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .question-text {
+                font-size: 1rem;
+            }
+
+            .option {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>מבחן תרגול - אבטחת מידע וסייבר</h1>
+            <p class="subtitle">שאלות לדוגמא מהמצגת | שעור 13</p>
+        </header>
+
+        <div class="progress-text">התקדמות: <span id="answered">0</span>/5 שאלות</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div id="questionsContainer"></div>
+
+        <div class="submit-section">
+            <button class="submit-btn" id="submitBtn" onclick="submitExam()">בדוק תשובות</button>
+        </div>
+
+        <div class="results" id="results">
+            <div class="score" id="scoreDisplay">0/5</div>
+            <div class="score-text" id="scoreText"></div>
+            <button class="reset-btn" onclick="resetExam()">התחל מחדש</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                question: "מדוע פרוטוקול TLS משתמש בהצפנה היברידית במקום להסתמך רק על הצפנה אסימטרית?",
+                options: [
+                    "הצפנה אסימטרית אינה מאפשרת אימות של זהות השרת.",
+                    "הצפנה סימטרית בטוחה יותר מפני מתקפות כוח גס (Brute Force).",
+                    "הצפנה אסימטרית איטית מדי להעברת נפחי נתונים גדולים, ולכן היא משמשת רק להחלפת מפתח סימטרי זמני ומהיר.",
+                    "פרוטוקול TLS אינו תומך באלגוריתם RSA באופן ישיר."
+                ],
+                correct: 2,
+                explanation: "הצפנה אסימטרית איטית מדי לנפחי נתונים גדולים, לכן משמשת רק להחלפת מפתח סימטרי זמני ומהיר. זהו העיקרון של הצפנה היברידית - שילוב היתרונות של שני סוגי ההצפנה."
+            },
+            {
+                id: 2,
+                question: "מהו הלקח התפעולי המרכזי מפריצת הענק ל-Target בשנת 2013?",
+                options: [
+                    "כמות כלי האבטחה היא המדד החשוב ביותר לחוסן הארגון.",
+                    "הצפנה היקפית היא חסרת תועלת ללא הגנה פיזית.",
+                    "איכות היישום והמענה המבצעי להתראות חשובים יותר מעצם קיום הטכנולוגיה, שכן המערכות התריעו אך הצוות לא פעל.",
+                    "תקיפות פישינג אינן יכולות להוביל לגניבת נתוני כרטיסי אשראי."
+                ],
+                correct: 2,
+                explanation: "מערכת FireEye זיהתה את הנוזקה ושלחה התראות, אך צוות האבטחה לא פעל בהתאם. הלקח: איכות התפעול והמענה המבצעי חשובים יותר מעצם קיום הכלים."
+            },
+            {
+                id: 3,
+                question: "בהקשר של \"גריעת משאבים\" (De-Provisioning) בניהול מחזור חיי זהות, מהי הסכנה ב\"חשבונות זומבי\"?",
+                options: [
+                    "הם גורמים להאטה משמעותית בביצועי מסד הנתונים.",
+                    "הם מאפשרים לעובדים קיימים לצבור הרשאות עודפות במעבר תפקיד.",
+                    "הם מונעים מהמערכת לבצע אימות רב-גורמי (MFA) לשאר המשתמשים.",
+                    "אלו חשבונות של עובדים שעזבו אך נותרו פעילים, ומהווים דלת אחורית נוחה לתוקפים חיצוניים."
+                ],
+                correct: 3,
+                explanation: "חשבונות זומבי הם חשבונות של עובדים שעזבו את הארגון אך נותרו פעילים במערכת. הם מהווים סיכון אבטחתי משמעותי כי תוקף יכול לנצל אותם לגישה לא מורשית."
+            },
+            {
+                id: 4,
+                question: "מהו ההבדל המהותי ביותר בין תקיפת ARP Poisoning לבין תקיפת MAC Flooding מבחינת שיטת הפעולה?",
+                options: [
+                    "ARP Poisoning פועלת בשכבה 3, בעוד MAC Flooding פועלת בשכבה 2.",
+                    "ARP Poisoning מבוססת על הונאת קצה (מחשבים/ראוטר), בעוד MAC Flooding מיועדת להכריע את רכיב התקשורת (המתג) כדי לשנות את התנהגותו.",
+                    "MAC Flooding מאפשרת האזנה רק לקורבן ספציפי, בעוד ARP Poisoning גורמת לכלל הרשת לעבור למצב Fail-Open.",
+                    "אין הבדל; שתי התקיפות גורמות למתג להפוך לרכזת (Hub) באותו האופן."
+                ],
+                correct: 1,
+                explanation: "ARP Poisoning מטעה מחשבים ספציפיים ברשת, בעוד MAC Flooding מציפה את טבלת ה-CAM של המתג כדי לגרום לו לעבור למצב Fail-Open ולשלוח תעבורה לכל הפורטים."
+            },
+            {
+                id: 5,
+                question: "מהו היתרון המרכזי של מודל ABAC על פני מודל RBAC בארגונים מבוזרים?",
+                options: [
+                    "קלות רבה יותר בניהול אלפי תפקידים סטטיים.",
+                    "היכולת לקבל החלטות גישה דינמיות המבוססות על הקשר (Context) כמו מיקום, שעה ובריאות המכשיר.",
+                    "ביטול הצורך באימות רב-גורמי (MFA).",
+                    "מתן הרשאות קבועות שאינן משתנות לעולם, מה שמונע טעויות ניהוליות."
+                ],
+                correct: 1,
+                explanation: "ABAC (Attribute-Based Access Control) מאפשר החלטות גישה דינמיות בזמן אמת על בסיס מאפיינים משתנים כמו מיקום, שעה, סוג מכשיר ועוד - בניגוד ל-RBAC שמבוסס על תפקידים קבועים."
+            }
+        ];
+
+        let userAnswers = {};
+        let submitted = false;
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            const letters = ['א', 'ב', 'ג', 'ד'];
+
+            container.innerHTML = questions.map((q, index) => `
+                <div class="question-card" id="card-${q.id}">
+                    <div class="question-header">
+                        <span class="question-number">שאלה ${index + 1}</span>
+                    </div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" id="option-${q.id}-${i}" onclick="selectAnswer(${q.id}, ${i})">
+                                <span class="option-letter">${letters[i]}</span>
+                                <span class="option-text">${opt}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="explanation" id="explanation-${q.id}">
+                        <div class="explanation-title">הסבר:</div>
+                        <div>${q.explanation}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectAnswer(questionId, optionIndex) {
+            if (submitted) return;
+
+            // Clear previous selection for this question
+            const options = document.querySelectorAll(`[id^="option-${questionId}-"]`);
+            options.forEach(opt => opt.classList.remove('selected'));
+
+            // Mark new selection
+            const selectedOption = document.getElementById(`option-${questionId}-${optionIndex}`);
+            selectedOption.classList.add('selected');
+
+            userAnswers[questionId] = optionIndex;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(userAnswers).length;
+            document.getElementById('answered').textContent = answered;
+            document.getElementById('progressFill').style.width = `${(answered / questions.length) * 100}%`;
+        }
+
+        function submitExam() {
+            if (Object.keys(userAnswers).length < questions.length) {
+                alert('יש לענות על כל השאלות לפני הגשה');
+                return;
+            }
+
+            submitted = true;
+            let score = 0;
+
+            questions.forEach(q => {
+                const userAnswer = userAnswers[q.id];
+                const isCorrect = userAnswer === q.correct;
+
+                if (isCorrect) score++;
+
+                // Mark correct and wrong answers
+                q.options.forEach((_, i) => {
+                    const option = document.getElementById(`option-${q.id}-${i}`);
+                    if (i === q.correct) {
+                        option.classList.add('correct');
+                    } else if (i === userAnswer && !isCorrect) {
+                        option.classList.add('wrong');
+                    }
+                });
+
+                // Show explanation
+                document.getElementById(`explanation-${q.id}`).classList.add('show');
+            });
+
+            // Show results
+            document.getElementById('scoreDisplay').textContent = `${score}/${questions.length}`;
+
+            let scoreText = '';
+            const percentage = (score / questions.length) * 100;
+            if (percentage === 100) {
+                scoreText = 'מצוין! תשובות מושלמות!';
+            } else if (percentage >= 80) {
+                scoreText = 'כל הכבוד! ציון טוב מאוד!';
+            } else if (percentage >= 60) {
+                scoreText = 'לא רע, אבל יש מקום לשיפור';
+            } else {
+                scoreText = 'כדאי לחזור על החומר';
+            }
+            document.getElementById('scoreText').textContent = scoreText;
+            document.getElementById('results').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetExam() {
+            userAnswers = {};
+            submitted = false;
+
+            // Reset all options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'wrong');
+            });
+
+            // Hide explanations
+            document.querySelectorAll('.explanation').forEach(exp => {
+                exp.classList.remove('show');
+            });
+
+            // Hide results
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('submitBtn').disabled = false;
+
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        renderQuestions();
+    </script>
+</body>
+</html>
