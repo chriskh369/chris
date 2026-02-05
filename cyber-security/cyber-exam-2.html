@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבחן אבטחת מידע וסייבר - סיכום</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2d4a 50%, #0d1f3c 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 { color: #4fc3f7; font-size: 2rem; margin-bottom: 8px; }
+        .subtitle { color: #90caf9; font-size: 1.05rem; }
+
+        .progress-bar-wrap {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .progress-text { text-align: center; margin-bottom: 8px; color: #90caf9; font-size: 0.95rem; }
+        .progress-bar { background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #4fc3f7, #29b6f6); height: 100%; border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+
+        .question-card {
+            background: rgba(255,255,255,0.04);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+        .question-number { background: linear-gradient(135deg, #4fc3f7, #0288d1); color: #0a1628; padding: 6px 14px; border-radius: 18px; font-weight: bold; font-size: 0.85rem; }
+        .question-topic { color: #78909c; font-size: 0.85rem; }
+
+        .scenario { background: rgba(255,193,7,0.08); border-right: 3px solid #ffc107; padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; color: #ffe082; font-size: 0.95rem; line-height: 1.6; }
+
+        .question-text { font-size: 1.1rem; line-height: 1.7; margin-bottom: 18px; color: #fff; }
+
+        .options { display: flex; flex-direction: column; gap: 10px; }
+
+        .option {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .option:hover { background: rgba(79,195,247,0.08); border-color: rgba(79,195,247,0.25); transform: translateX(-4px); }
+        .option.selected { background: rgba(79,195,247,0.12); border-color: #4fc3f7; }
+        .option.correct { background: rgba(76,175,80,0.15); border-color: #4caf50; }
+        .option.wrong { background: rgba(244,67,54,0.15); border-color: #f44336; }
+        .option.correct .option-letter { background: #4caf50; color: #fff; }
+        .option.wrong .option-letter { background: #f44336; color: #fff; }
+
+        .option-letter { background: rgba(255,255,255,0.08); color: #4fc3f7; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; font-size: 0.9rem; }
+        .option-text { flex: 1; line-height: 1.5; }
+
+        .explanation { margin-top: 14px; padding: 14px; background: rgba(76,175,80,0.08); border-radius: 10px; border-right: 4px solid #4caf50; display: none; line-height: 1.6; }
+        .explanation.show { display: block; }
+        .explanation-title { color: #4caf50; font-weight: bold; margin-bottom: 6px; }
+
+        .results { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 30px; text-align: center; margin-top: 30px; display: none; border: 1px solid rgba(255,255,255,0.1); }
+        .results.show { display: block; }
+        .score { font-size: 3rem; font-weight: bold; color: #4fc3f7; margin-bottom: 8px; }
+        .score-text { font-size: 1.15rem; color: #90caf9; margin-bottom: 20px; }
+
+        .btn { border: none; padding: 14px 45px; font-size: 1.1rem; font-weight: bold; border-radius: 28px; cursor: pointer; transition: all 0.3s ease; }
+        .btn:hover { transform: scale(1.04); }
+        .btn-primary { background: linear-gradient(135deg, #4fc3f7, #0288d1); color: #0a1628; }
+        .btn-primary:hover { box-shadow: 0 8px 25px rgba(79,195,247,0.3); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-outline { background: transparent; border: 2px solid #4fc3f7; color: #4fc3f7; margin-top: 15px; }
+        .btn-outline:hover { background: #4fc3f7; color: #0a1628; }
+
+        .submit-section { text-align: center; margin-top: 25px; }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.5rem; }
+            .question-text { font-size: 1rem; }
+            .option { padding: 12px 14px; }
+            body { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>מבחן אבטחת מידע וסייבר</h1>
+            <p class="subtitle">25 שאלות | רמת אוניברסיטה | חומר סגור</p>
+        </header>
+
+        <div class="progress-bar-wrap">
+            <div class="progress-text">התקדמות: <span id="answered">0</span>/25</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+
+        <div id="questionsContainer"></div>
+
+        <div class="submit-section">
+            <button class="btn btn-primary" id="submitBtn" onclick="submitExam()">הגש מבחן</button>
+        </div>
+
+        <div class="results" id="results">
+            <div class="score" id="scoreDisplay"></div>
+            <div class="score-text" id="scoreText"></div>
+            <button class="btn btn-outline" onclick="resetExam()">התחל מחדש</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                topic: "מודל CIA",
+                question: "שרת של חברה הושבת במתקפת סייבר ולקוחות לא יכלו לגשת לשירות. איזה עיקרון במודל CIA נפגע?",
+                options: [
+                    "Confidentiality - כי המידע נחשף לגורמים לא מורשים",
+                    "Integrity - כי הנתונים שונו ללא הרשאה בשרת",
+                    "Availability - כי הגישה למידע נמנעה מהמשתמשים",
+                    "Authentication - כי זהות המשתמשים לא אומתה"
+                ],
+                correct: 2,
+                explanation: "Availability (זמינות) = היכולת לגשת למידע כשצריך. השבתת שרת פוגעת ישירות בזמינות השירות."
+            },
+            {
+                id: 2,
+                topic: "נוסחת סיכון",
+                question: "ארגון זיהה איום עם סבירות גבוהה אך השפעה זניחה. כיצד יש להתייחס לסיכון?",
+                options: [
+                    "סיכון קריטי, כי סבירות גבוהה דורשת טיפול מיידי",
+                    "סיכון בינוני, כי המכפלה של סבירות גבוהה בנזק זניח נמוכה",
+                    "סיכון אפסי, כי נזק זניח לא דורש התייחסות כלל",
+                    "סיכון גבוה, כי כל איום בסבירות גבוהה מחייב בקרה"
+                ],
+                correct: 1,
+                explanation: "סיכון = השפעה × סבירות. סבירות גבוהה כפול נזק זניח = סיכון בינוני-נמוך. המכפלה היא שקובעת."
+            },
+            {
+                id: 3,
+                topic: "משטח תקיפה",
+                question: "מהי הדרך האפקטיבית ביותר לצמצם את משטח התקיפה של ארגון?",
+                options: [
+                    "רכישת כלי אבטחה מתקדמים בלבד",
+                    "הצפנת כל המידע ללא יוצא מן הכלל",
+                    "ניהול הרשאות קפדני והסרת שירותים מיותרים",
+                    "הגדלת צוות אבטחת המידע בארגון"
+                ],
+                correct: 2,
+                explanation: "צמצום משטח תקיפה = ניהול הרשאות קפדני, הקשחת מערכות והסרת שירותים מיותרים שמהווים נקודות כניסה."
+            },
+            {
+                id: 4,
+                topic: "סוגי איומים",
+                scenario: "עובד בארגון מחק בטעות מסד נתונים קריטי במהלך תחזוקה שגרתית.",
+                question: "כיצד מסווגים את האיום במקרה זה?",
+                options: [
+                    "איום טכנולוגי - כי מדובר בתקלת חומרה",
+                    "איום אנושי - כי מדובר בטעות של עובד",
+                    "איום טבעי - כי מדובר באירוע בלתי צפוי",
+                    "איום משפטי - כי מדובר בהפרת נהלים"
+                ],
+                correct: 1,
+                explanation: "טעות אנוש מסווגת כאיום אנושי. גם כשאין כוונה זדונית, עובד שמוחק נתונים בטעות הוא איום אנושי."
+            },
+            {
+                id: 5,
+                topic: "שכבה פיזית",
+                question: "מדוע נחשבת השכבה הפיזית ל'חוליה החלשה' במודל OSI?",
+                options: [
+                    "כי היא השכבה היחידה שאין לה הצפנה מובנית",
+                    "כי פגיעה בה משפיעה ישירות על כל השכבות מעליה",
+                    "כי היא השכבה הפנימית ביותר ולכן חשופה",
+                    "כי היא תלויה רק בפרוטוקול TCP לתקשורת"
+                ],
+                correct: 1,
+                explanation: "השכבה הפיזית היא הבסיס - פגיעה בה (חיתוך כבל, השבתת חשמל) פוגעת בזמינות, שלמות וסודיות כל השכבות."
+            },
+            {
+                id: 6,
+                topic: "סיבים אופטיים",
+                question: "מהו היתרון האבטחתי של סיבים אופטיים על פני כבלי נחושת?",
+                options: [
+                    "סיבים אופטיים מצפינים את המידע באופן אוטומטי",
+                    "סיבים אופטיים עמידים יותר בפני תנאי מזג אוויר",
+                    "האזנה לסיבים דורשת פגיעה פיזית שניתנת לזיהוי",
+                    "סיבים אופטיים זולים יותר ולכן ניתן להכפילם"
+                ],
+                correct: 2,
+                explanation: "האזנה לסיבים אופטיים דורשת חיתוך או כיפוף, מה שגורם לירידה מדידה באות וניתן לזהות."
+            },
+            {
+                id: 7,
+                topic: "TEMPEST",
+                question: "מהי מטרת תקן TEMPEST בהקשר אבטחתי?",
+                options: [
+                    "הגנה על מערכות מפני מתקפות הצפה ברשת",
+                    "מניעת דליפת מידע באמצעות קרינה אלקטרומגנטית",
+                    "הצפנת תקשורת בין שרתים ותחנות קצה",
+                    "ניטור ובקרה על גישה פיזית לחדרי שרתים"
+                ],
+                correct: 1,
+                explanation: "TEMPEST הוא תקן ממשלתי למניעת דליפת מידע דרך קרינה אלקטרומגנטית ('מידע שמרחף') ממכשירים."
+            },
+            {
+                id: 8,
+                topic: "ARP",
+                scenario: "תוקף ברשת המקומית שולח הודעות ARP מזויפות לכל המחשבים.",
+                question: "מה ההבדל בין ARP Spoofing ל-ARP Poisoning?",
+                options: [
+                    "אין הבדל, שניהם מתארים את אותה תקיפה בדיוק",
+                    "Spoofing מכוון למחשב אחד, Poisoning מרעיל את כל הרשת",
+                    "Spoofing פועל בשכבה 3 בלבד, Poisoning בשכבה 2",
+                    "Spoofing דורש גישה פיזית, Poisoning עובד מרחוק"
+                ],
+                correct: 1,
+                explanation: "ARP Spoofing = התחזות למכשיר ספציפי וקבלת המידע שלו. ARP Poisoning = שכנוע כל הרשת שהתוקף הוא הנתב."
+            },
+            {
+                id: 9,
+                topic: "MAC Flooding",
+                question: "מה קורה כאשר תקיפת MAC Flooding מצליחה במתג?",
+                options: [
+                    "המתג נכבה אוטומטית כדי להגן על הרשת",
+                    "המתג חוסם את כל התעבורה עד לאיפוס ידני",
+                    "המתג עובר למצב Hub ושולח לכל הפורטים",
+                    "המתג מאתחל את טבלת CAM ומתחיל מחדש"
+                ],
+                correct: 2,
+                explanation: "MAC Flooding ממלא את טבלת CAM. המתג עובר למצב Fail-Open ושולח כל חבילה לכל הפורטים - כמו Hub."
+            },
+            {
+                id: 10,
+                topic: "TCP SYN Flood",
+                scenario: "שרת אינטרנט הפסיק להגיב. בבדיקה נמצאו אלפי חיבורים חצי-פתוחים.",
+                question: "איזו תקיפה מתוארת בתרחיש?",
+                options: [
+                    "MAC Flooding - הצפת טבלת כתובות במתג",
+                    "ARP Poisoning - הרעלת טבלת ה-ARP ברשת",
+                    "TCP SYN Flood - הצפת השרת בבקשות חיבור",
+                    "UDP Amplification - הגברת תעבורה דרך DNS"
+                ],
+                correct: 2,
+                explanation: "TCP SYN Flood: התוקף שולח בקשות SYN ללא השלמת ה-Handshake. השרת מחכה לתשובות ונגמר לו הזיכרון."
+            },
+            {
+                id: 11,
+                topic: "TCP vs UDP",
+                question: "מדוע UDP פגיע יותר לניצול על ידי תוקפים בהשוואה ל-TCP?",
+                options: [
+                    "UDP משתמש בהצפנה חלשה יותר מ-TCP",
+                    "UDP לא דורש לחיצת יד ולא מאמת את המקור",
+                    "UDP פועל רק בשכבה הפיזית ללא הגנה",
+                    "UDP מוגבל לרשת מקומית ולכן חשוף יותר"
+                ],
+                correct: 1,
+                explanation: "UDP הוא Connectionless - אין לחיצת יד, אין אימות מקור, קל לזייף כתובת, וניתן להציף ללא מנגנון בלימה."
+            },
+            {
+                id: 12,
+                topic: "False Positive / Negative",
+                question: "מערכת IDS לא זיהתה חדירה אמיתית לרשת. מהו סוג השגיאה?",
+                options: [
+                    "False Positive - המערכת זיהתה איום שלא קיים",
+                    "False Negative - המערכת פספסה איום אמיתי",
+                    "True Positive - המערכת זיהתה איום נכון",
+                    "True Negative - המערכת דחתה התראה בצדק"
+                ],
+                correct: 1,
+                explanation: "False Negative = פספוס איום אמיתי. זו השגיאה המסוכנת ביותר כי התוקף חודר ללא זיהוי."
+            },
+            {
+                id: 13,
+                topic: "Firewall",
+                question: "מה ההבדל העיקרי בין Stateful Firewall ל-Stateless Firewall?",
+                options: [
+                    "Stateful בודק בכניסה בלבד, Stateless בודק הכל",
+                    "Stateful זוכר חיבורים קודמים, Stateless בודק כל חבילה בנפרד",
+                    "Stateful עובד רק בשכבה 7, Stateless בשכבה 3",
+                    "Stateful מצפין תעבורה, Stateless רק מסנן אותה"
+                ],
+                correct: 1,
+                explanation: "Stateful שומר מצב של חיבורים - בכניסה בודק, ביציאה זוכר. Stateless בודק כל חבילה בנפרד ללא זיכרון."
+            },
+            {
+                id: 14,
+                topic: "DMZ",
+                scenario: "ארגון רוצה להנגיש שרת אינטרנט לגולשים מבחוץ מבלי לחשוף את הרשת הפנימית.",
+                question: "מהו הפתרון הארכיטקטוני המתאים?",
+                options: [
+                    "להציב את השרת ברשת הפנימית עם VPN",
+                    "להציב את השרת באזור DMZ בין שתי חומות אש",
+                    "לבטל את חומת האש לחלוטין עבור השרת",
+                    "להשתמש ב-IDS בלבד ללא חומת אש כלל"
+                ],
+                correct: 1,
+                explanation: "DMZ = אזור מבודד בין האינטרנט לרשת הפנימית. כמו 'סלון לאורחים' - שלא יסתובבו בכל הבית."
+            },
+            {
+                id: 15,
+                topic: "IPS vs IDS",
+                question: "מה ההבדל העיקרי בין IPS ל-IDS?",
+                options: [
+                    "IPS מזהה ומתריע בלבד, IDS גם חוסם תקיפות",
+                    "IPS גם חוסם תקיפות אוטומטית, IDS רק מתריע",
+                    "IPS עובד ברשת מקומית בלבד, IDS גם באינטרנט",
+                    "IPS מבוסס חתימות בלבד, IDS מבוסס התנהגות"
+                ],
+                correct: 1,
+                explanation: "IDS (Detection) = מזהה ומתריע. IPS (Prevention) = מזהה, מתריע וגם חוסם את התקיפה אוטומטית."
+            },
+            {
+                id: 16,
+                topic: "פריצת Target",
+                scenario: "בפריצת Target 2013, מערכת FireEye זיהתה את הנוזקה ושלחה התראות, אך צוות האבטחה לא הגיב.",
+                question: "מהו הלקח המרכזי מהאירוע?",
+                options: [
+                    "FireEye אינה מערכת אמינה ויש להחליפה",
+                    "טכנולוגיה לבדה לא מספיקה ללא תפעול איכותי",
+                    "מתקפות מסוג זה אינן ניתנות למניעה כלל",
+                    "הארגון היה צריך להשתמש ב-IDS במקום IPS"
+                ],
+                correct: 1,
+                explanation: "הלקח: המערכת התריעה אך הצוות לא פעל. איכות התפעול והמענה המבצעי חשובים יותר מקיום הכלים."
+            },
+            {
+                id: 17,
+                topic: "פריצת Target",
+                question: "כיצד הצליחו התוקפים לחדור לרשת Target בתחילת המתקפה?",
+                options: [
+                    "באמצעות מתקפת DDoS על שרתי החברה",
+                    "דרך ספק צד שלישי עם גישה לרשת הארגון",
+                    "באמצעות פריצה פיזית לחדר השרתים הראשי",
+                    "דרך פגיעות בפרוטוקול ההצפנה של האתר"
+                ],
+                correct: 1,
+                explanation: "התוקפים חדרו דרך ספק מיזוג אוויר (צד שלישי) שהייתה לו גישה לרשת Target - כשל בניהול שרשרת אספקה."
+            },
+            {
+                id: 18,
+                topic: "שירותי ענן",
+                question: "מהו ההבדל בין IaaS, PaaS ו-SaaS מבחינת אחריות הלקוח?",
+                options: [
+                    "IaaS=הלקוח מנהל הכל, PaaS=רק קוד, SaaS=רק שימוש",
+                    "IaaS=רק שימוש, PaaS=ניהול שרתים, SaaS=כתיבת קוד",
+                    "אין הבדל, בכולם הספק אחראי על הכל",
+                    "IaaS=רק קוד, PaaS=רק שימוש, SaaS=ניהול תשתית"
+                ],
+                correct: 0,
+                explanation: "IaaS = אתה מקבל תשתית ומנהל הכל. PaaS = סביבה מוכנה, אתה כותב קוד. SaaS = תוכנה מוכנה, אתה משתמש."
+            },
+            {
+                id: 19,
+                topic: "ענן היברידי",
+                question: "מהו היתרון המרכזי של ענן היברידי על פני ענן ציבורי בלבד?",
+                options: [
+                    "ענן היברידי זול יותר בכל המקרים מענן ציבורי",
+                    "ענן היברידי מאפשר שמירת מידע רגיש בענן פרטי",
+                    "ענן היברידי מהיר יותר בכל סוגי העיבודים",
+                    "ענן היברידי אינו דורש ניהול הרשאות כלל"
+                ],
+                correct: 1,
+                explanation: "ענן היברידי = שילוב של ענן פרטי לנתונים רגישים + ענן ציבורי לעומסי עבודה גמישים. זה היתרון המרכזי."
+            },
+            {
+                id: 20,
+                topic: "הצפנה",
+                question: "מהו החיסרון העיקרי של הצפנה סימטרית?",
+                options: [
+                    "היא איטית מדי לשימוש בנפחי מידע גדולים",
+                    "היא דורשת העברת המפתח המשותף בערוץ מאובטח",
+                    "היא לא תומכת בשום אלגוריתם מודרני",
+                    "היא מצפינה רק קבצי טקסט ולא קבצים בינאריים"
+                ],
+                correct: 1,
+                explanation: "בהצפנה סימטרית אותו מפתח משמש להצפנה ולפענוח. הבעיה: איך מעבירים את המפתח בבטחה לצד השני?"
+            },
+            {
+                id: 21,
+                topic: "עקרון קרקהופס",
+                question: "מה קובע עקרון קרקהופס לגבי מערכות הצפנה?",
+                options: [
+                    "האלגוריתם חייב להיות סודי כדי שההצפנה תעבוד",
+                    "האבטחה תלויה רק בסודיות המפתח, לא בשיטה",
+                    "יש להחליף את אלגוריתם ההצפנה כל שנה",
+                    "הצפנה סימטרית תמיד עדיפה על אסימטרית"
+                ],
+                correct: 1,
+                explanation: "עקרון קרקהופס: האבטחה חייבת להתבסס רק על סודיות המפתח. גם אם כולם יודעים את השיטה - המפתח הוא הסוד."
+            },
+            {
+                id: 22,
+                topic: "Hash",
+                question: "מהו המאפיין המרכזי של פונקציית Hash מבחינת אבטחה?",
+                options: [
+                    "ניתן לפענח את הקוד בחזרה למידע המקורי",
+                    "היא יוצרת טביעת אצבע חד-כיוונית שלא ניתנת להיפוך",
+                    "היא משמשת להצפנת קבצים גדולים במהירות",
+                    "היא דורשת מפתח ציבורי ופרטי לפעולה"
+                ],
+                correct: 1,
+                explanation: "Hash = טביעת אצבע דיגיטלית חד-כיוונית. לא ניתן לחזור ממנה למידע המקורי. משמשת לבדיקת שלמות ולסיסמאות."
+            },
+            {
+                id: 23,
+                topic: "מודל AAA",
+                scenario: "משתמש נכנס למערכת, מקבל גישה לקבצים מסוימים, וכל פעולותיו נרשמות ביומן.",
+                question: "אילו שלושת השלבים של מודל AAA מתוארים בתרחיש?",
+                options: [
+                    "Access, Audit, Alert - גישה, ביקורת והתראה",
+                    "Authentication, Authorization, Accounting - אימות, הרשאה, תיעוד",
+                    "Assess, Assign, Archive - הערכה, הקצאה וארכיון",
+                    "Analyze, Authorize, Activate - ניתוח, אישור והפעלה"
+                ],
+                correct: 1,
+                explanation: "AAA: Authentication (מי אתה?), Authorization (מה מותר לך?), Accounting (מה עשית?) - שלושת השלבים בתרחיש."
+            },
+            {
+                id: 24,
+                topic: "JML / חשבונות זומבי",
+                scenario: "עובד עזב את הארגון לפני 3 חודשים. החשבון שלו עדיין פעיל ותוקף משתמש בו.",
+                question: "מהי הבעיה ומהו הפתרון לפי מודל JML?",
+                options: [
+                    "בעיית Joiners - יש להוסיף אימות חזק יותר",
+                    "בעיית Movers - יש לעדכן את ההרשאות בהתאם",
+                    "בעיית Leavers - חשבון זומבי שלא בוטל בזמן",
+                    "בעיית Authentication - יש להפעיל MFA כברירת מחדל"
+                ],
+                correct: 2,
+                explanation: "חשבון זומבי = חשבון של עובד שעזב (Leaver) שנותר פעיל. הפתרון: De-Provisioning אוטומטי ברגע העזיבה."
+            },
+            {
+                id: 25,
+                topic: "RBAC vs ABAC",
+                question: "מתי עדיף להשתמש ב-ABAC על פני RBAC?",
+                options: [
+                    "כשרוצים ניהול פשוט עם מעט תפקידים בארגון",
+                    "כשצריך החלטות גישה דינמיות לפי הקשר משתנה",
+                    "כשהארגון קטן ואין צורך בהרשאות מורכבות",
+                    "כשרוצים לבטל לחלוטין את הצורך באימות זהות"
+                ],
+                correct: 1,
+                explanation: "ABAC מחליט לפי מאפיינים (מיקום, שעה, מכשיר). RBAC לפי תפקיד קבוע. ABAC עדיף כשצריך גמישות והקשר."
+            }
+        ];
+
+        let userAnswers = {};
+        let submitted = false;
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            const letters = ['א', 'ב', 'ג', 'ד'];
+            container.innerHTML = questions.map((q, index) => `
+                <div class="question-card" id="card-${q.id}">
+                    <div class="question-header">
+                        <span class="question-number">שאלה ${index + 1}</span>
+                        <span class="question-topic">${q.topic}</span>
+                    </div>
+                    ${q.scenario ? `<div class="scenario">${q.scenario}</div>` : ''}
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" id="option-${q.id}-${i}" onclick="selectAnswer(${q.id}, ${i})">
+                                <span class="option-letter">${letters[i]}</span>
+                                <span class="option-text">${opt}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="explanation" id="explanation-${q.id}">
+                        <div class="explanation-title">הסבר:</div>
+                        <div>${q.explanation}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectAnswer(questionId, optionIndex) {
+            if (submitted) return;
+            const wasAnswered = userAnswers[questionId] !== undefined;
+            document.querySelectorAll(`[id^="option-${questionId}-"]`).forEach(opt => opt.classList.remove('selected'));
+            document.getElementById(`option-${questionId}-${optionIndex}`).classList.add('selected');
+            userAnswers[questionId] = optionIndex;
+            if (!wasAnswered) updateProgress();
+        }
+
+        function updateProgress() {
+            const count = Object.keys(userAnswers).length;
+            document.getElementById('answered').textContent = count;
+            document.getElementById('progressFill').style.width = `${(count / questions.length) * 100}%`;
+        }
+
+        function submitExam() {
+            if (Object.keys(userAnswers).length < questions.length) {
+                alert('יש לענות על כל 25 השאלות לפני הגשה');
+                return;
+            }
+            submitted = true;
+            let score = 0;
+            questions.forEach(q => {
+                const ans = userAnswers[q.id];
+                const isCorrect = ans === q.correct;
+                if (isCorrect) score++;
+                q.options.forEach((_, i) => {
+                    const el = document.getElementById(`option-${q.id}-${i}`);
+                    if (i === q.correct) el.classList.add('correct');
+                    else if (i === ans && !isCorrect) el.classList.add('wrong');
+                });
+                document.getElementById(`explanation-${q.id}`).classList.add('show');
+            });
+            const pct = Math.round((score / questions.length) * 100);
+            document.getElementById('scoreDisplay').textContent = `${score}/25 (${pct}%)`;
+            let msg = '';
+            if (pct === 100) msg = 'מושלם! שליטה מלאה בחומר';
+            else if (pct >= 85) msg = 'מצוין! הבנה מעמיקה של החומר';
+            else if (pct >= 70) msg = 'טוב מאוד, עם מקום לשיפור קטן';
+            else if (pct >= 55) msg = 'סביר, כדאי לחזור על הנושאים שטעית';
+            else msg = 'יש לחזור על החומר ולנסות שוב';
+            document.getElementById('scoreText').textContent = msg;
+            document.getElementById('results').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetExam() {
+            userAnswers = {};
+            submitted = false;
+            document.querySelectorAll('.option').forEach(o => o.classList.remove('selected', 'correct', 'wrong'));
+            document.querySelectorAll('.explanation').forEach(e => e.classList.remove('show'));
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('submitBtn').disabled = false;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        renderQuestions();
+    </script>
+</body>
+</html>
