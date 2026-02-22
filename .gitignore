@@ -1,0 +1,29 @@
+# Personal / private
+.env
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
+
+# Build artifacts
+*.apk
+*.zip
+*.log
+nul
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Personal files not meant for GitHub
+PPTX/
+STAM/
+birthday-pptx/
+pptx-workweek/
+קבצים ומידע על claude/
+docs/plans/

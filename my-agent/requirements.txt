@@ -1,0 +1,9 @@
+anthropic>=0.83.0
+pyautogui>=0.9.54
+PyQt6>=6.7.0
+pystray>=0.19.5
+keyboard>=0.13.5
+pynput>=1.7.6
+duckduckgo-search>=6.3.0
+Pillow>=12.0.0
+python-dotenv>=1.0.0
