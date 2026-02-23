@@ -19,12 +19,26 @@ Gesture debouncing uses a 3-frame validation window to prevent accidental switch
 
 ## Setup
 
+**Step 1 — Make sure Python is installed**
+Download from [python.org](https://www.python.org/downloads/) — check "Add Python to PATH" during install.
+
+**Step 2 — Clone & install**
+
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/chriskh369/chris.git
+cd chris/air-canvas
+python -m pip install -r requirements.txt
+```
+
+> On Windows PowerShell, use `python -m pip` instead of `pip` directly.
+
+**Step 3 — Run**
+
+```bash
 python air_canvas.py
 ```
 
-The `hand_landmarker.task` model file is included in this folder.
+The `hand_landmarker.task` model file is included — no extra downloads needed.
 
 ## Controls
 
